@@ -41,6 +41,8 @@ final class AppModel {
 
     @ObservationIgnored private var tickTask: Task<Void, Never>?
     @ObservationIgnored private var started = false
+    @ObservationIgnored private let demoBackgroundGrace = DemoBackgroundGrace()
+    @ObservationIgnored private var wasBackgrounded = false
 
     init(services: Services = .shared) {
         self.services = services
@@ -67,7 +69,10 @@ final class AppModel {
             }
         }
         Task {
-            for await state in await services.delivery.states() { self.connection = state }
+            for await state in await services.delivery.states() {
+                self.connection = state
+                if state == .disconnected { self.demoBackgroundGrace.end() }
+            }
         }
         notificationAuthorization = await services.notifications.authorization()
         #if DEBUG
@@ -86,6 +91,9 @@ final class AppModel {
     }
 
     func becameActive() async {
+        demoBackgroundGrace.end()
+        let reconnect = wasBackgrounded
+        wasBackgrounded = false
         isForeground = true
         clock = Date()
         notificationAuthorization = await services.notifications.authorization()
@@ -94,12 +102,23 @@ final class AppModel {
         let current = try? await services.store.snapshot()
         session = current
         await services.liveActivities.sync(current, foreground: true)
-        if connection == .connected { await services.delivery.sendHello() }
+        if reconnect, let pairing, services.settings.demoAutoConnect {
+            // A suspended socket may still appear connected until the next I/O.
+            await services.delivery.connect(pairing)
+        }
+        else if connection == .connected { await services.delivery.sendHello() }
         else if connection == .disconnected, let pairing, services.settings.demoAutoConnect { await services.delivery.connect(pairing) }
     }
 
     func resignedActive() {
         isForeground = false
+        if settings.demoAutoConnect, connection == .connected {
+            demoBackgroundGrace.start()
+        }
+    }
+
+    func enteredBackground() {
+        wasBackgrounded = true
     }
 
     private func scheduleTick() {
@@ -328,6 +347,7 @@ final class AppModel {
     }
 
     func disconnect() async {
+        demoBackgroundGrace.end()
         settings.demoAutoConnect = false
         await services.delivery.disconnect()
     }
@@ -353,6 +373,7 @@ final class AppModel {
 
     /// Deletes saved sites, language, guidance state and connection token (after confirmation in the UI).
     func deleteAllData() async {
+        demoBackgroundGrace.end()
         await services.notifications.cancelAllNigeyo()
         await services.liveActivities.endAll()
         await services.delivery.disconnect()
