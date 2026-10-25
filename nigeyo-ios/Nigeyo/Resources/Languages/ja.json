@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "packageVersion": 5,
+  "packageVersion": 6,
   "languageId": "ja",
   "displayName": "Japanese",
   "nativeName": "日本語",
@@ -413,7 +413,7 @@
     "setup.test.tsunami": "津波の壁紙を試す",
     "setup.addConfirmed": "追加画面で「追加」を完了した",
     "setup.testConfirmed": "正しい壁紙になり、Nigeyoが開いた",
-    "setup.testScope": "ここでは壁紙変更とアプリ起動を試します。通知による自動実行は、設定後にホームの訓練から試せます。壁紙はiPhoneの設定から戻せます。名前を変えたショートカットは同アプリから直接実行してください。",
+    "setup.testScope": "ここでは壁紙変更を試します。通知による自動実行は、設定後にホームの訓練から試せます。壁紙はiPhoneの設定から戻せます。名前を変えたショートカットは同アプリから直接実行してください。",
     "setup.endLiveTest": "表示テストを終了",
     "setup.startLiveTest": "Live Activity を試す",
     "setup.liveTestBody": "iPhoneをロックして表示を確認し、戻ってテストを終了してください。",

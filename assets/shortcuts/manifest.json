@@ -5,7 +5,7 @@
     {
       "id": "earthquake",
       "title": "Nigeyo 地震",
-      "version": "1.5.2",
+      "version": "1.6.0",
       "minimumOSVersion": "27.0",
       "triggerTitle": "EARTHQUAKE_TEST",
       "automation": {
@@ -19,7 +19,7 @@
       "imageFile": "earthquake.png",
       "imageSHA256": "c916fccb7284b196d7588857681d75aa6fc074b82f4409780d2b36a0cf6817b0",
       "file": "nigeyo-earthquake.shortcut",
-      "sha256": "bab7522af5555f239bf208b6336c1dd66f27f5acd1edbf4966987ca499c979a3",
+      "sha256": "e54a81a618ce45258d802f64436feecc919f32bace6311cb352d3b9dfebe1574",
       "iCloudURL": null,
       "signed": true,
       "importQuestions": [],
@@ -27,15 +27,13 @@
         "Embedded PNG",
         "Base64 Decode",
         "Get Images from Input",
-        "Set Wallpaper (Lock Screen, preview off)",
-        "Show Alert (confirm opening Nigeyo; Cancel stops)",
-        "Open URL nigeyo://guide"
+        "Set Wallpaper (Lock Screen, preview off)"
       ]
     },
     {
       "id": "tsunami",
       "title": "Nigeyo 津波",
-      "version": "1.5.2",
+      "version": "1.6.0",
       "minimumOSVersion": "27.0",
       "triggerTitle": "TSUNAMI_TEST",
       "automation": {
@@ -49,7 +47,7 @@
       "imageFile": "tsunami.png",
       "imageSHA256": "9361fec0cf843572650f4727b3f09d4843cbed2624e4bd82a70596164dabd2fd",
       "file": "nigeyo-tsunami.shortcut",
-      "sha256": "79e5216cc850f3e575ef3fea1a881b9f5dc00e1b461ab34965a8bc3e3726a509",
+      "sha256": "f963c818c39e6e896488843ea2a74096c4859499e422f671a07fd4cd3a80421d",
       "iCloudURL": null,
       "signed": true,
       "importQuestions": [],
@@ -57,15 +55,13 @@
         "Embedded PNG",
         "Base64 Decode",
         "Get Images from Input",
-        "Set Wallpaper (Lock Screen, preview off)",
-        "Show Alert (confirm opening Nigeyo; Cancel stops)",
-        "Open URL nigeyo://guide"
+        "Set Wallpaper (Lock Screen, preview off)"
       ]
     }
   ],
   "bundle": {
     "file": "bundle.zip",
-    "sha256": "c5fe4a72e37998ee45bf118270b5357b75ba619f98dae940bba3015e8fea0caa",
+    "sha256": "8d3d48053be9ec6abe547018a83a2b517f23939c45f7162383bfe2a28ef7b652",
     "note": "Two shortcuts with embedded local images, standalone PNGs and setup guide. Notification triggers included. Enable each imported automation and verify the Nigeyo app selection on the iPhone."
   }
 }

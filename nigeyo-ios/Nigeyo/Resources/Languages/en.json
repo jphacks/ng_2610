@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "packageVersion": 5,
+  "packageVersion": 6,
   "languageId": "en",
   "displayName": "English",
   "nativeName": "English",
@@ -413,7 +413,7 @@
     "setup.test.tsunami": "Try tsunami wallpaper",
     "setup.addConfirmed": "I completed Add on the import screen",
     "setup.testConfirmed": "The correct wallpaper appeared and Nigeyo opened",
-    "setup.testScope": "This tests wallpaper changes and app opening. To try automatic execution from notifications, use Training on the home screen after setup. Restore your wallpaper in iPhone Settings. If you renamed a shortcut, run it directly in Shortcuts.",
+    "setup.testScope": "This tests wallpaper changes. To try automatic execution from notifications, use Training on the home screen after setup. Restore your wallpaper in iPhone Settings. If you renamed a shortcut, run it directly in Shortcuts.",
     "setup.endLiveTest": "End display test",
     "setup.startLiveTest": "Try Live Activity",
     "setup.liveTestBody": "Lock your iPhone to check the display, then return to end the test.",
