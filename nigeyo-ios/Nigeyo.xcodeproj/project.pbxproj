@@ -411,7 +411,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Nigeyo/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Nigeyo;
+				INFOPLIST_KEY_CFBundleDisplayName = nigeyo;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -437,7 +437,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Nigeyo/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Nigeyo;
+				INFOPLIST_KEY_CFBundleDisplayName = nigeyo;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -460,7 +460,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = NigeyoLiveActivity/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Nigeyo;
+				INFOPLIST_KEY_CFBundleDisplayName = nigeyo;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -481,7 +481,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = NigeyoLiveActivity/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Nigeyo;
+				INFOPLIST_KEY_CFBundleDisplayName = nigeyo;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

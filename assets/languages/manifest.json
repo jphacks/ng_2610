@@ -9,7 +9,7 @@
       "direction": "ltr",
       "file": "en.json",
       "bytes": 28279,
-      "sha256": "4054be41c3dbf176fa77789139cc71937fc957260519b475ecd564f6e001e158"
+      "sha256": "89863e8993e4cd079553f845157d9de0ff343d8fa43bc5b24bc124e53f0ec9f7"
     },
     {
       "languageId": "ja",
@@ -19,7 +19,7 @@
       "direction": "ltr",
       "file": "ja.json",
       "bytes": 32892,
-      "sha256": "54b34db4dbfb47032d31a59983d8635b8aa8e6958404d3d3383097d35a6df95a"
+      "sha256": "e7eac2078b67c840ac1b23115ae487d63fa7424cfc8474f644bbf55d9e8c1cc0"
     },
     {
       "languageId": "ko",
@@ -29,7 +29,7 @@
       "direction": "ltr",
       "file": "ko.json",
       "bytes": 31707,
-      "sha256": "ea355c5c45e71ccb3d4bcb19c3d76ad09a4a5e2443be10a0d06e093bb2e75c28"
+      "sha256": "b21693bf6508b630cdd03ee7a71081a9cf18d7c5ad3c29f440527d1c3d3bb822"
     }
   ]
 }

@@ -1,8 +1,8 @@
 {
   "source": "https://api.p2pquake.net/v2/history?codes=551&limit=1",
-  "fetchedAt": "2026-10-24T23:18:14.362Z",
-  "sha256": "cd598a8bd7dfe626e1dd51303a8ef54b2b2eb036b72121d88d1fa3f811ddbd9b",
-  "sourceEventId": "6add3802e88ee598246bf41a",
-  "issuedAt": "2026-10-25T07:58:09+09:00",
+  "fetchedAt": "2026-10-25T04:41:39.264Z",
+  "sha256": "e5a71fb04c6a6bbc3f1be76e3cc9d64fb5237748b45e6a4a01352d1c54d057a0",
+  "sourceEventId": "6add76e2e88ee598246bf422",
+  "issuedAt": "2026-10-25T12:26:25+09:00",
   "note": "Real P2P地震情報 API response captured by demo:prepare."
 }
