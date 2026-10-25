@@ -9,6 +9,7 @@ final class DemoBackgroundGrace {
     private let begin: Begin
     private let finish: (UIBackgroundTaskIdentifier) -> Void
     private let maximumDuration: Duration
+    private let event: (String) -> Void
     private var identifier: UIBackgroundTaskIdentifier = .invalid
     private var timeout: Task<Void, Never>?
     private var generation = UUID()
@@ -19,10 +20,11 @@ final class DemoBackgroundGrace {
         }
     }, finish: @escaping (UIBackgroundTaskIdentifier) -> Void = {
         UIApplication.shared.endBackgroundTask($0)
-    }, maximumDuration: Duration = .seconds(25)) {
+    }, maximumDuration: Duration = .seconds(25), event: @escaping (String) -> Void = { _ in }) {
         self.begin = begin
         self.finish = finish
         self.maximumDuration = maximumDuration
+        self.event = event
     }
 
     func start() {
@@ -32,18 +34,19 @@ final class DemoBackgroundGrace {
         self.generation = generation
         identifier = begin { [weak self] in
             guard let self, self.generation == generation else { return }
-            self.end()
+            self.end(reason: "system-expired")
         }
-        guard identifier != .invalid else { return }
+        guard identifier != .invalid else { event("demo grace denied"); return }
+        event("demo grace started")
         let duration = maximumDuration
         timeout = Task { [weak self] in
             try? await Task.sleep(for: duration)
             guard !Task.isCancelled else { return }
-            self?.end()
+            self?.end(reason: "duration-cap")
         }
     }
 
-    func end() {
+    func end(reason: String = "explicit") {
         timeout?.cancel()
         timeout = nil
         guard identifier != .invalid else { return }
@@ -51,5 +54,6 @@ final class DemoBackgroundGrace {
         identifier = .invalid
         generation = UUID()
         finish(task)
+        event("demo grace ended: \(reason)")
     }
 }

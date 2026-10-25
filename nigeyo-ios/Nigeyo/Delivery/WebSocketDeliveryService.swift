@@ -109,6 +109,8 @@ actor WebSocketDeliveryService: DeliveryService {
         do {
             try await send(helloMessage(), on: task)
         } catch {
+            let failure = error as NSError
+            await log("socket hello failed: \(failure.domain) / \(failure.code)")
             return false
         }
         set(.connected)
@@ -126,6 +128,8 @@ actor WebSocketDeliveryService: DeliveryService {
             do {
                 message = try await task.receive()
             } catch {
+                let failure = error as NSError
+                await log("socket receive failed: \(failure.domain) / \(failure.code)")
                 return true
             }
             let data: Data

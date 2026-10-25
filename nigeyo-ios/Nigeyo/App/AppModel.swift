@@ -41,11 +41,15 @@ final class AppModel {
 
     @ObservationIgnored private var tickTask: Task<Void, Never>?
     @ObservationIgnored private var started = false
-    @ObservationIgnored private let demoBackgroundGrace = DemoBackgroundGrace()
+    @ObservationIgnored private let demoBackgroundGrace: DemoBackgroundGrace
     @ObservationIgnored private var wasBackgrounded = false
+    @ObservationIgnored private let activation = ForegroundActivation()
 
     init(services: Services = .shared) {
         self.services = services
+        demoBackgroundGrace = DemoBackgroundGrace(event: { message in
+            Task { await services.diagnostics.record(message) }
+        })
         onboardingCompleted = services.settings.onboardingCompleted
         pairing = PairingStore.load()
     }
@@ -71,7 +75,6 @@ final class AppModel {
         Task {
             for await state in await services.delivery.states() {
                 self.connection = state
-                if state == .disconnected { self.demoBackgroundGrace.end() }
             }
         }
         notificationAuthorization = await services.notifications.authorization()
@@ -91,7 +94,8 @@ final class AppModel {
     }
 
     func becameActive() async {
-        demoBackgroundGrace.end()
+        let revision = activation.begin()
+        demoBackgroundGrace.end(reason: "foreground")
         let reconnect = wasBackgrounded
         wasBackgrounded = false
         isForeground = true
@@ -101,7 +105,10 @@ final class AppModel {
         await applyDueLocalHazard()
         let current = try? await services.store.snapshot()
         session = current
-        await services.liveActivities.sync(current, foreground: true)
+        await services.liveActivities.sync(current, foreground: isForeground)
+        // Authorization/store/Live Activity work can finish after the next lock.
+        // Never let that older activation tear down the now-background socket.
+        guard activation.isCurrent(revision) else { return }
         if reconnect, let pairing, services.settings.demoAutoConnect {
             // A suspended socket may still appear connected until the next I/O.
             await services.delivery.connect(pairing)
@@ -111,14 +118,24 @@ final class AppModel {
     }
 
     func resignedActive() {
+        activation.invalidate()
         isForeground = false
-        if settings.demoAutoConnect, connection == .connected {
+        recordLifecycle("inactive")
+        if settings.demoAutoConnect, connection != .disconnected {
             demoBackgroundGrace.start()
         }
     }
 
     func enteredBackground() {
         wasBackgrounded = true
+        recordLifecycle("background")
+    }
+
+    private func recordLifecycle(_ phase: String) {
+        let remaining = UIApplication.shared.backgroundTimeRemaining
+        let budget = remaining.isFinite && remaining < 3600 ? "\(Int(max(0, remaining)))s" : "unreported"
+        let message = "scene \(phase); socket=\(connection.rawValue); background remaining=\(budget)"
+        Task { await services.diagnostics.record(message) }
     }
 
     private func scheduleTick() {
