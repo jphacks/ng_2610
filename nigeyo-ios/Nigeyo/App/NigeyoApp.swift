@@ -33,6 +33,7 @@ struct NigeyoApp: App {
                 .onOpenURL { url in Task { await model.handle(url: url) } }
                 .onChange(of: scenePhase, initial: true) { _, phase in
                     if phase == .active { Task { await model.becameActive() } } else { model.resignedActive() }
+                    if phase == .background { model.enteredBackground() }
                 }
         }
     }
