@@ -1,0 +1,9 @@
+.DS_Store
+node_modules/
+artifacts/
+state/
+nigeyo-ios/Local.xcconfig
+nigeyo-ios/build/
+xcuserdata/
+*.xcuserstate
+DerivedData/

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nigeyo デモ操作</title>
+<link rel="stylesheet" href="/demo/style.css">
+</head>
+<body>
+<header>
+  <h1>nigeyo <span>/ デモ操作</span></h1>
+  <p class="muted">訓練として通知します。実際の災害の自動配信ではありません。</p>
+</header>
+
+<main>
+  <section aria-labelledby="h-connect" class="card">
+    <h2 id="h-connect">1. 接続準備</h2>
+    <form id="origin-form" class="row">
+      <label for="origin">公開 HTTPS origin（Cloudflare Tunnel）</label>
+      <input id="origin" name="origin" type="url" placeholder="https://xxxx.trycloudflare.com" required>
+      <button type="submit" class="secondary">登録</button>
+    </form>
+    <div class="row">
+      <label for="pairing">ペアリング文字列（iPhoneの「発表用デモ接続」へ）</label>
+      <input id="pairing" readonly placeholder="origin を登録すると表示されます">
+      <button id="copy-pairing" type="button" class="secondary">コピー</button>
+      <button id="rotate" type="button" class="secondary">トークン更新・切断</button>
+    </div>
+    <dl class="grid" id="device"></dl>
+    <ul id="readiness" class="reasons" aria-live="polite"></ul>
+  </section>
+
+  <section aria-labelledby="h-run" class="card">
+    <h2 id="h-run">2. デモ開始</h2>
+    <div class="row">
+      <button type="button" class="primary start" data-scenario="earthquake" disabled>地震デモ開始</button>
+      <button type="button" class="primary start" data-scenario="tsunami" disabled>津波デモ開始</button>
+      <button type="button" class="secondary start" data-scenario="earthquake-tsunami" disabled>地震 → 津波デモ開始</button>
+    </div>
+    <p id="run-state" class="state" role="status" aria-live="polite">準備中</p>
+    <div id="tsunami-box" hidden>
+      <button id="send-tsunami" type="button" class="accent">津波訓練通知を送る</button>
+      <p class="muted">揺れの確認とは連動しません。実APIの津波警報ではありません（取得元は運営用詳細に記録）。</p>
+    </div>
+    <button id="reset" type="button" class="secondary">表示をリセット</button>
+  </section>
+
+  <details class="card" id="ops">
+    <summary><h2>3. 運営用詳細</h2></summary>
+    <dl class="grid" id="ops-grid"></dl>
+    <h3>津波（P2P 552）</h3>
+    <form id="tsunami-form" class="row">
+      <label for="target-area">対象の津波予報区名</label>
+      <input id="target-area" placeholder="例: 宮城県">
+      <label><input type="checkbox" id="auto-adopt"> 新規候補を訓練として自動採用</label>
+      <button type="submit" class="secondary">本番API観測を開始</button>
+      <button type="button" id="observe-stop" class="secondary">停止</button>
+    </form>
+    <pre id="observer"></pre>
+    <h3>試験メモ</h3>
+    <textarea id="notes" rows="4" placeholder="受入試験の目視結果など（このブラウザにのみ保存）"></textarea>
+    <h3>API応答原文</h3>
+    <pre id="raw"></pre>
+    <h3>直近の実行</h3>
+    <pre id="history"></pre>
+  </details>
+</main>
+<script src="/demo/app.js" type="module"></script>
+</body>
+</html>

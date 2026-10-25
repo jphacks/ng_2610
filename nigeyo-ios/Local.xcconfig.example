@@ -1,0 +1,5 @@
+// Copy to nigeyo-ios/Local.xcconfig (git-ignored) and fill in.
+// The presentation build uses BUNDLE_ID_SUFFIX = (empty) → jp.nigeyo.hackathon.
+// Fix the bundle ID before configuring the shortcuts; changing it means redoing notification automations.
+DEVELOPMENT_TEAM = ABCDE12345
+BUNDLE_ID_SUFFIX = .yourname

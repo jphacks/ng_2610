@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "stepsVersion": 1,
+  "shortcuts": [
+    {
+      "id": "nigeyo",
+      "title": "Nigeyo",
+      "version": "1.1.0",
+      "minimumOSVersion": "27.0",
+      "triggerTitle": "EARTHQUAKE_TEST / TSUNAMI_TEST",
+      "wallpaperPath": "/public/assets/wallpaper.png",
+      "file": "nigeyo-nigeyo.shortcut",
+      "sha256": "3b0ac589f6f6bf47bb65248ee8af470c161f23f8bf68ade6fa627be3f7f84f4b",
+      "iCloudURL": null,
+      "signed": true,
+      "importQuestions": [
+        "wallpaper URL (public HTTPS origin + wallpaperPath)"
+      ],
+      "actions": [
+        "Get Contents of URL",
+        "Set Wallpaper (Lock Screen, preview off)",
+        "Open URL nigeyo://guide"
+      ]
+    }
+  ],
+  "bundle": {
+    "file": "bundle.zip",
+    "sha256": "b80737cea36260aaf42af2219823b6a09a1d61e8863407c2d1f3b6e94f798e90",
+    "note": "Download only: adding and enabling each shortcut is done by the user on the iPhone."
+  }
+}
