@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "packageVersion": 5,
+  "packageVersion": 6,
   "languageId": "ko",
   "displayName": "Korean",
   "nativeName": "한국어",
@@ -413,7 +413,7 @@
     "setup.test.tsunami": "쓰나미 배경화면 테스트",
     "setup.addConfirmed": "추가 화면에서 추가를 완료했습니다",
     "setup.testConfirmed": "올바른 배경화면이 표시되고 nigeyo가 열렸습니다",
-    "setup.testScope": "여기서는 배경화면 변경과 앱 실행을 테스트합니다. 알림 자동 실행은 설정 후 홈의 훈련에서 테스트할 수 있습니다. 배경화면은 iPhone 설정에서 복원할 수 있습니다. 이름을 바꾼 단축어는 단축어 앱에서 직접 실행하세요.",
+    "setup.testScope": "여기서는 배경화면 변경을 테스트합니다. 알림 자동 실행은 설정 후 홈의 훈련에서 테스트할 수 있습니다. 배경화면은 iPhone 설정에서 복원할 수 있습니다. 이름을 바꾼 단축어는 단축어 앱에서 직접 실행하세요.",
     "setup.endLiveTest": "표시 테스트 종료",
     "setup.startLiveTest": "Live Activity 사용해 보기",
     "setup.liveTestBody": "iPhone을 잠가 표시를 확인한 뒤 돌아와 테스트를 종료하세요.",

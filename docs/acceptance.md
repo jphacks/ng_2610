@@ -67,3 +67,10 @@ Backend regression tests exercise two actual WebSocket clients, different concur
 - The initial `is.workflow.actions.showalert` identifier appeared as an unknown action on the iPhone. Corrected it to `is.workflow.actions.alert`, rebuilt and signed both files, and installed the updated app on the connected iPhone 16.
 - The user confirmed that the corrected version worked on the physical iPhone and approved merging. Separate results for both hazards, locked notification execution, and each OK/Cancel path were not individually reported.
 - The six shortcut regression tests passed, including inspection of the actual signed files and matching app-bundled bytes. The device Debug build succeeded.
+
+## Wallpaper-only shortcuts (2026-10-25)
+
+- v1.6.0 ends immediately after setting the lock-screen wallpaper. The confirmation alert and `nigeyo://guide` action were removed from both hazards.
+- Setup descriptions in Japanese, English and Korean now describe wallpaper changes only. Existing users must replace both installed shortcuts with the new files.
+- Both files were rebuilt and Apple-signed, then copied into the app. `node --test test/local-shortcuts.test.mjs`: all 6 tests passed, including inspection of the signed workflows ending at Set Wallpaper and matching distribution/app hashes.
+- Physical-device execution of this version remains pending. Earlier confirmation-flow results above refer to the previous version.
