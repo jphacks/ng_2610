@@ -21,12 +21,13 @@ struct ShortcutsSetupView: View {
         model.notificationAuthorization == .authorized
     }
 
+    // Steps: 0 notifications, 1 add both shortcuts, 2 turn on their automations, 3 try each wallpaper.
     var body: some View {
         let t = model.strings
         Screen(navTitle: t["onboarding.lock.nav"], onBack: showCompleted ? onDone : back) {
             if showCompleted {
                 ScreenTitle(t["setup.readyTitle"])
-                NoteCard(title: t["setup.readyStatus"], message: t["setup.readyBody"])
+                checklist
             } else {
                 HStack(spacing: 6) {
                     ForEach(0..<4) { index in
@@ -47,7 +48,6 @@ struct ShortcutsSetupView: View {
         } actions: {
             if showCompleted {
                 NButton(t["common.done"]) { finish() }
-                NButton(t["setup.review"], kind: .secondary) { showCompleted = false; step = 1 }
             } else if step > 0 {
                 NButton(t["setup.advance\(step)"], kind: canContinue ? .primary : .disabled) {
                     switch step {
@@ -60,7 +60,7 @@ struct ShortcutsSetupView: View {
                         progress.tsunamiTested = true
                     }
                     model.settings.shortcutPreparation = progress
-                    if step == 3 { finish() } else { step += 1 }
+                    if step == 3 { showCompleted = true } else { step += 1 }
                 }
             }
             if allowsSkip && !showCompleted {
@@ -143,42 +143,15 @@ struct ShortcutsSetupView: View {
         }
     }
 
+    /// The bundled shortcuts carry their notification triggers, but iOS leaves imported automations off
+    /// until the user turns them on in the Shortcuts app.
     private var automationStep: some View {
         let t = model.strings
         return VStack(alignment: .leading, spacing: 16) {
-            instruction("1", t["setup.automation1"], t["setup.automation1Body"])
+            instruction("1", t["setup.automation3"], t["setup.automation3Body"])
             instruction("2", t["setup.automation2"], t["setup.automation2Body"])
-            Card {
-                ForEach(BundledShortcut.allCases) { shortcut in
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(t["hazard.\(shortcut.rawValue)"]).nFont(14, .bold)
-                        Text(shortcut.notificationTitle).nFont(13, .semibold).textSelection(.enabled)
-                    }.padding(.vertical, 6)
-                }
-                BodyText(t["setup.contains"], size: 12)
-            }
-            instruction("3", t["setup.automation3"], t["setup.automation3Body"])
-            NButton(t["setup.openShortcuts"], kind: .secondary) { openShortcuts() }
+            NButton(t["setup.openAutomations"], kind: .secondary) { openAutomations() }
             Footnote(t["setup.oldAutomation"])
-        }
-    }
-
-    private var testStep: some View {
-        let t = model.strings
-        return VStack(alignment: .leading, spacing: 16) {
-            NoteCard(title: t["setup.wallpaperNotice"], message: t["setup.wallpaperNoticeBody"])
-            ForEach(BundledShortcut.allCases) { shortcut in
-                shortcutCard(shortcut, testing: true)
-            }
-            BodyText(t["setup.testScope"], size: 12)
-            DisclosureGroup(t["onboarding.lock.liveActivity"]) {
-                BodyText(t["onboarding.lock.liveActivityBody"], size: 12)
-                NButton(t[liveTestRunning ? "setup.endLiveTest" : "setup.startLiveTest"], kind: .secondary) {
-                    Task { await toggleLiveTest() }
-                }.padding(.top, 8)
-                if liveTestRunning { BodyText(t["setup.liveTestBody"], size: 12) }
-                if !model.liveActivitiesEnabled { BodyText(t["liveActivity.disabled"], size: 12) }
-            }.nFont(13, .bold).tint(.ink)
         }
     }
 
@@ -190,6 +163,59 @@ struct ShortcutsSetupView: View {
                 Text(title).nFont(16, .bold).foregroundStyle(Color.ink)
                 BodyText(body, size: 13)
             }
+        }
+    }
+
+    // Undocumented but verified on iOS 27: the plural form opens the Automation screen (the singular does not).
+    private func openAutomations() {
+        openURL(URL(string: "shortcuts://automations")!) { ok in if !ok { showOpenError = true } }
+    }
+
+    /// Shown after the wallpaper test: 01 notifications and 02 shortcuts are done by then; 03 can be run here.
+    private var checklist: some View {
+        let t = model.strings
+        return VStack(spacing: 12) {
+            Card {
+                checkItem(t["onboarding.lock.step1"], t["onboarding.lock.step1Body"])
+                done(t["onboarding.lock.notificationsAllowed"])
+                checkItem(t["onboarding.lock.step2"], t["onboarding.lock.step2Body"], gap: 20)
+                done(t["onboarding.lock.shortcutsAdded"])
+                checkItem("03  " + t["onboarding.lock.liveActivity"], t["onboarding.lock.liveActivityBody"], gap: 20)
+                if model.settings.lockScreenTested || liveTestRunning {
+                    done(t["onboarding.lock.lockScreenTested"])
+                }
+            }
+            Card {
+                NButton(t[liveTestRunning ? "setup.endLiveTest" : "setup.startLiveTest"], kind: .secondary) {
+                    Task { await toggleLiveTest() }
+                }
+                if liveTestRunning { BodyText(t["setup.liveTestBody"], size: 12) }
+                if !model.liveActivitiesEnabled { BodyText(t["liveActivity.disabled"], size: 12) }
+            }
+        }
+    }
+
+    private func checkItem(_ title: String, _ body: String, gap: CGFloat = 0) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title).nFont(17, .bold).foregroundStyle(Color.ink)
+            Text(body).nFont(12).foregroundStyle(Color.muted)
+        }
+        .padding(.top, 6 + gap)
+        .padding(.bottom, 6)
+    }
+
+    private func done(_ text: String) -> some View {
+        Label(text, systemImage: "checkmark.circle.fill").nFont(13, .bold).foregroundStyle(Color.green)
+    }
+
+    private var testStep: some View {
+        let t = model.strings
+        return VStack(alignment: .leading, spacing: 16) {
+            NoteCard(title: t["setup.wallpaperNotice"], message: t["setup.wallpaperNoticeBody"])
+            ForEach(BundledShortcut.allCases) { shortcut in
+                shortcutCard(shortcut, testing: true)
+            }
+            BodyText(t["setup.testScope"], size: 12)
         }
     }
 
@@ -217,12 +243,6 @@ struct ShortcutsSetupView: View {
                     catch { showOpenError = true }
                 }
             }
-        }
-    }
-
-    private func openShortcuts() {
-        if let url = URL(string: "shortcuts://") {
-            openURL(url) { accepted in if !accepted { showOpenError = true } }
         }
     }
 
