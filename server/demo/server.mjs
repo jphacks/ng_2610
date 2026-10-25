@@ -8,6 +8,7 @@ import { AssetStore } from './assets.mjs';
 import { HttpError, MAX_MESSAGE_BYTES } from './runs.mjs';
 import { TsunamiObserver } from './tsunami.mjs';
 import { DeviceHub } from './devices.mjs';
+import { RegionalMonitor } from '../monitoring/service.mjs';
 import { atomicWrite, createLogger, readJsonOrNull, ROOT, SERVER_VERSION, STATE_DIR } from './util.mjs';
 
 export const PORT = Number(process.env.NIGEYO_PORT ?? 8788);
@@ -105,12 +106,14 @@ li{padding:12px}ol{padding-left:24px}.downloads{padding:0;list-style:none}.downl
 </body></html>`;
 }
 
-export async function createDemoServer({ port = PORT, stateDir = STATE_DIR, fetchImpl, assets = new AssetStore(), log = createLogger(), fixtureDir, timers } = {}) {
+export async function createDemoServer({ port = PORT, stateDir = STATE_DIR, fetchImpl, assets = new AssetStore(), log = createLogger(), fixtureDir, timers, monitorOptions = {} } = {}) {
   await assets.load();
   const configPath = join(stateDir, 'config.json');
   const config = { origin: null, ...(await readJsonOrNull(configPath)) };
   let token = randomBytes(32).toString('base64url');
   const hub = new DeviceHub({ assets, log, fetchImpl, stateDir, fixtureDir, timers });
+  const monitor = new RegionalMonitor({ ...monitorOptions, stateDir, log });
+  await monitor.load();
   const saveConfig = () => atomicWrite(configPath, JSON.stringify(config, null, 2));
   const pairingString = () => (config.origin ? `${config.origin.replace(/^https:/, 'wss:')}/public/device?token=${token}` : null);
 
@@ -122,7 +125,7 @@ export async function createDemoServer({ port = PORT, stateDir = STATE_DIR, fetc
     if (req.method === 'GET' && path === '/api/status') {
       const status = hub.status(url.searchParams.get('deviceId'));
       const selected = hub.connections.get(status.selectedDeviceId)?.controller;
-      return sendJson(res, 200, { serverVersion: SERVER_VERSION, origin: config.origin, pairingString: pairingString(), assets: assets.status(), tsunami: { targetArea: selected?.tsunamiTargetArea ?? null, observer: selected?.observer?.status() ?? { state: 'stopped', events: [] } }, ...status });
+      return sendJson(res, 200, { serverVersion: SERVER_VERSION, origin: config.origin, pairingString: pairingString(), assets: assets.status(), monitoring: monitor.status(selected?.device?.hello?.installationId), tsunami: { targetArea: selected?.tsunamiTargetArea ?? null, observer: selected?.observer?.status() ?? { state: 'stopped', events: [] } }, ...status });
     }
     if (req.method !== 'POST') throw new HttpError(404, 'not-found');
     if (!originAllowed(req, server.address()?.port ?? port)) throw new HttpError(403, 'origin-mismatch');
@@ -229,20 +232,37 @@ export async function createDemoServer({ port = PORT, stateDir = STATE_DIR, fetc
     wss.handleUpgrade(req, socket, head, (ws) => {
       const controller = hub.attach(ws);
       controller.observer = new TsunamiObserver({ log, onCandidate: (summary, raw) => controller.sendTsunami({ summary, raw, origin: 'observer' }).catch((err) => log('tsunami-adopt-failed', { reason: err.message })) });
+      let installationId;
+      const regionalSend = (payload) => { if (ws.readyState === 1) ws.send(JSON.stringify(payload)); };
       ws.on('message', (data, isBinary) => {
         if (isBinary) return controller.send({ type: 'error', errorCode: 'invalid-payload' });
+        let message;
+        try { message = JSON.parse(data.toString('utf8')); } catch { /* existing validator replies */ }
+        if (message?.type === 'regional-ack') {
+          if (installationId && message.schemaVersion === 2 && typeof message.commandId === 'string' && message.status === 'stored') {
+            monitor.acknowledge(installationId, message.commandId).catch(() => {});
+          }
+          return;
+        }
         controller.handleDeviceText(ws, data.toString('utf8'));
+        const hello = controller.device?.hello;
+        if (message?.type === 'hello' && hello?.installationId === message.installationId?.toLowerCase()) {
+          if (installationId && installationId !== hello.installationId) monitor.detach(installationId, regionalSend);
+          installationId = hello.installationId;
+          monitor.configure(installationId, hello.regionalSubscription, regionalSend).catch(() => {});
+        }
+        if (message?.type === 'heartbeat' && installationId) monitor.flush(installationId);
       });
-      ws.on('close', () => hub.detach(ws));
+      ws.on('close', () => { monitor.detach(installationId, regionalSend); hub.detach(ws); });
       ws.on('error', () => hub.detach(ws));
     });
   });
 
   await new Promise((resolve) => server.listen(port, HOST, resolve));
   return {
-    server, hub, assets, config,
+    server, hub, assets, config, monitor,
     get token() { return token; },
-    close: () => new Promise((resolve) => { hub.close(); wss.close(); server.close(resolve); }),
+    close: () => new Promise((resolve) => { monitor.stop(); hub.close(); wss.close(); server.close(resolve); }),
   };
 }
 

@@ -53,7 +53,7 @@ enum GuideContent {
 
     static func activityState(for s: GuideSession, interactive: Bool = true) -> NigeyoActivityAttributes.ContentState {
         let t = Strings(snapshot: s.languageSnapshot)
-        let badge = s.mode == .manual ? nil : t["training.badge"]
+        let badge = (s.mode == .manual || s.mode == .live) ? nil : t["training.badge"]
         let layout: NigeyoActivityAttributes.ContentState.Layout = s.hazard == .tsunami ? .tsunami : (s.phase == .protect ? .protect : .checks)
         let compact: String
         let state: NigeyoActivityAttributes.ContentState

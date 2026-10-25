@@ -353,6 +353,7 @@ final class AppModel {
         await services.liveActivities.endAll()
         await services.delivery.disconnect()
         try? await services.store.reset()
+        try? await services.regionalAlerts.reset()
         PairingStore.delete()
         pairing = nil
         await services.diagnostics.clear()

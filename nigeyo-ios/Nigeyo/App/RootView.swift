@@ -30,7 +30,7 @@ struct ResumePromptView: View {
     var body: some View {
         let t = model.guideStrings
         Screen {
-            GuideHeader(appName: t["app.name"], badge: model.session?.mode == .manual ? nil : t["training.badge"])
+            GuideHeader(appName: t["app.name"], badge: (model.session?.mode == .manual || model.session?.mode == .live) ? nil : t["training.badge"])
             Spacer(minLength: 40)
             Card {
                 Text(t["home.resumeTitle"]).nFont(20, .bold).foregroundStyle(Color.ink)

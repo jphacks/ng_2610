@@ -13,6 +13,7 @@ final class Services: Sendable {
     let evacuation: EvacuationRepository
     let liveActivities: LiveActivityCoordinator
     let processor: CommandProcessor
+    let regionalAlerts: RegionalAlertReceiver
     let delivery: WebSocketDeliveryService
 
     private init() {
@@ -33,6 +34,8 @@ final class Services: Sendable {
         self.evacuation = EvacuationRepository()
         self.liveActivities = liveActivities
         self.processor = processor
+        let regionalAlerts = RegionalAlertReceiver(settings: settings, notifications: notifications, registry: registry, store: store)
+        self.regionalAlerts = regionalAlerts
         self.delivery = WebSocketDeliveryService(
             processor: processor,
             helloInfo: {
@@ -40,10 +43,11 @@ final class Services: Sendable {
                 return .init(installationId: settings.installationId, appVersion: Bundle.main.appVersion, language: language,
                              languagePackageVersion: await registry.package(for: language)?.packageVersion ?? 0,
                              liveActivitiesEnabled: liveActivities.areActivitiesEnabled,
-                             notificationAuthorization: await notifications.authorization())
+                             notificationAuthorization: await notifications.authorization(), regionalSubscription: settings.regionalSubscription)
             },
             deviceState: { await Services.deviceState() },
             currentSessionId: { (try? await store.snapshot()).flatMap { $0.isActive ? $0.sessionId : nil } },
+            regionalReceive: { await regionalAlerts.receive($0) },
             log: log)
     }
 

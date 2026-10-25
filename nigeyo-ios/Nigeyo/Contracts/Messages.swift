@@ -19,6 +19,7 @@ struct HelloMessage: Encodable, Sendable {
     var resourceVersion = WireConstants.resourceVersion
     var liveActivitiesEnabled: Bool
     var notificationAuthorization: String
+    var regionalSubscription: RegionalSubscription? = nil
 }
 
 struct HeartbeatMessage: Encodable, Sendable {

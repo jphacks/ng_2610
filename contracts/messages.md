@@ -31,3 +31,33 @@ Shared by `server/demo/runs.mjs` and `nigeyo-ios/Nigeyo/Contracts/Messages.swift
 - Ordering uses `hazardRevision`, a monotonic per-session counter on the server. `stateRevision` is assigned only by the device's SessionStore.
 
 Related files: [language-package.schema.json](language-package.schema.json) and [required-string-keys.json](required-string-keys.json) (generated from the packages; every language must match the keys and typed placeholders).
+
+## Registered-region monitoring (additive v2 extension)
+
+`hello` may include `regionalSubscription`. Old clients omit it and automatic monitoring stays disabled.
+
+```json
+{
+  "version": 1,
+  "enabled": true,
+  "targets": [{
+    "slot": "home.earthquake",
+    "siteId": "gsi:facility-id",
+    "earthquakeArea": { "pref": "愛知", "name": "愛知県西部" },
+    "tsunamiStatus": "configured",
+    "tsunamiAreas": ["伊勢・三河湾"]
+  }]
+}
+```
+
+The iOS client sends only confirmed destinations. `none` plus `[]` means explicitly no mapped tsunami area; an unconfigured destination prevents enabling the subscription. Targets are limited to the four saved slots. The server validates names against the shared Aichi table.
+
+Server → device `regional-alert` includes `schemaVersion: 2`, UUID `commandId`, `mode: "live"`, `hazard`, `sourceEventId`, ISO8601 `issuedAt/sentAt/expiresAt`, `status` (`active/cancelled/unknown`), nullable `grade`, boolean `notify`, `matches: [{slot, siteId, region}]`, and optional `tsunamiAreas` (region → grade/status). Multiple matching destinations are carried in one message. State-only messages use `notify: false`.
+
+Device → server ACK after durable state storage and, when needed, notification scheduling:
+
+```json
+{ "schemaVersion": 2, "type": "regional-ack", "commandId": "<UUID>", "status": "stored" }
+```
+
+The server resends unacknowledged commands with the same ID; clients persist deduplication receipts. Real monitoring is independent of `start-guide`/`hazard-update` demo commands and never uses demo fixture fallback. Live sessions have mode `live` and no drill badge. Notifications use `EARTHQUAKE_ALERT`, `TSUNAMI_ALERT`, and `TSUNAMI_WATCH`; old shortcut triggers retain their `_TEST` titles. See [registered-region-monitoring.md](../docs/registered-region-monitoring.md) for setup, UI integration, sources and limitations.

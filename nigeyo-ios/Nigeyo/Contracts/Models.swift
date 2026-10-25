@@ -20,7 +20,7 @@ struct LanguageID: RawRepresentable, Codable, Hashable, Sendable, CustomStringCo
     }
 }
 
-enum SessionMode: String, Codable, Sendable { case demo, training, manual }
+enum SessionMode: String, Codable, Sendable { case demo, training, manual, live }
 
 enum DemoSource: String, Codable, Sendable {
     case liveAPI = "live-api", lastGood = "last-good", fixture, local, manual
