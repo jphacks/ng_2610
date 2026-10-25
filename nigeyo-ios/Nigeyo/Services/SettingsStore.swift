@@ -18,7 +18,7 @@ struct SavedDestination: Codable, Equatable, Sendable {
     var site: EvacuationSite?          // nil = confirmed "no suitable site nearby"
     var meters: Double?
     var distanceKind: DistanceKind?
-    var seconds: Double? = nil              // walking time; absent in data saved before it was recorded
+    var seconds: Double? = nil              // walking time; absent in older saved data
 }
 
 /// Light settings in UserDefaults (spec §2).
@@ -38,6 +38,7 @@ final class SettingsStore: @unchecked Sendable {
         static let shortcutsAdded = "nigeyo.shortcutsAdded"
         static let shortcutsTested = "nigeyo.shortcutsTested"
         static let lockScreenTested = "nigeyo.lockScreenTested"
+        static let shortcutPreparation = "nigeyo.shortcutPreparation.v1"
         static let demoAutoConnect = "nigeyo.demoAutoConnect"
     }
 
@@ -67,10 +68,23 @@ final class SettingsStore: @unchecked Sendable {
         set { defaults.set(newValue, forKey: Key.shortcutsTested) }
     }
 
-    /// Set once the onboarding Live Activity test has been started on this device.
+    /// Set once the Live Activity test has been started on this device.
     var lockScreenTested: Bool {
         get { defaults.bool(forKey: Key.lockScreenTested) }
         set { defaults.set(newValue, forKey: Key.lockScreenTested) }
+    }
+
+    var shortcutPreparation: ShortcutPreparation {
+        get {
+            guard let data = defaults.data(forKey: Key.shortcutPreparation),
+                  let value = try? JSONDecoder().decode(ShortcutPreparation.self, from: data) else { return .init() }
+            return value
+        }
+        set {
+            defaults.set(try? JSONEncoder().encode(newValue), forKey: Key.shortcutPreparation)
+            shortcutsAdded = newValue.bothAdded
+            shortcutsTested = newValue.complete
+        }
     }
 
     /// Random per install; no device identifiers (spec §8.1).
@@ -116,7 +130,7 @@ final class SettingsStore: @unchecked Sendable {
     func destination(_ slot: DestinationSlot) -> SavedDestination? { destinations[slot.key] }
 
     func eraseAll() {
-        for key in [Key.language, Key.onboarding, Key.installation, Key.destinations, Key.shortcutsAdded, Key.shortcutsTested, Key.lockScreenTested, Key.demoAutoConnect, "nigeyo.notificationRegions", "nigeyo.regionalMonitoringEnabled"] {
+        for key in [Key.language, Key.onboarding, Key.installation, Key.destinations, Key.shortcutsAdded, Key.shortcutsTested, Key.shortcutPreparation, Key.lockScreenTested, Key.demoAutoConnect, "nigeyo.notificationRegions", "nigeyo.regionalMonitoringEnabled"] {
             defaults.removeObject(forKey: key)
         }
     }

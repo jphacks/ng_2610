@@ -301,6 +301,8 @@
 				"$(SRCROOT)/Nigeyo/Resources/Languages/ja.json",
 				"$(SRCROOT)/Nigeyo/Resources/Languages/ko.json",
 				"$(SRCROOT)/Nigeyo/Resources/required-string-keys.json",
+				"$(SRCROOT)/Nigeyo/Resources/Shortcuts/nigeyo-earthquake.shortcut",
+				"$(SRCROOT)/Nigeyo/Resources/Shortcuts/nigeyo-tsunami.shortcut",
 			);
 			name = "Verify bundled language packages";
 			outputFileListPaths = (
@@ -309,7 +311,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# A missing bundled language package is a build failure (spec 12.3). Run: npm run languages:prepare\nfor f in \"${SCRIPT_INPUT_FILE_0}\" \"${SCRIPT_INPUT_FILE_1}\" \"${SCRIPT_INPUT_FILE_2}\" \"${SCRIPT_INPUT_FILE_3}\"; do\n  if [ ! -s \"$f\" ]; then echo \"error: missing $f (run npm run languages:prepare)\"; exit 1; fi\ndone\n";
+			shellScript = "# Bundled languages and signed shortcuts are required. Run: npm run languages:prepare and npm run shortcuts:prepare\nfor f in \"${SCRIPT_INPUT_FILE_0}\" \"${SCRIPT_INPUT_FILE_1}\" \"${SCRIPT_INPUT_FILE_2}\" \"${SCRIPT_INPUT_FILE_3}\" \"${SCRIPT_INPUT_FILE_4}\" \"${SCRIPT_INPUT_FILE_5}\"; do\n  if [ ! -s \"$f\" ]; then echo \"error: missing $f (run npm run languages:prepare and npm run shortcuts:prepare)\"; exit 1; fi\ndone\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

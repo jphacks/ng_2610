@@ -13,6 +13,7 @@
     "assets:wallpapers": "node scripts/make-wallpapers.mjs",
     "evacuation:import": "node scripts/import-evacuation-sites.mjs",
     "shortcuts:build": "node scripts/build-shortcuts.mjs",
+    "shortcuts:prepare": "node scripts/shortcuts-prepare.mjs",
     "test": "node --test test/*.test.mjs"
   },
   "dependencies": {

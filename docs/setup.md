@@ -43,7 +43,7 @@ npm test                  # server tests (node:test)
 1. Run the `Nigeyo` scheme from Xcode on the iPhone and keep the debugger attached for the main demo.
 2. Complete onboarding: language → home/school → four slots → lock-screen setup. Allow notifications.
 3. Go to Settings → **発表用デモ接続**, paste the pairing string and press **接続する**. The PC shows the device, language and heartbeat.
-4. Add **Nigeyo 地震** and **Nigeyo 津波** (each includes its image), each includes a native notification-title-filtered automation. Enable both imported automations and verify the Nigeyo app selection; see [shortcuts.md](shortcuts.md). Disable the old catch-all automation.
+4. In onboarding or Settings → Lock screen, follow the four steps: allow notifications → add both shortcuts → enable automation → test each wallpaper. The signed **Nigeyo 地震** and **Nigeyo 津波** files and their images are bundled in the app: adding them needs no Mac server, pairing, or public URL. Use the iOS file handoff to Shortcuts (or save to Files and open the file). Enable both imported automations and reselect the installed Nigeyo; see [shortcuts.md](shortcuts.md). Disable the old catch-all automation. PC demo notifications still use the connection above.
 5. With multiple iPhones connected, select the intended phone on the PC. Each has its own run, ACK and retry state; a different browser window can select another phone. Lock the iPhone. The PC must show *ready* (heartbeat within 15 s, notifications `authorized`, matching resource and language versions).
 
 ## 4. Demo

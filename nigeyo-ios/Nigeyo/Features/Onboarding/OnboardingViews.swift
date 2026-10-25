@@ -336,95 +336,11 @@ struct DestinationsStepView: View {
 // MARK: 04 Lock screen setup (also Settings → Lock screen)
 
 struct LockScreenSetupView: View {
-    @Environment(AppModel.self) private var model
     var counter: String?
     var onBack: () -> Void
     var onFinish: () -> Void
-    @State private var showShortcuts = false
-    @State private var testRunning = false
 
     var body: some View {
-        let t = model.strings
-        Screen(navTitle: t["onboarding.lock.nav"], counter: counter, onBack: onBack) {
-            Eyebrow(t["onboarding.lock.eyebrow"])
-            ScreenTitle(t["onboarding.lock.title"])
-            BodyText(t["onboarding.lock.body"])
-            Card {
-                step(t["onboarding.lock.step1"], t["onboarding.lock.step1Body"])
-                notificationStatus
-                // Step 02 is the entry point to the shortcut setup screen.
-                Button { showShortcuts = true } label: {
-                    HStack {
-                        step(t["onboarding.lock.step2"], t["onboarding.lock.step2Body"])
-                        Spacer()
-                        Image(systemName: "chevron.right").foregroundStyle(Color.muted)
-                    }
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                // Self-reported on the setup screen; the app cannot detect installed shortcuts.
-                if model.settings.shortcutsAdded {
-                    Label(t["onboarding.lock.shortcutsAdded"], systemImage: "checkmark.circle.fill").nFont(13, .bold).foregroundStyle(Color.green)
-                }
-                step(t["onboarding.lock.step3"], t["onboarding.lock.step3Body"])
-                if model.settings.lockScreenTested {
-                    Label(t["onboarding.lock.lockScreenTested"], systemImage: "checkmark.circle.fill").nFont(13, .bold).foregroundStyle(Color.green)
-                }
-            }
-            RowCard(title: t["onboarding.lock.liveActivity"], subtitle: model.liveActivitiesEnabled ? t["onboarding.lock.liveActivityBody"] : t["liveActivity.disabled"],
-                    accessory: .chevron, background: .greenSoft) {
-                Task { await toggleTest() }
-            }
-            if testRunning { BodyText(t["liveActivity.testTitle"] + " ✓", size: 12) }
-            BodyText(t["onboarding.lock.note"], size: 12)
-        } actions: {
-            NButton(t["onboarding.lock.finish"]) { finish() }
-            Button(t["onboarding.lock.later"]) { finish() }.nFont(13).foregroundStyle(Color.muted).frame(minHeight: 44)
-        }
-        .navigationDestination(isPresented: $showShortcuts) { ShortcutsSetupView { showShortcuts = false } }
-        .onDisappear { Task { await model.services.liveActivities.endTest() } }
-    }
-
-    private func finish() {
-        Task { await model.services.liveActivities.endTest() }
-        onFinish()
-    }
-
-    private func step(_ title: String, _ body: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title).nFont(17, .bold).foregroundStyle(Color.ink)
-            Text(body).nFont(12).foregroundStyle(Color.muted)
-        }
-        .padding(.vertical, 6)
-    }
-
-    @ViewBuilder private var notificationStatus: some View {
-        let t = model.strings
-        switch model.notificationAuthorization {
-        case .authorized:
-            Label(t["onboarding.lock.notificationsAllowed"], systemImage: "checkmark.circle.fill").nFont(13, .bold).foregroundStyle(Color.green)
-        case .notDetermined:
-            NButton(t["onboarding.lock.step1"].trimmingCharacters(in: CharacterSet.decimalDigits.union(.whitespaces)), kind: .accent) {
-                Task { await model.requestNotifications() }
-            }
-        default:
-            Text(t["onboarding.lock.notificationsDenied"]).nFont(12, .bold).foregroundStyle(Color.danger)
-            Button(t["home.settings"]) {
-                if let url = URL(string: UIApplication.openNotificationSettingsURLString) { UIApplication.shared.open(url) }
-            }
-            .nFont(13, .bold).frame(minHeight: 44)
-        }
-    }
-
-    private func toggleTest() async {
-        if testRunning {
-            await model.services.liveActivities.endTest()
-            testRunning = false
-            return
-        }
-        guard let snap = await model.services.registry.snapshot(for: model.settings.language) else { return }
-        let sample = GuideSession.new(mode: .training, source: .local, scenario: .earthquake, quake: nil, snapshot: snap)
-        testRunning = await model.services.liveActivities.startTest(state: GuideContent.activityState(for: sample, interactive: false))
-        if testRunning { model.settings.lockScreenTested = true }
+        ShortcutsSetupView(onDone: onFinish, onBack: onBack, allowsSkip: true)
     }
 }

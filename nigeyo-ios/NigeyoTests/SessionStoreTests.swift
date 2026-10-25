@@ -37,6 +37,11 @@ actor FakeNotifications: NotificationScheduling {
 }
 
 enum Fixtures {
+    static func bundledVersion(_ language: String = "en") -> Int {
+        let url = Bundle.main.url(forResource: language, withExtension: "json") ?? Bundle.main.url(forResource: "en", withExtension: "json")!
+        let data = try! Data(contentsOf: url)
+        return try! JSONDecoder().decode(LanguagePackage.self, from: data).packageVersion
+    }
     static let registry: LanguageRegistry = {
         let r = LanguageRegistry(bundle: Bundle(for: BundleToken.self).hostApp, cacheDirectory: FileManager.default.temporaryDirectory.appendingPathComponent("lang-\(UUID().uuidString)"))
         return r
@@ -175,7 +180,7 @@ extension Bundle {
 
     func start(runId: UUID = UUID(), language: String = "en", sentAt: Date = Date(), expiresIn: TimeInterval = 20) -> StartGuideCommand {
         StartGuideCommand(schemaVersion: 2, type: "start-guide", runId: runId, mode: .demo, source: .liveAPI, language: LanguageID(language), scenario: .earthquake,
-                          languagePackageVersion: 1, stateRevision: 1, hazard: .earthquake, sentAt: sentAt, expiresAt: sentAt.addingTimeInterval(expiresIn), quake: Fixtures.quake)
+                          languagePackageVersion: Fixtures.bundledVersion(language), stateRevision: 1, hazard: .earthquake, sentAt: sentAt, expiresAt: sentAt.addingTimeInterval(expiresIn), quake: Fixtures.quake)
     }
 
     @Test func savesThenSchedulesAndAcks() async throws {
@@ -249,7 +254,7 @@ extension Bundle {
         let runId = UUID()
         _ = await p.handleStart(start(runId: runId))
         let cmd = HazardUpdateCommand(schemaVersion: 2, type: "hazard-update", commandId: UUID(), sessionId: runId, hazardRevision: 1, hazard: .tsunami, mode: .demo,
-                                      source: .local, language: LanguageID("en"), languagePackageVersion: 1, sentAt: Date(), expiresAt: Date().addingTimeInterval(20), tsunami: nil)
+                                      source: .local, language: LanguageID("en"), languagePackageVersion: Fixtures.bundledVersion(), sentAt: Date(), expiresAt: Date().addingTimeInterval(20), tsunami: nil)
         let ack = await p.handleHazard(cmd)
         #expect(ack.status == .scheduled && ack.commandId == cmd.commandId && ack.sessionId == runId)
         #expect(try await store.snapshot()?.phase == .tsunamiEvacuate)
@@ -311,7 +316,7 @@ extension Bundle {
         await registry.load()
         let ja = try Data(contentsOf: Bundle.main.url(forResource: "ja", withExtension: "json")!)
         await #expect(throws: LanguageUpdateError.checksumMismatch) { try await registry.install(ja, expectedSHA256: String(repeating: "0", count: 64)) }
-        #expect(await registry.package(for: LanguageID("ja"))?.packageVersion == 1)
+        #expect(await registry.package(for: LanguageID("ja"))?.packageVersion == Fixtures.bundledVersion("ja"))
     }
 
     @Test func snapshotsFreezeTheSessionLanguage() async throws {

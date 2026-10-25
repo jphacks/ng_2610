@@ -52,6 +52,8 @@ for (const id of ['earthquake', 'tsunami']) {
   check(`notification trigger ${id}`, s?.automation?.included === true && s.automation.titleContains === (id === 'earthquake' ? 'EARTHQUAKE_TEST' : 'TSUNAMI_TEST') && Boolean(s.automation.appBundleIdentifier));
   const path = s?.file ? join(ROOT, 'assets/shortcuts', s.file) : null;
   check(`signed shortcut ${id}`, Boolean(s?.signed && path && existsSync(path) && sha256(readFileSync(path)) === s.sha256), s ? s.file ?? 'unsigned' : 'run npm run shortcuts:build');
+  const bundled = join(ROOT, 'nigeyo-ios/Nigeyo/Resources/Shortcuts', `nigeyo-${id}.shortcut`);
+  check(`app-bundled shortcut ${id}`, existsSync(bundled) && sha256(readFileSync(bundled)) === s?.sha256, 'run npm run shortcuts:prepare after rebuilding');
 }
 
 check('evacuation data bundled', existsSync(join(ROOT, 'nigeyo-ios/Nigeyo/Resources/evacuation-sites.json')), 'run npm run evacuation:import');

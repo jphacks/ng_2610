@@ -87,6 +87,7 @@ test('downloaded signed shortcuts and ZIP match the distributed manifest and app
     assert.equal(s.automation.appBundleIdentifier, 'jp.nigeyo.hackathon');
     assert.equal(s.imageSHA256, sha256(await readFile(join(ROOT, 'assets/wallpapers', s.imageFile))));
     assert.equal(s.sha256, sha256(await readFile(join(ROOT, 'assets/shortcuts', s.file))));
+    assert.equal(s.sha256, sha256(await readFile(join(ROOT, 'nigeyo-ios/Nigeyo/Resources/Shortcuts', s.file))), 'app and server distribute identical Apple-signed bytes');
   }
   assert.equal(manifest.bundle.sha256, sha256(await readFile(join(ROOT, 'assets/shortcuts', manifest.bundle.file))));
 });
@@ -110,8 +111,10 @@ test('actual signed distribution archives contain both native triggers and their
 });
 
 const live = JSON.stringify([{ code: 551, id: 'multi-device-test', earthquake: { time: '2026/10/24 12:44:00', maxScale: 10, hypocenter: { name: 'test', magnitude: 2.9 } }, issue: { time: '2026/10/24 12:47:28' } }]);
+const languageManifest = JSON.parse(await readFile(join(ROOT, 'assets/languages/manifest.json'), 'utf8'));
 const hello = (id, language) => ({ schemaVersion: 2, type: 'hello', installationId: id, preferredLanguage: language,
-  appVersion: '1.1.0', notificationAuthorization: 'authorized', resourceVersion: 2, languagePackageVersion: 1, liveActivitiesEnabled: true });
+  appVersion: '1.1.0', notificationAuthorization: 'authorized', resourceVersion: 2,
+  languagePackageVersion: languageManifest.languages.find((l) => l.languageId === language).packageVersion, liveActivitiesEnabled: true });
 const waitFor = async (predicate) => {
   for (let i = 0; i < 150; i++) {
     if (await predicate()) return;
