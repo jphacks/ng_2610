@@ -11,7 +11,7 @@ import { SHORTCUTS, workflow, plistValue } from './shortcut-workflows.mjs';
 
 const DIR = join(ROOT, 'assets/shortcuts');
 const TMP = join(ROOT, 'state/shortcuts-build');
-const VERSION = '1.5.1';
+const VERSION = '1.5.2';
 const STEPS_VERSION = 3;
 const APP_BUNDLE_ID = process.env.NIGEYO_APP_BUNDLE_ID ?? 'jp.nigeyo.hackathon';
 mkdirSync(DIR, { recursive: true });
