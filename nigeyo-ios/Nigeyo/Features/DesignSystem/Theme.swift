@@ -326,24 +326,31 @@ struct GuideHeader: View {
     }
 }
 
-/// Facility position preview. For confirmation only: no routing (spec §15.3).
+/// Facility position preview. Tapping opens the place in the Apple Maps app; no in-app routing (spec §15.3).
 struct MapPreview: View {
     var coordinate: CLLocationCoordinate2D
     var caption: String
     var pinLabel: String
     var height: CGFloat = 200
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            Map(initialPosition: .region(MKCoordinateRegion(center: coordinate, latitudinalMeters: 800, longitudinalMeters: 800)), interactionModes: []) {
-                Marker(pinLabel, coordinate: coordinate).tint(Color.orange)
+        Button {
+            openURL(AppleMaps.placeURL(latitude: coordinate.latitude, longitude: coordinate.longitude, name: pinLabel))
+        } label: {
+            ZStack(alignment: .bottomLeading) {
+                Map(initialPosition: .region(MKCoordinateRegion(center: coordinate, latitudinalMeters: 800, longitudinalMeters: 800)), interactionModes: []) {
+                    Marker(pinLabel, coordinate: coordinate).tint(Color.orange)
+                }
+                .background(Color.greenSoft)
+                Text(caption).nFont(10).foregroundStyle(Color.muted).padding(8)
             }
-            .background(Color.greenSoft)
-            Text(caption).nFont(10).foregroundStyle(Color.muted).padding(8)
+            .frame(height: height)
+            .clipShape(RoundedRectangle(cornerRadius: Radius.card))
         }
-        .frame(height: height)
-        .clipShape(RoundedRectangle(cornerRadius: Radius.card))
+        .buttonStyle(.plain)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(pinLabel)
+        .accessibilityAddTraits(.isButton)
     }
 }

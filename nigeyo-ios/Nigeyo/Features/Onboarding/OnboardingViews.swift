@@ -37,9 +37,13 @@ struct OnboardingFlow: View {
 struct LanguageStepView: View {
     @Environment(AppModel.self) private var model
     var onContinue: () -> Void
+    // settings.language lives in UserDefaults, which SwiftUI cannot observe; the highlight follows the
+    // tapped id immediately and otherwise the language whose strings are on screen.
+    @State private var tapped: LanguageID?
 
     var body: some View {
         let t = model.strings
+        let current = tapped ?? t.languageId
         Screen {
             Text(t["app.name"]).nFont(36, .bold).foregroundStyle(Color.ink).padding(.top, 16)
             ZStack {
@@ -52,11 +56,13 @@ struct LanguageStepView: View {
             ScreenTitle(t["onboarding.language.title"])
             BodyText(t["onboarding.language.body"])
             ForEach(model.languages) { lang in
-                let selected = lang.id == model.settings.language
+                let selected = lang.id == current
                 RowCard(title: lang.nativeName, subtitle: nil, accessory: .radio(selected), background: selected ? .orangeSoft : .white) {
+                    tapped = lang.id
                     Task { await model.setLanguage(lang.id) }
                 }
             }
+            Footnote(t["onboarding.language.more"])
         } actions: {
             NButton(t["onboarding.language.continue"], action: onContinue)
             Footnote(t["onboarding.language.footnote"])
@@ -81,10 +87,9 @@ struct PlacesStepView: View {
             ScreenTitle(t["onboarding.places.title"])
             BodyText(t["onboarding.places.body"])
             placeRow(.home, icon: "house", title: t["onboarding.places.home"])
+            if let p = places.places[.home] { MapPreview(coordinate: p.coordinate, caption: t["destination.mapCaption"], pinLabel: p.title, height: 120) }
             placeRow(.university, icon: "building.columns", title: t["onboarding.places.university"])
-            if let first = places.places[.home] ?? places.places[.university] {
-                MapPreview(coordinate: first.coordinate, caption: t["destination.mapCaption"], pinLabel: first.title, height: 120)
-            }
+            if let p = places.places[.university] { MapPreview(coordinate: p.coordinate, caption: t["destination.mapCaption"], pinLabel: p.title, height: 120) }
             BodyText(t["onboarding.places.pinHint"], size: 13)
             NoteCard(title: t["onboarding.places.privacyTitle"], message: t["onboarding.places.privacyBody"])
         } actions: {
@@ -92,7 +97,7 @@ struct PlacesStepView: View {
             Footnote(t["onboarding.places.footnote"])
         }
         .sheet(item: $searching) { context in
-            PlaceSearchSheet(title: context == .home ? t["onboarding.places.home"] : t["onboarding.places.university"], strings: t, initial: places.places[context]?.coordinate) { place in
+            PlaceSearchSheet(title: context == .home ? t["onboarding.places.home"] : t["onboarding.places.university"], strings: t) { place in
                 places.places[context] = place
                 searching = nil
             }
@@ -127,74 +132,137 @@ extension PlaceContext: Identifiable {
 struct PlaceSearchSheet: View {
     var title: String
     var strings: Strings
-    var initial: CLLocationCoordinate2D?
     var onPick: (OnboardingModel.Place) -> Void
     @State private var search = PlaceSearchModel()
-    @State private var showPin = false
+    @State private var pin: CLLocationCoordinate2D?
+    @State private var center = CLLocationCoordinate2D(latitude: 35.681, longitude: 139.767)
+    @State private var meters: Double = 30_000
+    @State private var pickedTitle: String?
     @Environment(\.dismiss) private var dismiss
 
+    /// Map first: the map fills the sheet, the search box floats on top. A search result moves the
+    /// camera and the pin there; tap anywhere to adjust before saving.
     var body: some View {
         NavigationStack {
-            List {
-                Section {
+            ZStack(alignment: .top) {
+                PinMap(center: center, meters: meters, pinTitle: pickedTitle ?? strings["a11y.mapPin"], pin: $pin)
+                    .ignoresSafeArea(edges: .bottom)
+                VStack(spacing: 8) {
                     TextField(strings["onboarding.places.searchHint"], text: $search.query)
                         .textContentType(.fullStreetAddress)
                         .autocorrectionDisabled()
-                }
-                if search.isSearching { Text(strings["onboarding.places.searching"]).foregroundStyle(Color.muted) }
-                if search.noResults { Text(strings["onboarding.places.noResults"]).foregroundStyle(Color.muted) }
-                ForEach(search.suggestions, id: \.self) { s in
-                    Button {
-                        Task {
-                            if let c = await search.resolve(s) { onPick(.init(title: s.title, coordinate: c)) }
+                        .padding(12)
+                        .background(Color.white, in: RoundedRectangle(cornerRadius: Radius.card))
+                    if search.isSearching || search.noResults || !search.suggestions.isEmpty {
+                        VStack(alignment: .leading, spacing: 0) {
+                            if search.isSearching { Text(strings["onboarding.places.searching"]).foregroundStyle(Color.muted).padding(12) }
+                            if search.noResults { Text(strings["onboarding.places.noResults"]).foregroundStyle(Color.muted).padding(12) }
+                            ForEach(search.suggestions, id: \.self) { s in
+                                Button {
+                                    Task {
+                                        if let c = await search.resolve(s) {
+                                            pickedTitle = s.title
+                                            meters = 800
+                                            center = c
+                                            pin = c
+                                            search.clear()
+                                        }
+                                    }
+                                } label: {
+                                    VStack(alignment: .leading) {
+                                        Text(s.title).foregroundStyle(Color.ink)
+                                        if !s.subtitle.isEmpty { Text(s.subtitle).font(.caption).foregroundStyle(Color.muted) }
+                                    }
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(12)
+                                }
+                                Divider()
+                            }
                         }
-                    } label: {
-                        VStack(alignment: .leading) {
-                            Text(s.title).foregroundStyle(Color.ink)
-                            if !s.subtitle.isEmpty { Text(s.subtitle).font(.caption).foregroundStyle(Color.muted) }
-                        }
+                        .background(Color.white, in: RoundedRectangle(cornerRadius: Radius.card))
                     }
                 }
-                Section {
-                    Button { showPin = true } label: { Label(strings["onboarding.places.pinTitle"], systemImage: "mappin.and.ellipse") }
+                .padding(16)
+            }
+            .safeAreaInset(edge: .bottom) {
+                NButton(strings["onboarding.places.pinUse"], kind: pin == nil ? .disabled : .primary) {
+                    if let pin { onPick(.init(title: pickedTitle ?? strings["onboarding.places.pinTitle"], coordinate: pin)) }
                 }
+                .padding(16)
+                .background(Color.paper)
             }
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button(strings["common.cancel"]) { dismiss() } } }
-            .navigationDestination(isPresented: $showPin) {
-                PinPickerView(strings: strings, initial: initial) { c in onPick(.init(title: strings["onboarding.places.pinTitle"], coordinate: c)) }
+            .task {
+                guard let fix = try? await LocationService().currentLocation() else { return }
+                let here = CLLocationCoordinate2D(latitude: fix.latitude, longitude: fix.longitude)
+                meters = 1_500
+                center = here
+                if pin == nil { pin = here }
             }
         }
     }
 }
 
-/// Fallback when search fails: tap the map to place a pin. The coordinate stays in memory.
+/// Apple Maps with a tap-to-place pin; the camera re-centres whenever `center` changes.
+struct PinMap: View {
+    var center: CLLocationCoordinate2D
+    var meters: Double
+    var pinTitle: String
+    @Binding var pin: CLLocationCoordinate2D?
+    @State private var position: MapCameraPosition = .automatic
+
+    var body: some View {
+        MapReader { proxy in
+            Map(position: $position) {
+                UserAnnotation()
+                if let pin { Marker(pinTitle, coordinate: pin).tint(Color.orange) }
+            }
+            .mapControls { MapUserLocationButton() }
+            .onTapGesture { point in pin = proxy.convert(point, from: .local) }
+        }
+        .onChange(of: [center.latitude, center.longitude, meters], initial: true) { _, _ in
+            position = .region(MKCoordinateRegion(center: center, latitudinalMeters: meters, longitudinalMeters: meters))
+        }
+    }
+}
+
+/// Places or adjusts a pin. Starts at `initial` or else the current location; tap to move the pin.
+/// The coordinate stays in memory.
 struct PinPickerView: View {
     var strings: Strings
     var initial: CLLocationCoordinate2D?
     var onUse: (CLLocationCoordinate2D) -> Void
     @State private var pin: CLLocationCoordinate2D?
-    @State private var position: MapCameraPosition = .automatic
+    @State private var center: CLLocationCoordinate2D
+    @State private var meters: Double
+
+    init(strings: Strings, initial: CLLocationCoordinate2D?, onUse: @escaping (CLLocationCoordinate2D) -> Void) {
+        self.strings = strings
+        self.initial = initial
+        self.onUse = onUse
+        _pin = State(initialValue: initial)
+        _center = State(initialValue: initial ?? CLLocationCoordinate2D(latitude: 35.681, longitude: 139.767))
+        _meters = State(initialValue: initial == nil ? 30_000 : 800)
+    }
 
     var body: some View {
         VStack(spacing: 12) {
-            MapReader { proxy in
-                Map(position: $position) {
-                    if let pin { Marker(strings["a11y.mapPin"], coordinate: pin).tint(Color.orange) }
-                }
-                .onTapGesture { point in pin = proxy.convert(point, from: .local) }
-            }
-            .clipShape(RoundedRectangle(cornerRadius: Radius.card))
+            PinMap(center: center, meters: meters, pinTitle: strings["a11y.mapPin"], pin: $pin)
+                .clipShape(RoundedRectangle(cornerRadius: Radius.card))
             NButton(strings["onboarding.places.pinUse"], kind: pin == nil ? .disabled : .primary) { if let pin { onUse(pin) } }
         }
         .padding(16)
         .background(Color.paper)
         .navigationTitle(strings["onboarding.places.pinTitle"])
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
-            let center = initial ?? CLLocationCoordinate2D(latitude: 35.681, longitude: 139.767)
-            position = .region(MKCoordinateRegion(center: center, latitudinalMeters: initial == nil ? 30_000 : 2_000, longitudinalMeters: initial == nil ? 30_000 : 2_000))
+        .task {
+            guard initial == nil, let fix = try? await LocationService().currentLocation() else { return }
+            let here = CLLocationCoordinate2D(latitude: fix.latitude, longitude: fix.longitude)
+            meters = 1_500
+            center = here
+            if pin == nil { pin = here }
         }
     }
 }
@@ -242,6 +310,7 @@ struct DestinationsStepView: View {
                 let c = candidates[selected]
                 Text(c.site.name).nFont(17, .bold).foregroundStyle(Color.ink)
                 Text(distanceLine(c)).nFont(12).foregroundStyle(Color.muted)
+                MapPreview(coordinate: c.site.coordinate, caption: t["destination.mapCaption"], pinLabel: c.site.name, height: 120)
                 if walkingUnavailable { Text(t["onboarding.destinations.walkUnavailable"]).nFont(11).foregroundStyle(Color.danger) }
                 if candidates.count > 1 {
                     Menu {
@@ -258,7 +327,7 @@ struct DestinationsStepView: View {
 
     private func distanceLine(_ c: OnboardingModel.Candidate) -> String {
         let t = model.strings
-        if let w = c.walking { return t("distance.walking", ["distance": t.distance(w)]) }
+        if let w = c.walking { return t.walking(meters: w, seconds: c.walkingSeconds) }
         return "\(t("distance.straight", ["distance": t.distance(c.straight)])) · \(t["onboarding.destinations.walkFailed"])"
     }
 }
@@ -282,10 +351,25 @@ struct LockScreenSetupView: View {
             Card {
                 step(t["onboarding.lock.step1"], t["onboarding.lock.step1Body"])
                 notificationStatus
-                step(t["onboarding.lock.step2"], t["onboarding.lock.step2Body"])
+                // Step 02 is the entry point to the shortcut setup screen.
+                Button { showShortcuts = true } label: {
+                    HStack {
+                        step(t["onboarding.lock.step2"], t["onboarding.lock.step2Body"])
+                        Spacer()
+                        Image(systemName: "chevron.right").foregroundStyle(Color.muted)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                // Self-reported on the setup screen; the app cannot detect installed shortcuts.
+                if model.settings.shortcutsAdded {
+                    Label(t["onboarding.lock.shortcutsAdded"], systemImage: "checkmark.circle.fill").nFont(13, .bold).foregroundStyle(Color.green)
+                }
                 step(t["onboarding.lock.step3"], t["onboarding.lock.step3Body"])
+                if model.settings.lockScreenTested {
+                    Label(t["onboarding.lock.lockScreenTested"], systemImage: "checkmark.circle.fill").nFont(13, .bold).foregroundStyle(Color.green)
+                }
             }
-            RowCard(title: t["onboarding.lock.shortcuts"], subtitle: nil, accessory: .none) { showShortcuts = true }
             RowCard(title: t["onboarding.lock.liveActivity"], subtitle: model.liveActivitiesEnabled ? t["onboarding.lock.liveActivityBody"] : t["liveActivity.disabled"],
                     accessory: .chevron, background: .greenSoft) {
                 Task { await toggleTest() }
@@ -340,5 +424,6 @@ struct LockScreenSetupView: View {
         guard let snap = await model.services.registry.snapshot(for: model.settings.language) else { return }
         let sample = GuideSession.new(mode: .training, source: .local, scenario: .earthquake, quake: nil, snapshot: snap)
         testRunning = await model.services.liveActivities.startTest(state: GuideContent.activityState(for: sample, interactive: false))
+        if testRunning { model.settings.lockScreenTested = true }
     }
 }

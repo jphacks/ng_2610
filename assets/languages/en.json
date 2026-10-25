@@ -28,6 +28,7 @@
     "onboarding.language.body": "Visual disaster guidance, in your language.",
     "onboarding.language.continue": "Continue →",
     "onboarding.language.footnote": "You can change your language anytime.",
+    "onboarding.language.more": "More languages coming soon…",
 
     "onboarding.places.nav": "Set up",
     "onboarding.places.eyebrow": "YOUR EVERYDAY PLACES",
@@ -68,8 +69,8 @@
     "onboarding.lock.body": "Set up two shortcuts: earthquake and tsunami.",
     "onboarding.lock.step1": "01  Allow notifications",
     "onboarding.lock.step1Body": "Approve on the iPhone prompt.",
-    "onboarding.lock.step2": "02  Add the two shortcuts",
-    "onboarding.lock.step2Body": "Add earthquake first, then tsunami.",
+    "onboarding.lock.step2": "02  Add the earthquake + tsunami shortcut",
+    "onboarding.lock.step2Body": "Tap to open the setup screen.",
     "onboarding.lock.step3": "03  Test while locked",
     "onboarding.lock.step3Body": "Check both manual and automatic runs.",
     "onboarding.lock.shortcuts": "Set up earthquake + tsunami",
@@ -79,6 +80,8 @@
     "onboarding.lock.finish": "Finish setup",
     "onboarding.lock.later": "Set up later",
     "onboarding.lock.notificationsAllowed": "Notifications are allowed",
+    "onboarding.lock.shortcutsAdded": "Shortcut added",
+    "onboarding.lock.lockScreenTested": "Lock-screen display checked",
     "onboarding.lock.notificationsDenied": "Notifications are off. Turn them on in Settings.",
     "onboarding.lock.testNotification": "Test a notification",
 
@@ -203,6 +206,7 @@
 
     "distance.straight": "Straight line {distance}",
     "distance.walking": "Walk {distance}",
+    "distance.walkingTime": "Walk {distance} · about {minutes} min",
     "distance.straightLabel": "Straight-line distance from you",
     "distance.savedLabel": "Distance when saved",
 
@@ -210,9 +214,9 @@
     "destination.mapCaption": "Approximate location",
     "destination.note": "Being close doesn't guarantee safety or access.\nFollow road and building conditions and local guidance.",
     "destination.go": "Go to this evacuation site",
-    "destination.openMap": "View in Google Maps ↗",
+    "destination.openMap": "View in Apple Maps ↗",
     "destination.copyAddress": "Copy address and coordinates",
-    "destination.openFailed": "Couldn't open Google Maps. You can copy the address and coordinates.",
+    "destination.openFailed": "Couldn't open Apple Maps. You can copy the address and coordinates.",
 
     "onTheWay.nav": "Evacuating",
     "onTheWay.badge": "Destination chosen",
@@ -221,10 +225,10 @@
     "onTheWay.eyebrowTsunami": "KEEP MOVING TO HIGHER GROUND",
     "onTheWay.title": "Watch your surroundings.\nHead to the site.",
     "onTheWay.titleTsunami": "Move to\nhigher ground.",
-    "onTheWay.mapsTitle": "Route guidance in Google Maps",
+    "onTheWay.mapsTitle": "Route guidance in Apple Maps",
     "onTheWay.mapsBody": "Check your location and the roads as you go.",
     "onTheWay.mapsBodyTsunami": "Follow your surroundings and local evacuation guidance first.",
-    "onTheWay.openMaps": "Open route in Google Maps ↗",
+    "onTheWay.openMaps": "Open route in Apple Maps ↗",
 
     "locationError.nav": "Other evacuation sites",
     "locationError.eyebrow": "LET'S TRY ANOTHER WAY",
@@ -312,7 +316,7 @@
     "privacy.notSavedBody": "The home or school address you typed, its coordinates, search history, and your location during an emergency.",
     "privacy.mapsTitle": "Maps and location",
     "privacy.mapsBody": "Location is used only while the app is open. MapKit search and routing send locations to Apple.",
-    "privacy.googleNote": "Opening Google Maps hands route guidance to an external service.",
+    "privacy.googleNote": "Opening Apple Maps hands route guidance to an external service.",
 
     "delete.nav": "Delete data",
     "delete.badge": "Check before deleting",

@@ -28,6 +28,7 @@
     "onboarding.language.body": "あなたの言語で、見てわかる防災案内。",
     "onboarding.language.continue": "続ける →",
     "onboarding.language.footnote": "言語はいつでも変更できます。",
+    "onboarding.language.more": "他の言語も順次追加予定です…",
 
     "onboarding.places.nav": "初期設定",
     "onboarding.places.eyebrow": "YOUR EVERYDAY PLACES",
@@ -68,8 +69,8 @@
     "onboarding.lock.body": "地震・津波の2つのショートカットを設定します。",
     "onboarding.lock.step1": "01  通知を許可する",
     "onboarding.lock.step1Body": "iPhoneの確認画面で許可します。",
-    "onboarding.lock.step2": "02  2つのショートカットを追加",
-    "onboarding.lock.step2Body": "地震 → 津波の順に追加・設定します。",
+    "onboarding.lock.step2": "02  地震・津波対応のショートカット追加",
+    "onboarding.lock.step2Body": "タップして設定画面を開きます。",
     "onboarding.lock.step3": "03  ロック中の動作をテスト",
     "onboarding.lock.step3Body": "手動実行・自動実行をそれぞれ確認。",
     "onboarding.lock.shortcuts": "地震・津波をまとめて設定",
@@ -79,6 +80,8 @@
     "onboarding.lock.finish": "準備を完了する",
     "onboarding.lock.later": "あとで設定する",
     "onboarding.lock.notificationsAllowed": "通知は許可されています",
+    "onboarding.lock.shortcutsAdded": "ショートカットを追加しました",
+    "onboarding.lock.lockScreenTested": "ロック画面の表示を確認しました",
     "onboarding.lock.notificationsDenied": "通知が許可されていません。設定アプリで許可してください。",
     "onboarding.lock.testNotification": "通知をテストする",
 
@@ -203,6 +206,7 @@
 
     "distance.straight": "直線距離 {distance}",
     "distance.walking": "徒歩 {distance}",
+    "distance.walkingTime": "徒歩 {distance}・約{minutes}分",
     "distance.straightLabel": "現在地からの直線距離",
     "distance.savedLabel": "保存時の距離",
 
@@ -210,9 +214,9 @@
     "destination.mapCaption": "位置のイメージ",
     "destination.note": "近さは安全や到達可能性を保証しません。\n道路・建物の現況と自治体の案内を優先してください。",
     "destination.go": "この避難場所へ向かう",
-    "destination.openMap": "Google Maps で位置を確認 ↗",
+    "destination.openMap": "Apple マップ で位置を確認 ↗",
     "destination.copyAddress": "住所と座標をコピー",
-    "destination.openFailed": "Google Maps を開けませんでした。住所と座標をコピーできます。",
+    "destination.openFailed": "Apple マップ を開けませんでした。住所と座標をコピーできます。",
 
     "onTheWay.nav": "避難を開始",
     "onTheWay.badge": "避難先を選びました",
@@ -221,10 +225,10 @@
     "onTheWay.eyebrowTsunami": "KEEP MOVING TO HIGHER GROUND",
     "onTheWay.title": "周囲を確かめながら、\n避難場所へ。",
     "onTheWay.titleTsunami": "高台などへ、\n避難してください。",
-    "onTheWay.mapsTitle": "経路案内は Google Maps へ",
+    "onTheWay.mapsTitle": "経路案内は Apple マップ へ",
     "onTheWay.mapsBody": "現在地・道路の状況を確認しながら進んでください。",
     "onTheWay.mapsBodyTsunami": "周囲の状況と自治体の避難案内を優先してください。",
-    "onTheWay.openMaps": "Google Maps で経路を開く ↗",
+    "onTheWay.openMaps": "Apple マップ で経路を開く ↗",
 
     "locationError.nav": "その他の避難場所",
     "locationError.eyebrow": "LET'S TRY ANOTHER WAY",
@@ -312,7 +316,7 @@
     "privacy.notSavedBody": "元の自宅・学校の入力住所や座標、検索履歴、緊急時の現在地は保存しません。",
     "privacy.mapsTitle": "地図と位置情報",
     "privacy.mapsBody": "位置情報は使用中のみ。MapKitの検索・経路計算では、位置がAppleに送信されます。",
-    "privacy.googleNote": "Google Mapsを開くと、経路案内は外部サービスへ移ります。",
+    "privacy.googleNote": "Apple マップを開くと、経路案内は外部サービスへ移ります。",
 
     "delete.nav": "データの削除",
     "delete.badge": "削除の前に確認",

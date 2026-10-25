@@ -408,7 +408,7 @@ struct DestinationView: View {
             NButton(t["destination.go"], kind: site == nil ? .disabled : .primary) { Task { await model.confirmEvacuation() } }
             NButton(t["destination.openMap"], kind: .secondary) {
                 guard let site else { return }
-                openURL(GoogleMaps.searchURL(latitude: site.latitude, longitude: site.longitude)) { openFailed = !$0 }
+                openURL(AppleMaps.placeURL(latitude: site.latitude, longitude: site.longitude, name: site.name)) { openFailed = !$0 }
             }
         }
         .task(id: session.selectedDestinationId) {
@@ -474,7 +474,7 @@ struct OnTheWayView: View {
         } actions: {
             NButton(t["onTheWay.openMaps"]) {
                 guard let site else { return }
-                openURL(GoogleMaps.directionsURL(latitude: site.latitude, longitude: site.longitude)) { openFailed = !$0 }
+                openURL(AppleMaps.directionsURL(latitude: site.latitude, longitude: site.longitude)) { openFailed = !$0 }
             }
             NButton(session.endTitle, kind: .secondary, action: onEnd)
         }

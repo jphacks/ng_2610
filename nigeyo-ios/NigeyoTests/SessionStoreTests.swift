@@ -394,9 +394,9 @@ extension Bundle {
         #expect(ordered.map(\.id) == ["z", "y", "x"])
     }
 
-    @Test func googleMapsURLIsWalkingWithoutOrigin() {
-        let url = GoogleMaps.directionsURL(latitude: 35.5, longitude: 139.25).absoluteString
-        #expect(url == "https://www.google.com/maps/dir/?api=1&destination=35.5%2C139.25&travelmode=walking")
+    @Test func appleMapsURLsOpenTheAppWalkingWithoutOrigin() {
+        #expect(AppleMaps.directionsURL(latitude: 35.5, longitude: 139.25).absoluteString == "maps://?daddr=35.5,139.25&dirflg=w")
+        #expect(AppleMaps.placeURL(latitude: 35.5, longitude: 139.25, name: "A B").absoluteString == "maps://?ll=35.5,139.25&q=A%20B")
     }
 
     @Test func pairingAcceptsOnlyWssDeviceURLs() {

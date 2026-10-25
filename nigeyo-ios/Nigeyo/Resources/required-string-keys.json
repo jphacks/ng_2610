@@ -31,6 +31,7 @@
     "onboarding.language.body": {},
     "onboarding.language.continue": {},
     "onboarding.language.footnote": {},
+    "onboarding.language.more": {},
     "onboarding.places.nav": {},
     "onboarding.places.eyebrow": {},
     "onboarding.places.title": {},
@@ -82,6 +83,8 @@
     "onboarding.lock.finish": {},
     "onboarding.lock.later": {},
     "onboarding.lock.notificationsAllowed": {},
+    "onboarding.lock.shortcutsAdded": {},
+    "onboarding.lock.lockScreenTested": {},
     "onboarding.lock.notificationsDenied": {},
     "onboarding.lock.testNotification": {},
     "home.settings": {},
@@ -205,6 +208,10 @@
     },
     "distance.walking": {
       "distance": "distance"
+    },
+    "distance.walkingTime": {
+      "distance": "distance",
+      "minutes": "minutes"
     },
     "distance.straightLabel": {},
     "distance.savedLabel": {},

@@ -18,6 +18,7 @@ struct SavedDestination: Codable, Equatable, Sendable {
     var site: EvacuationSite?          // nil = confirmed "no suitable site nearby"
     var meters: Double?
     var distanceKind: DistanceKind?
+    var seconds: Double? = nil              // walking time; absent in data saved before it was recorded
 }
 
 /// Light settings in UserDefaults (spec §2).
@@ -36,6 +37,7 @@ final class SettingsStore: @unchecked Sendable {
         static let destinations = "nigeyo.destinations"
         static let shortcutsAdded = "nigeyo.shortcutsAdded"
         static let shortcutsTested = "nigeyo.shortcutsTested"
+        static let lockScreenTested = "nigeyo.lockScreenTested"
         static let demoAutoConnect = "nigeyo.demoAutoConnect"
     }
 
@@ -65,6 +67,12 @@ final class SettingsStore: @unchecked Sendable {
         set { defaults.set(newValue, forKey: Key.shortcutsTested) }
     }
 
+    /// Set once the onboarding Live Activity test has been started on this device.
+    var lockScreenTested: Bool {
+        get { defaults.bool(forKey: Key.lockScreenTested) }
+        set { defaults.set(newValue, forKey: Key.lockScreenTested) }
+    }
+
     /// Random per install; no device identifiers (spec §8.1).
     var installationId: UUID {
         lock.withLock {
@@ -86,7 +94,7 @@ final class SettingsStore: @unchecked Sendable {
     func destination(_ slot: DestinationSlot) -> SavedDestination? { destinations[slot.key] }
 
     func eraseAll() {
-        for key in [Key.language, Key.onboarding, Key.installation, Key.destinations, Key.shortcutsAdded, Key.shortcutsTested, Key.demoAutoConnect] {
+        for key in [Key.language, Key.onboarding, Key.installation, Key.destinations, Key.shortcutsAdded, Key.shortcutsTested, Key.lockScreenTested, Key.demoAutoConnect] {
             defaults.removeObject(forKey: key)
         }
     }
