@@ -50,6 +50,7 @@
 ## 動かし方
 * セットアップ・デモ手順: [docs/setup.md](docs/setup.md)
 * ショートカット: [docs/shortcuts.md](docs/shortcuts.md)
+* 登録避難先の地域設定・自動監視・UI担当への接続点: [docs/registered-region-monitoring.md](docs/registered-region-monitoring.md)
 * 実機受入記録: [docs/acceptance.md](docs/acceptance.md) / 翻訳レビュー表: [docs/translation-review.md](docs/translation-review.md)
 * 通信契約: [contracts/messages.md](contracts/messages.md) / 仕様: [NIGEYO-TECH-SPEC.md](NIGEYO-TECH-SPEC.md)
 

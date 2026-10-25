@@ -21,11 +21,13 @@ actor WebSocketDeliveryService: DeliveryService {
         var languagePackageVersion: Int
         var liveActivitiesEnabled: Bool
         var notificationAuthorization: NotificationAuthorization
+        var regionalSubscription: RegionalSubscription? = nil
     }
 
     static let backoff: [TimeInterval] = [1, 2, 4, 8, 15, 30]
     static let heartbeatInterval: TimeInterval = 5
 
+    private let regionalReceive: @Sendable (RegionalAlert) async -> RegionalAck?
     private let processor: CommandProcessor
     private let helloInfo: @Sendable () async -> HelloInfo
     private let deviceState: @Sendable () async -> DeviceState
@@ -40,7 +42,8 @@ actor WebSocketDeliveryService: DeliveryService {
     private var observers: [UUID: AsyncStream<ConnectionState>.Continuation] = [:]
 
     init(processor: CommandProcessor, helloInfo: @escaping @Sendable () async -> HelloInfo, deviceState: @escaping @Sendable () async -> DeviceState,
-         currentSessionId: @escaping @Sendable () async -> UUID?, log: @escaping @Sendable (String) async -> Void) {
+         currentSessionId: @escaping @Sendable () async -> UUID?, regionalReceive: @escaping @Sendable (RegionalAlert) async -> RegionalAck? = { _ in nil }, log: @escaping @Sendable (String) async -> Void) {
+        self.regionalReceive = regionalReceive
         self.processor = processor
         self.helloInfo = helloInfo
         self.deviceState = deviceState
@@ -131,6 +134,10 @@ actor WebSocketDeliveryService: DeliveryService {
             case .data: data = Data() // binary frames are not part of the contract → invalid-payload
             @unknown default: data = Data()
             }
+            if let regional = try? JSONDecoder.nigeyo.decode(RegionalAlert.self, from: data), regional.type == "regional-alert" {
+                if let ack = await regionalReceive(regional) { try? await send(ack, on: task) }
+                continue
+            }
             if let ack = await processor.handle(IncomingMessage.decode(data)), ack.runId != nil || ack.commandId != nil {
                 try? await send(ack, on: task)
             }
@@ -147,10 +154,11 @@ actor WebSocketDeliveryService: DeliveryService {
         let info = await helloInfo()
         return HelloMessage(installationId: info.installationId, appVersion: info.appVersion, preferredLanguage: info.language,
                             languagePackageVersion: info.languagePackageVersion, liveActivitiesEnabled: info.liveActivitiesEnabled,
-                            notificationAuthorization: info.notificationAuthorization.rawValue)
+                            notificationAuthorization: info.notificationAuthorization.rawValue, regionalSubscription: info.regionalSubscription)
     }
 
     private func sendHeartbeat(on task: URLSessionWebSocketTask) async {
+        try? await send(helloMessage(), on: task)
         let device = await deviceState()
         let info = await helloInfo()
         let hb = HeartbeatMessage(installationId: info.installationId, appState: device.appState, protectedDataAvailable: device.protectedDataAvailable,

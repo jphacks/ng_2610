@@ -1,0 +1,660 @@
+{
+  "version": 1,
+  "verifiedAt": "2026-10-25",
+  "prefecture": "愛知県",
+  "sources": [
+    "https://www.jma.go.jp/jma/kishou/know/jishin/joho/shindo-name.html",
+    "https://www.jma.go.jp/jma/kishou/know/jishin/joho/tsunami-yohoku/tsunami_shichouson.pdf",
+    "https://github.com/p2pquake/epsp-specifications/blob/master/json-api-v2.yaml"
+  ],
+  "earthquakeAreas": [
+    {
+      "pref": "愛知",
+      "name": "愛知県東部"
+    },
+    {
+      "pref": "愛知",
+      "name": "愛知県西部"
+    }
+  ],
+  "tsunamiAreas": [
+    "愛知県外海",
+    "伊勢・三河湾"
+  ],
+  "municipalities": [
+    {
+      "name": "豊橋市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県東部"
+      },
+      "tsunamiStatus": "unconfigured",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [
+        "愛知県外海",
+        "伊勢・三河湾"
+      ],
+      "note": "市内で津波予報区が分かれるため生活圏を確認して選択"
+    },
+    {
+      "name": "豊川市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県東部"
+      },
+      "tsunamiStatus": "configured",
+      "tsunamiAreas": [
+        "伊勢・三河湾"
+      ],
+      "tsunamiOptions": [],
+      "note": "施設の浸水リスクを判定せず、登録地域として監視"
+    },
+    {
+      "name": "蒲郡市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県東部"
+      },
+      "tsunamiStatus": "configured",
+      "tsunamiAreas": [
+        "伊勢・三河湾"
+      ],
+      "tsunamiOptions": [],
+      "note": "施設の浸水リスクを判定せず、登録地域として監視"
+    },
+    {
+      "name": "新城市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県東部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "田原市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県東部"
+      },
+      "tsunamiStatus": "unconfigured",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [
+        "愛知県外海",
+        "伊勢・三河湾"
+      ],
+      "note": "市内で津波予報区が分かれるため生活圏を確認して選択"
+    },
+    {
+      "name": "設楽町",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県東部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "東栄町",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県東部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "豊根村",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県東部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "名古屋市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "configured",
+      "tsunamiAreas": [
+        "伊勢・三河湾"
+      ],
+      "tsunamiOptions": [],
+      "note": "施設の浸水リスクを判定せず、登録地域として監視"
+    },
+    {
+      "name": "岡崎市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "一宮市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "瀬戸市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "半田市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "configured",
+      "tsunamiAreas": [
+        "伊勢・三河湾"
+      ],
+      "tsunamiOptions": [],
+      "note": "施設の浸水リスクを判定せず、登録地域として監視"
+    },
+    {
+      "name": "春日井市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "津島市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "碧南市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "configured",
+      "tsunamiAreas": [
+        "伊勢・三河湾"
+      ],
+      "tsunamiOptions": [],
+      "note": "施設の浸水リスクを判定せず、登録地域として監視"
+    },
+    {
+      "name": "刈谷市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "configured",
+      "tsunamiAreas": [
+        "伊勢・三河湾"
+      ],
+      "tsunamiOptions": [],
+      "note": "施設の浸水リスクを判定せず、登録地域として監視"
+    },
+    {
+      "name": "豊田市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "安城市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "西尾市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "configured",
+      "tsunamiAreas": [
+        "伊勢・三河湾"
+      ],
+      "tsunamiOptions": [],
+      "note": "施設の浸水リスクを判定せず、登録地域として監視"
+    },
+    {
+      "name": "犬山市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "常滑市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "configured",
+      "tsunamiAreas": [
+        "伊勢・三河湾"
+      ],
+      "tsunamiOptions": [],
+      "note": "施設の浸水リスクを判定せず、登録地域として監視"
+    },
+    {
+      "name": "江南市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "小牧市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "稲沢市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "東海市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "configured",
+      "tsunamiAreas": [
+        "伊勢・三河湾"
+      ],
+      "tsunamiOptions": [],
+      "note": "施設の浸水リスクを判定せず、登録地域として監視"
+    },
+    {
+      "name": "大府市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "知多市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "configured",
+      "tsunamiAreas": [
+        "伊勢・三河湾"
+      ],
+      "tsunamiOptions": [],
+      "note": "施設の浸水リスクを判定せず、登録地域として監視"
+    },
+    {
+      "name": "知立市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "尾張旭市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "高浜市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "configured",
+      "tsunamiAreas": [
+        "伊勢・三河湾"
+      ],
+      "tsunamiOptions": [],
+      "note": "施設の浸水リスクを判定せず、登録地域として監視"
+    },
+    {
+      "name": "岩倉市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "豊明市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "日進市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "愛西市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "清須市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "北名古屋市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "弥富市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "configured",
+      "tsunamiAreas": [
+        "伊勢・三河湾"
+      ],
+      "tsunamiOptions": [],
+      "note": "施設の浸水リスクを判定せず、登録地域として監視"
+    },
+    {
+      "name": "みよし市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "あま市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "長久手市",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "東郷町",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "豊山町",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "大口町",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "扶桑町",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "大治町",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "蟹江町",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "飛島村",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "configured",
+      "tsunamiAreas": [
+        "伊勢・三河湾"
+      ],
+      "tsunamiOptions": [],
+      "note": "施設の浸水リスクを判定せず、登録地域として監視"
+    },
+    {
+      "name": "阿久比町",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    },
+    {
+      "name": "東浦町",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "configured",
+      "tsunamiAreas": [
+        "伊勢・三河湾"
+      ],
+      "tsunamiOptions": [],
+      "note": "施設の浸水リスクを判定せず、登録地域として監視"
+    },
+    {
+      "name": "南知多町",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "configured",
+      "tsunamiAreas": [
+        "伊勢・三河湾"
+      ],
+      "tsunamiOptions": [],
+      "note": "施設の浸水リスクを判定せず、登録地域として監視"
+    },
+    {
+      "name": "美浜町",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "configured",
+      "tsunamiAreas": [
+        "伊勢・三河湾"
+      ],
+      "tsunamiOptions": [],
+      "note": "施設の浸水リスクを判定せず、登録地域として監視"
+    },
+    {
+      "name": "武豊町",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "configured",
+      "tsunamiAreas": [
+        "伊勢・三河湾"
+      ],
+      "tsunamiOptions": [],
+      "note": "施設の浸水リスクを判定せず、登録地域として監視"
+    },
+    {
+      "name": "幸田町",
+      "earthquakeArea": {
+        "pref": "愛知",
+        "name": "愛知県西部"
+      },
+      "tsunamiStatus": "none",
+      "tsunamiAreas": [],
+      "tsunamiOptions": [],
+      "note": "津波対象なしは津波の安全判定ではなく、この市町村が対応表に掲載されていないことを示す"
+    }
+  ]
+}

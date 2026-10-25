@@ -7,11 +7,13 @@ private extension AppModel {
 // MARK: 08 Settings
 
 struct SettingsView: View {
+    @State private var showNotificationRegions = false
     @Environment(AppModel.self) private var model
 
     var body: some View {
         let t = model.strings
         Screen(navTitle: t["settings.nav"], onBack: { model.pop() }) {
+            RowCard(title: t["regions.title"], subtitle: t["regions.needsConfirmation"]) { showNotificationRegions = true }
             RowCard(title: t["settings.language"], subtitle: model.languages.first { $0.id == t.languageId }?.nativeName) { model.homePath.append(.language) }
             RowCard(title: t["settings.savedPlaces"], subtitle: t["settings.savedPlacesBody"]) { model.homePath.append(.savedPlaces) }
             RowCard(title: t["settings.lockScreen"], subtitle: t["settings.lockScreenBody"]) { model.homePath.append(.lockScreen) }
@@ -23,6 +25,7 @@ struct SettingsView: View {
             NButton(t["settings.deleteAll"], kind: .destructive) { model.homePath.append(.deleteData) }
             Footnote(t("settings.version", ["version": Bundle.main.appVersion]))
         }
+        .sheet(isPresented: $showNotificationRegions) { NavigationStack { NotificationRegionsView() } }
     }
 }
 
