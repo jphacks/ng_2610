@@ -3,8 +3,8 @@ import { randomUUID } from 'node:crypto';
 // Images are downloaded WITH the shortcut and stored in its workflow on the iPhone.
 // No network, iCloud file, server URL or shared mutable image is read at notification time.
 export const SHORTCUTS = [
-  { id: 'earthquake', title: 'Nigeyo 地震', triggerTitle: 'EARTHQUAKE_TEST' },
-  { id: 'tsunami', title: 'Nigeyo 津波', triggerTitle: 'TSUNAMI_TEST' },
+  { id: 'earthquake', title: 'nigeyo 地震', triggerTitle: 'EARTHQUAKE_TEST' },
+  { id: 'tsunami', title: 'nigeyo 津波', triggerTitle: 'TSUNAMI_TEST' },
 ];
 
 const output = (id, name) => ({ Value: { OutputUUID: id, Type: 'ActionOutput', OutputName: name }, WFSerializationType: 'WFTextTokenAttachment' });

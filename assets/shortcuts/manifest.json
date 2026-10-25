@@ -4,7 +4,7 @@
   "shortcuts": [
     {
       "id": "earthquake",
-      "title": "Nigeyo 地震",
+      "title": "nigeyo 地震",
       "version": "1.6.0",
       "minimumOSVersion": "27.0",
       "triggerTitle": "EARTHQUAKE_TEST",
@@ -19,7 +19,7 @@
       "imageFile": "earthquake.png",
       "imageSHA256": "c916fccb7284b196d7588857681d75aa6fc074b82f4409780d2b36a0cf6817b0",
       "file": "nigeyo-earthquake.shortcut",
-      "sha256": "e54a81a618ce45258d802f64436feecc919f32bace6311cb352d3b9dfebe1574",
+      "sha256": "b13fdc43d0300e5490f24c9004d40fd5c6a0909cb51c10d4ff2e9c0ee577a80a",
       "iCloudURL": null,
       "signed": true,
       "importQuestions": [],
@@ -32,7 +32,7 @@
     },
     {
       "id": "tsunami",
-      "title": "Nigeyo 津波",
+      "title": "nigeyo 津波",
       "version": "1.6.0",
       "minimumOSVersion": "27.0",
       "triggerTitle": "TSUNAMI_TEST",
@@ -47,7 +47,7 @@
       "imageFile": "tsunami.png",
       "imageSHA256": "9361fec0cf843572650f4727b3f09d4843cbed2624e4bd82a70596164dabd2fd",
       "file": "nigeyo-tsunami.shortcut",
-      "sha256": "f963c818c39e6e896488843ea2a74096c4859499e422f671a07fd4cd3a80421d",
+      "sha256": "a769893b018e3dd60ed2ff2bbab32575d43d26d5ee9ffbd23be1aeb2bab123c6",
       "iCloudURL": null,
       "signed": true,
       "importQuestions": [],
@@ -61,7 +61,7 @@
   ],
   "bundle": {
     "file": "bundle.zip",
-    "sha256": "8d3d48053be9ec6abe547018a83a2b517f23939c45f7162383bfe2a28ef7b652",
+    "sha256": "b2f7eee6d0c6b0a609e136c431fd5e4c75dcbee62bfabfd195409ab896df71ce",
     "note": "Two shortcuts with embedded local images, standalone PNGs and setup guide. Notification triggers included. Enable each imported automation and verify the Nigeyo app selection on the iPhone."
   }
 }

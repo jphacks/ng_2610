@@ -7,7 +7,7 @@ enum BundledShortcut: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var fileName: String { "nigeyo-\(rawValue)" }
     // File imports use the filename as the shortcut name. Keep test URLs consistent with it.
-    var importName: String { self == .earthquake ? "Nigeyo 地震" : "Nigeyo 津波" }
+    var importName: String { self == .earthquake ? "nigeyo 地震" : "nigeyo 津波" }
     var notificationTitle: String { self == .earthquake ? "EARTHQUAKE_TEST" : "TSUNAMI_TEST" }
 
     func bundledURL(in bundle: Bundle = .main) -> URL? {
@@ -20,6 +20,7 @@ enum BundledShortcut: String, CaseIterable, Identifiable {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("NigeyoShortcuts", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         let target = directory.appendingPathComponent(importName).appendingPathExtension("shortcut")
+        try? FileManager.default.removeItem(at: target) // stale copies collide on case-insensitive APFS
         // Copy byte for byte: editing the signed workflow would invalidate the Apple signature.
         try Data(contentsOf: source).write(to: target, options: .atomic)
         return target
