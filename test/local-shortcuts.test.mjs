@@ -19,7 +19,7 @@ test('each offline shortcut contains exactly its approved PNG and no network or 
     assert.deepEqual(appPng, png);
     const w = workflow(png, shortcut);
     const actions = w.WFWorkflowActions;
-    assert.equal(actions.length, 5);
+    assert.equal(actions.length, 6);
     const embedded = Buffer.from(actions[0].WFWorkflowActionParameters.WFTextActionText, 'base64');
     assert.deepEqual(embedded, png);
     hashes.add(sha256(embedded));
@@ -27,7 +27,11 @@ test('each offline shortcut contains exactly its approved PNG and no network or 
     assert.equal(actions[2].WFWorkflowActionIdentifier, 'is.workflow.actions.detect.images');
     assert.equal(actions[3].WFWorkflowActionIdentifier, 'is.workflow.actions.wallpaper.set');
     assert.equal(actions[3].WFWorkflowActionParameters.WFWallpaperShowPreview, false);
-    assert.equal(actions[4].WFWorkflowActionParameters.WFInput, 'nigeyo://guide');
+    assert.equal(actions[4].WFWorkflowActionIdentifier, 'is.workflow.actions.alert');
+    assert.equal(actions[4].WFWorkflowActionParameters.WFAlertActionTitle, '避難案内を開きますか？');
+    assert.equal(actions[4].WFWorkflowActionParameters.WFAlertActionCancelButtonShown, true);
+    assert.equal(actions[5].WFWorkflowActionIdentifier, 'is.workflow.actions.openurl');
+    assert.equal(actions[5].WFWorkflowActionParameters.WFInput, 'nigeyo://guide');
     assert.equal(w.WFWorkflowImportQuestions.length, 0);
     assert.ok(!JSON.stringify(w).includes('https://'));
     assert.ok(!JSON.stringify(w).includes('downloadurl'));
@@ -105,6 +109,10 @@ test('actual signed distribution archives contain both native triggers and their
       [{ Property: 'Title', Operator: 0, Values: { Title: s.triggerTitle }, Removable: true }]);
     assert.deepEqual(Buffer.from(w.WFWorkflowActions[0].WFWorkflowActionParameters.WFTextActionText, 'base64'),
       await readFile(join(ROOT, `assets/wallpapers/${s.id}.png`)));
+    const actions = w.WFWorkflowActions;
+    assert.deepEqual(actions.slice(3).map((a) => a.WFWorkflowActionIdentifier),
+      ['is.workflow.actions.wallpaper.set', 'is.workflow.actions.alert', 'is.workflow.actions.openurl']);
+    assert.equal(actions[4].WFWorkflowActionParameters.WFAlertActionCancelButtonShown, true);
     assert.equal(w.WFWorkflowActions.at(-1).WFWorkflowActionParameters.WFInput, 'nigeyo://guide');
   }
   assert.equal(ids.size, 2);
