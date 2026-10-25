@@ -1,23 +1,61 @@
 {
   "schemaVersion": 1,
-  "stepsVersion": 1,
+  "stepsVersion": 3,
   "shortcuts": [
     {
-      "id": "nigeyo",
-      "title": "Nigeyo",
-      "version": "1.1.0",
+      "id": "earthquake",
+      "title": "Nigeyo 地震",
+      "version": "1.3.0",
       "minimumOSVersion": "27.0",
-      "triggerTitle": "EARTHQUAKE_TEST / TSUNAMI_TEST",
-      "wallpaperPath": "/public/assets/wallpaper.png",
-      "file": "nigeyo-nigeyo.shortcut",
-      "sha256": "3b0ac589f6f6bf47bb65248ee8af470c161f23f8bf68ade6fa627be3f7f84f4b",
+      "triggerTitle": "EARTHQUAKE_TEST",
+      "automation": {
+        "included": true,
+        "type": "notification",
+        "appBundleIdentifier": "jp.nigeyo.hackathon",
+        "titleContains": "EARTHQUAKE_TEST",
+        "requiresUserEnable": true
+      },
+      "imageStorage": "embedded-base64",
+      "imageFile": "earthquake.png",
+      "imageSHA256": "c6f4848be0ee29a1910e38ba11ff642b4642fa86e06367ea5970b32e3bc339fe",
+      "file": "nigeyo-earthquake.shortcut",
+      "sha256": "e16ca850b186850a1957ac64e7b6e3287662036da28588e75e87dec9ca788c24",
       "iCloudURL": null,
       "signed": true,
-      "importQuestions": [
-        "wallpaper URL (public HTTPS origin + wallpaperPath)"
-      ],
+      "importQuestions": [],
       "actions": [
-        "Get Contents of URL",
+        "Embedded PNG",
+        "Base64 Decode",
+        "Get Images from Input",
+        "Set Wallpaper (Lock Screen, preview off)",
+        "Open URL nigeyo://guide"
+      ]
+    },
+    {
+      "id": "tsunami",
+      "title": "Nigeyo 津波",
+      "version": "1.3.0",
+      "minimumOSVersion": "27.0",
+      "triggerTitle": "TSUNAMI_TEST",
+      "automation": {
+        "included": true,
+        "type": "notification",
+        "appBundleIdentifier": "jp.nigeyo.hackathon",
+        "titleContains": "TSUNAMI_TEST",
+        "requiresUserEnable": true
+      },
+      "imageStorage": "embedded-base64",
+      "imageFile": "tsunami.png",
+      "imageSHA256": "ca05f670f626939852ec27d6c6fa7be5b835da2d69ad821b589f25a6e5328f09",
+      "file": "nigeyo-tsunami.shortcut",
+      "sha256": "a482481ff4da9fcf484beafaced8da7cd996bd9a404861676e39d241c789e662",
+      "iCloudURL": null,
+      "signed": true,
+      "importQuestions": [],
+      "actions": [
+        "Embedded PNG",
+        "Base64 Decode",
+        "Get Images from Input",
         "Set Wallpaper (Lock Screen, preview off)",
         "Open URL nigeyo://guide"
       ]
@@ -25,7 +63,7 @@
   ],
   "bundle": {
     "file": "bundle.zip",
-    "sha256": "b80737cea36260aaf42af2219823b6a09a1d61e8863407c2d1f3b6e94f798e90",
-    "note": "Download only: adding and enabling each shortcut is done by the user on the iPhone."
+    "sha256": "fbeb720ba50af8e4cddc174b0f10cab25c0a12e1ab6607f2f662d08a51d8669f",
+    "note": "Two shortcuts with embedded local images, standalone PNGs and setup guide. Notification triggers included. Enable each imported automation and verify the Nigeyo app selection on the iPhone."
   }
 }

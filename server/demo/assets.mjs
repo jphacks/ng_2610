@@ -6,15 +6,11 @@ export const ASSETS_DIR = join(ROOT, 'assets');
 export const WALLPAPER_KINDS = ['earthquake', 'tsunami'];
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
-/**
- * Holds verified wallpaper bytes in memory. The shared /public/assets/wallpaper.png
- * is a pointer swapped only after the target image is fully verified (spec §11.3).
- */
+// Verified immutable artwork for downloads and shortcut generation.
 export class AssetStore {
   constructor({ assetsDir = ASSETS_DIR } = {}) {
     this.assetsDir = assetsDir;
     this.wallpapers = new Map();
-    this.current = 'earthquake';
     this.manifest = null;
     this.languageManifest = null;
     this.shortcutManifest = null;
@@ -50,15 +46,7 @@ export class AssetStore {
     return bytes;
   }
 
-  // Re-verify from disk, then swap the shared pointer. Throws (and keeps the old pointer) on failure.
-  async selectWallpaper(kind) {
-    const bytes = await this.verifyWallpaper(kind);
-    this.wallpapers.set(kind, bytes);
-    this.current = kind;
-    return { kind, sha256: sha256(bytes) };
-  }
-
-  wallpaper(kind = this.current) {
+  wallpaper(kind) {
     return this.wallpapers.get(kind) ?? null;
   }
 
@@ -86,7 +74,6 @@ export class AssetStore {
   status() {
     return {
       resourceVersion: this.resourceVersion,
-      currentWallpaper: this.current,
       wallpapers: Object.fromEntries(WALLPAPER_KINDS.map((k) => [k, this.wallpapers.has(k)])),
       languages: (this.languageManifest?.languages ?? []).map((l) => ({ languageId: l.languageId, packageVersion: l.packageVersion })),
       shortcuts: (this.shortcutManifest?.shortcuts ?? []).map((s) => ({ id: s.id, version: s.version, available: Boolean(s.file || s.iCloudURL) })),

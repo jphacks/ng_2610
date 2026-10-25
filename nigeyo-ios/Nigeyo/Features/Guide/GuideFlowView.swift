@@ -29,9 +29,9 @@ struct GuideFlowView: View {
 
 private extension GuideSession {
     var strings: Strings { Strings(snapshot: languageSnapshot) }
-    var badge: String? { mode == .manual ? nil : strings["training.badge"] }
-    var badgeLong: String? { mode == .manual ? nil : strings["training.badgeLong"] }
-    var endTitle: String { strings[mode == .manual ? "manual.end" : "training.end"] }
+    var badge: String? { (mode == .manual || mode == .live) ? nil : strings["training.badge"] }
+    var badgeLong: String? { (mode == .manual || mode == .live) ? nil : strings["training.badgeLong"] }
+    var endTitle: String { strings[(mode == .manual || mode == .live) ? "manual.end" : "training.end"] }
 }
 
 // MARK: 09 Protect
@@ -107,7 +107,7 @@ struct TsunamiView: View {
         let t = session.strings
         Screen(background: .orange) {
             GuideHeader(appName: t["app.name"], badge: session.badge, dark: true)
-            Eyebrow(t[session.mode == .manual ? "guide.tsunami.stepManual" : "guide.tsunami.step"], color: .ink)
+            Eyebrow(t[(session.mode == .manual || session.mode == .live) ? "guide.tsunami.stepManual" : "guide.tsunami.step"], color: .ink)
             ScreenTitle(t["guide.tsunami.title"], size: 32)
             Pictogram(name: "tsunami-evacuate", size: 180, label: t["a11y.pictogram.tsunami-evacuate"])
                 .frame(maxWidth: .infinity).padding(.vertical, 16)
@@ -116,7 +116,7 @@ struct TsunamiView: View {
                 Text(t("guide.tsunami.sourceInfo", ["time": t.dateTime(ts.issuedAt), "area": ts.area, "grade": GuideContent.gradeText(ts.grade, t)]))
                     .nFont(13, .bold).foregroundStyle(Color.ink)
             }
-            if session.mode != .manual {
+            if session.mode != .manual && session.mode != .live {
                 Card(background: .orangeSoft) {
                     Text(t["guide.tsunami.drillTitle"]).nFont(14, .bold).foregroundStyle(Color.ink)
                     Text(t["guide.tsunami.drillBody"]).nFont(12).foregroundStyle(Color.ink)
@@ -493,7 +493,7 @@ struct EndConfirmView: View {
 
     var body: some View {
         let t = session.strings
-        let manual = session.mode == .manual
+        let manual = session.mode == .manual || session.mode == .live
         Screen {
             if let b = session.badgeLong { Badge(text: b).padding(.top, 8) }
             Spacer(minLength: 60)

@@ -30,16 +30,28 @@ function setGrid(el, rows) {
 
 const fmt = (iso) => (iso ? new Date(iso).toLocaleTimeString('ja-JP', { hour12: false }) + '.' + String(new Date(iso).getMilliseconds()).padStart(3, '0') : null);
 let lastStatus = null;
+let selectedDeviceId = null;
+let refreshGeneration = 0;
+const target = (body = {}) => ({ ...body, deviceId: selectedDeviceId });
 
 async function refresh() {
+  const generation = ++refreshGeneration;
   let s;
   try {
-    s = await api('/api/status');
+    s = await api('/api/status' + (selectedDeviceId ? `?deviceId=${encodeURIComponent(selectedDeviceId)}` : ''));
+    if (generation !== refreshGeneration) return;
   } catch {
     $('run-state').textContent = 'サーバーに接続できません';
     return;
   }
   lastStatus = s;
+  if (s.selectedDeviceId) selectedDeviceId = s.selectedDeviceId;
+  const select = $('device-select');
+  select.replaceChildren(...s.devices.map((entry, index) => Object.assign(document.createElement('option'), {
+    value: entry.id, textContent: `iPhone ${index + 1} · ${entry.device?.installationId?.slice(0, 8) ?? entry.id.slice(0, 8)} · ${entry.device?.language ?? '接続準備中'}`,
+    selected: entry.id === selectedDeviceId,
+  })));
+  if (!s.selectedDeviceId) select.prepend(Object.assign(document.createElement('option'), { textContent: selectedDeviceId ? '選択した端末が切断されました。送信先を選び直してください' : '接続中の端末なし', value: '', selected: true, disabled: true }));
   if (document.activeElement !== $('origin') && s.origin) $('origin').value = s.origin;
   $('pairing').value = s.pairingString ?? '';
   const d = s.device;
@@ -71,12 +83,13 @@ async function refresh() {
     ['ACK', run?.ack ? `${run.ack.status}${run.ack.errorCode ? ` (${run.ack.errorCode})` : ''} 受信 ${fmt(run.ack.serverReceivedAt)}` : null],
     ['通知予約時刻', run?.ack?.scheduledAt], ['受信時 iOS 状態', run?.ack ? `${run.ack.appState} / protectedData=${run.ack.protectedDataAvailable}` : null],
     ['津波コマンド', tsunamiCmd ? `${tsunamiCmd.commandId} rev${tsunamiCmd.hazardRevision} source=${tsunamiCmd.source} ${tsunamiCmd.acquisition?.failureReason ? `(API: ${tsunamiCmd.acquisition.failureReason})` : ''} → ${tsunamiCmd.ack?.status ?? tsunamiCmd.status}` : null],
-    ['現在の壁紙', s.assets.currentWallpaper], ['津波対象区', s.tsunami.targetArea],
+    ['壁紙', '端末内の地震／津波ショートカット画像'], ['津波対象区', s.tsunami.targetArea],
   ]);
   $('raw').textContent = a?.raw ?? '';
   $('observer').textContent = JSON.stringify(s.tsunami.observer, null, 2);
   $('history').textContent = JSON.stringify(s.history, null, 2);
-  if (document.activeElement !== $('target-area') && s.tsunami.targetArea) $('target-area').value = s.tsunami.targetArea;
+  if (document.activeElement !== $('target-area')) $('target-area').value = s.tsunami.targetArea ?? '';
+  if (document.activeElement !== $('auto-adopt')) $('auto-adopt').checked = s.tsunami.observer.autoAdopt === true;
 }
 
 const act = (fn) => async (e) => {
@@ -89,17 +102,18 @@ const act = (fn) => async (e) => {
   refresh();
 };
 
+$('device-select').addEventListener('change', () => { selectedDeviceId = $('device-select').value || null; refresh(); });
 $('origin-form').addEventListener('submit', act(() => api('/api/config', { origin: $('origin').value.trim() })));
 $('copy-pairing').addEventListener('click', act(() => navigator.clipboard.writeText($('pairing').value)));
 $('rotate').addEventListener('click', act(() => api('/api/pairing/rotate', {})));
 for (const b of document.querySelectorAll('.start')) b.addEventListener('click', act(async () => {
   for (const x of document.querySelectorAll('.start')) x.disabled = true;
-  await api('/api/demo/run', { scenario: b.dataset.scenario });
+  await api('/api/demo/run', target({ scenario: b.dataset.scenario }));
 }));
-$('send-tsunami').addEventListener('click', act(() => api('/api/demo/tsunami', {})));
-$('reset').addEventListener('click', act(() => api('/api/demo/reset', {})));
-$('tsunami-form').addEventListener('submit', act(() => api('/api/tsunami/observe', { enabled: true, targetArea: $('target-area').value, autoAdopt: $('auto-adopt').checked })));
-$('observe-stop').addEventListener('click', act(() => api('/api/tsunami/observe', { enabled: false })));
+$('send-tsunami').addEventListener('click', act(() => api('/api/demo/tsunami', target())));
+$('reset').addEventListener('click', act(() => api('/api/demo/reset', target())));
+$('tsunami-form').addEventListener('submit', act(() => api('/api/tsunami/observe', target({ enabled: true, targetArea: $('target-area').value, autoAdopt: $('auto-adopt').checked }))));
+$('observe-stop').addEventListener('click', act(() => api('/api/tsunami/observe', target({ enabled: false }))));
 try {
   $('notes').value = localStorage.getItem('nigeyo-notes') ?? '';
 } catch {}

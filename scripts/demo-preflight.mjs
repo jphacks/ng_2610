@@ -46,8 +46,10 @@ for (const f of manifest?.files ?? []) {
 }
 
 const shortcuts = await readJsonOrNull(join(ROOT, 'assets/shortcuts/manifest.json'));
-for (const id of ['nigeyo']) {
+for (const id of ['earthquake', 'tsunami']) {
   const s = shortcuts?.shortcuts?.find((x) => x.id === id);
+  check(`embedded wallpaper ${id}`, s?.imageStorage === 'embedded-base64' && s?.imageSHA256 === sha256(readFileSync(join(ROOT, 'assets/wallpapers', `${id}.png`))));
+  check(`notification trigger ${id}`, s?.automation?.included === true && s.automation.titleContains === (id === 'earthquake' ? 'EARTHQUAKE_TEST' : 'TSUNAMI_TEST') && Boolean(s.automation.appBundleIdentifier));
   const path = s?.file ? join(ROOT, 'assets/shortcuts', s.file) : null;
   check(`signed shortcut ${id}`, Boolean(s?.signed && path && existsSync(path) && sha256(readFileSync(path)) === s.sha256), s ? s.file ?? 'unsigned' : 'run npm run shortcuts:build');
 }

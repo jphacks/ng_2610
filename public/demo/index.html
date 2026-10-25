@@ -26,6 +26,11 @@
       <button id="copy-pairing" type="button" class="secondary">コピー</button>
       <button id="rotate" type="button" class="secondary">トークン更新・切断</button>
     </div>
+    <div class="row">
+      <label for="device-select">送信先のiPhone（端末ごとに別のデモを実行できます）</label>
+      <select id="device-select" aria-label="送信先のiPhone"></select>
+    </div>
+    <p class="muted">複数端末は同じペアリング文字列で接続できます。選択中の端末だけに送信します。別ウィンドウでは別の端末を選択できます。</p>
     <dl class="grid" id="device"></dl>
     <ul id="readiness" class="reasons" aria-live="polite"></ul>
   </section>

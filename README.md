@@ -11,11 +11,13 @@
 
 ### 特長
 #### 1. 言葉より先に、絵で伝える
-5つの行動ピクトグラム（頭を守る・安全確保・火を消す・扉を開ける・高台へ）を全言語で共有し、ロック画面の壁紙とLive Activityに表示します。
+5つの行動ピクトグラムをLive Activityで共有し、ロック画面の壁紙は地震・津波それぞれの画像で行動を伝えます。画像は2種類のショートカットに同梱し、端末内で切り替えます。
 #### 2. 言語はJSONを1つ足すだけ
 英語・日本語・韓国語を同梱。言語パッケージ（JSON）を追加すると、コードを変えずに一覧へ反映されます。
 #### 3. 地震と津波で避難先を分ける
 自宅・学校 × 地震・津波の4枠を事前に保存。津波時は津波対応施設だけを示し、オフラインでも検索できます。
+
+端末ごとに異なる通知を同時に送信でき、通知時の壁紙ダウンロードや共通画像の切り替えは不要です。初回設定は [ショートカット手順](docs/shortcuts.md) を参照してください。
 
 ### 解決出来ること
 
@@ -48,6 +50,7 @@
 ## 動かし方
 * セットアップ・デモ手順: [docs/setup.md](docs/setup.md)
 * ショートカット: [docs/shortcuts.md](docs/shortcuts.md)
+* 登録避難先の地域設定・自動監視・UI担当への接続点: [docs/registered-region-monitoring.md](docs/registered-region-monitoring.md)
 * 実機受入記録: [docs/acceptance.md](docs/acceptance.md) / 翻訳レビュー表: [docs/translation-review.md](docs/translation-review.md)
 * 通信契約: [contracts/messages.md](contracts/messages.md) / 仕様: [NIGEYO-TECH-SPEC.md](NIGEYO-TECH-SPEC.md)
 

@@ -83,18 +83,40 @@ final class SettingsStore: @unchecked Sendable {
         }
     }
 
+    var notificationRegions: [String: NotificationRegion] {
+        get {
+            guard let data = defaults.data(forKey: "nigeyo.notificationRegions") else { return [:] }
+            return (try? JSONDecoder().decode([String: NotificationRegion].self, from: data)) ?? [:]
+        }
+        set { defaults.set(try? JSONEncoder().encode(newValue), forKey: "nigeyo.notificationRegions") }
+    }
+
+    var regionalMonitoringEnabled: Bool {
+        get { defaults.bool(forKey: "nigeyo.regionalMonitoringEnabled") }
+        set { defaults.set(newValue, forKey: "nigeyo.regionalMonitoringEnabled") }
+    }
+
     var destinations: [String: SavedDestination] {
         get {
             guard let data = defaults.data(forKey: Key.destinations) else { return [:] }
             return (try? JSONDecoder().decode([String: SavedDestination].self, from: data)) ?? [:]
         }
-        set { defaults.set(try? JSONEncoder().encode(newValue), forKey: Key.destinations) }
+        set {
+            let old = destinations
+            if DestinationSlot.all.contains(where: { old[$0.key]?.site != newValue[$0.key]?.site }) {
+                regionalMonitoringEnabled = false
+                var saved = notificationRegions
+                for slot in DestinationSlot.all where old[slot.key]?.site != newValue[slot.key]?.site { saved[slot.key] = nil }
+                notificationRegions = saved
+            }
+            defaults.set(try? JSONEncoder().encode(newValue), forKey: Key.destinations)
+        }
     }
 
     func destination(_ slot: DestinationSlot) -> SavedDestination? { destinations[slot.key] }
 
     func eraseAll() {
-        for key in [Key.language, Key.onboarding, Key.installation, Key.destinations, Key.shortcutsAdded, Key.shortcutsTested, Key.lockScreenTested, Key.demoAutoConnect] {
+        for key in [Key.language, Key.onboarding, Key.installation, Key.destinations, Key.shortcutsAdded, Key.shortcutsTested, Key.lockScreenTested, Key.demoAutoConnect, "nigeyo.notificationRegions", "nigeyo.regionalMonitoringEnabled"] {
             defaults.removeObject(forKey: key)
         }
     }

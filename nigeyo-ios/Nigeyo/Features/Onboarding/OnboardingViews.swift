@@ -309,6 +309,7 @@ struct DestinationsStepView: View {
             case .ready(let candidates, let selected, let walkingUnavailable):
                 let c = candidates[selected]
                 Text(c.site.name).nFont(17, .bold).foregroundStyle(Color.ink)
+                NotificationRegionSuggestion(site: c.site)
                 Text(distanceLine(c)).nFont(12).foregroundStyle(Color.muted)
                 MapPreview(coordinate: c.site.coordinate, caption: t["destination.mapCaption"], pinLabel: c.site.name, height: 120)
                 if walkingUnavailable { Text(t["onboarding.destinations.walkUnavailable"]).nFont(11).foregroundStyle(Color.danger) }

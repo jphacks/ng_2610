@@ -40,12 +40,12 @@ try {
   console.log(`· tsunami history unavailable (${err.message}); keeping existing tsunami fixture if any`);
 }
 
-// 3. Wallpapers.
+// 3. Approved immutable wallpapers (validate and copy; never re-render).
 try {
   execFileSync(process.execPath, [join(ROOT, 'scripts/make-wallpapers.mjs')], { stdio: 'inherit' });
 } catch {
-  if (['earthquake', 'tsunami'].every((k) => existsSync(join(ROOT, 'assets/wallpapers', `${k}.png`)))) console.log('! could not re-render wallpapers (rsvg-convert/magick); using committed PNGs');
-  else { console.error('✗ wallpapers missing'); ok = false; }
+  console.error('✗ approved wallpaper validation/copy failed');
+  ok = false;
 }
 
 // 4. Asset manifest (versioned, checksummed; no internal paths).
