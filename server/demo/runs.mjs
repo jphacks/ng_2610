@@ -56,7 +56,7 @@ export function validateDeviceMessage(text) {
 }
 
 /**
- * Owns the single device connection, demo runs and tsunami updates.
+ * Owns one device connection, demo runs and tsunami updates.
  * Everything that reaches the phone goes through send(); nothing here touches HTTP.
  */
 export class DemoController {
@@ -69,6 +69,7 @@ export class DemoController {
     this.now = now;
     this.timers = timers;
     this.device = null;
+    this.disposed = false;
     this.run = null;
     this.history = [];
     this.tsunamiTargetArea = null;
@@ -145,7 +146,8 @@ export class DemoController {
   }
 
   isBusy() {
-    return Boolean(this.run) && ['preparing', 'acquiring', 'sending', 'awaiting-ack'].includes(this.run.status);
+    return Boolean(this.run) && (['preparing', 'acquiring', 'sending', 'awaiting-ack'].includes(this.run.status)
+      || this.run.preparingTsunami === true || this.run.tsunamiCommands.some((c) => ['sending', 'awaiting-ack'].includes(c.status)));
   }
 
   // ---- earthquake run ----
@@ -175,12 +177,13 @@ export class DemoController {
   async executeRun(run) {
     run.status = 'acquiring';
     const acq = await acquireQuake({ fetchImpl: this.fetchImpl, stateDir: this.stateDir, fixtureDir: this.fixtureDir, now: this.now });
+    if (this.disposed || !this.device) throw new HttpError(409, 'device-not-connected');
     run.acquisition = { source: acq.source, failureReason: acq.failureReason, startedAt: acq.startedAt, finishedAt: acq.finishedAt, fetchedAt: acq.fetchedAt, sha256: acq.sha256, quake: acq.quake, raw: acq.raw };
     this.log('quake-acquired', { runId: run.runId, source: acq.source, failureReason: acq.failureReason, sourceEventId: acq.quake.sourceEventId, issuedAt: acq.quake.issuedAt, startedAt: acq.startedAt, finishedAt: acq.finishedAt });
-    // Image first, then the notification command (spec §4.3, §11.3).
+    // Verify the immutable hazard asset. Each shortcut already contains its own image.
     // The tsunami scenario starts straight in the tsunami guide; the quake is kept as its trigger.
     const hazard = run.scenario === 'tsunami' ? 'tsunami' : 'earthquake';
-    await this.assets.selectWallpaper(hazard);
+    await this.assets.verifyWallpaper(hazard);
     run.status = 'sending';
     run.command = { type: 'start-guide', runId: run.runId, mode: 'demo', source: acq.source, language: run.language, scenario: run.scenario,
       languagePackageVersion: run.languagePackageVersion, stateRevision: 1, hazard, quake: acq.quake };
@@ -190,6 +193,7 @@ export class DemoController {
   // Sends now; if no ACK in 5 s resend once with the same id; after another 5 s → ack-unknown.
   sendWithRetry(target, buildCommand, record, kind) {
     const attempt = (n) => {
+      if (this.disposed) return;
       const sentAt = this.now();
       const payload = { ...buildCommand(), sentAt: sentAt.toISOString(), expiresAt: new Date(sentAt.getTime() + COMMAND_TTL_MS).toISOString() };
       const delivered = this.send(payload);
@@ -232,37 +236,55 @@ export class DemoController {
     const run = this.run;
     if (!run || !['scheduled', 'ack-unknown'].includes(run.status)) throw new HttpError(409, 'no-active-session');
     if (!this.device) throw new HttpError(409, 'device-not-connected');
-    let source = 'local';
-    let tsunami = null;
-    let acquisition = null;
-    if (summary) {
-      source = 'live-api';
-      tsunami = summary;
-      acquisition = { source, origin, raw };
-    } else {
-      const acq = await acquireTsunamiForDrill({ fetchImpl: this.fetchImpl, stateDir: this.stateDir, fixtureDir: this.fixtureDir, targetArea: this.tsunamiTargetArea, now: this.now });
-      acquisition = { source: acq.source, failureReason: acq.failureReason, fetchedAt: acq.fetchedAt, raw: acq.raw, record: acq.record };
-      // Only adopt API data when it names the configured area; otherwise a labelled local drill.
-      if (acq.summary) {
-        source = acq.source;
-        tsunami = acq.summary;
+    if (this.isBusy()) throw new HttpError(409, 'run-in-progress');
+    run.preparingTsunami = true;
+    try {
+      let source = 'local';
+      let tsunami = null;
+      let acquisition = null;
+      if (summary) {
+        source = 'live-api';
+        tsunami = summary;
+        acquisition = { source, origin, raw };
+      } else {
+        const acq = await acquireTsunamiForDrill({ fetchImpl: this.fetchImpl, stateDir: this.stateDir, fixtureDir: this.fixtureDir, targetArea: this.tsunamiTargetArea, now: this.now });
+        acquisition = { source: acq.source, failureReason: acq.failureReason, fetchedAt: acq.fetchedAt, raw: acq.raw, record: acq.record };
+        // Only adopt API data when it names the configured area; otherwise a labelled local drill.
+        if (acq.summary) {
+          source = acq.source;
+          tsunami = acq.summary;
+        }
       }
+      if (this.disposed || !this.device || this.run !== run) throw new HttpError(409, 'device-not-connected');
+      await this.assets.verifyWallpaper('tsunami');
+      run.hazardRevision += 1;
+      const command = { commandId: uuid(), hazardRevision: run.hazardRevision, status: 'sending', ack: null, sends: [], source, acquisition, createdAt: this.now().toISOString() };
+      run.tsunamiCommands.push(command);
+      this.log('tsunami-prepared', { runId: run.runId, commandId: command.commandId, source, failureReason: acquisition.failureReason ?? null, sourceEventId: tsunami?.sourceEventId ?? null, issuedAt: tsunami?.issuedAt ?? null, origin });
+      const payload = { type: 'hazard-update', commandId: command.commandId, sessionId: run.runId, hazardRevision: command.hazardRevision, hazard: 'tsunami',
+        mode: 'demo', source, language: run.language, languagePackageVersion: run.languagePackageVersion, tsunami };
+      this.sendWithRetry(command, () => payload, (a) => command.sends.push(a), 'tsunami');
+      return command;
+    } finally {
+      run.preparingTsunami = false;
     }
-    await this.assets.selectWallpaper('tsunami');
-    run.hazardRevision += 1;
-    const command = { commandId: uuid(), hazardRevision: run.hazardRevision, status: 'sending', ack: null, sends: [], source, acquisition, createdAt: this.now().toISOString() };
-    run.tsunamiCommands.push(command);
-    this.log('tsunami-prepared', { runId: run.runId, commandId: command.commandId, source, failureReason: acquisition.failureReason ?? null, sourceEventId: tsunami?.sourceEventId ?? null, issuedAt: tsunami?.issuedAt ?? null, origin });
-    const payload = { type: 'hazard-update', commandId: command.commandId, sessionId: run.runId, hazardRevision: command.hazardRevision, hazard: 'tsunami',
-      mode: 'demo', source, language: run.language, languagePackageVersion: run.languagePackageVersion, tsunami };
-    this.sendWithRetry(command, () => payload, (a) => command.sends.push(a), 'tsunami');
-    return command;
   }
 
   reset() {
     if (this.isBusy()) throw new HttpError(409, 'run-in-progress');
     if (this.run) this.history.unshift(this.run);
     this.run = null;
+  }
+
+  dispose() {
+    this.disposed = true;
+    this.observer?.stop();
+    for (const run of [this.run, ...this.history].filter(Boolean)) {
+      for (const target of [run, ...run.tsunamiCommands]) {
+        if (target.ackTimer) this.timers.clearTimeout(target.ackTimer);
+      }
+    }
+    this.disconnectDevice();
   }
 
   publicRun(run) {
@@ -276,7 +298,7 @@ export class DemoController {
     return {
       device: d ? {
         connectedAt: d.connectedAt, lastHeartbeatAt: d.lastHeartbeatAt, heartbeatFresh: this.heartbeatFresh(),
-        appVersion: d.hello?.appVersion ?? null, language: d.hello?.preferredLanguage ?? null, notificationAuthorization: d.hello?.notificationAuthorization ?? null,
+        installationId: d.hello?.installationId ?? null, appVersion: d.hello?.appVersion ?? null, language: d.hello?.preferredLanguage ?? null, notificationAuthorization: d.hello?.notificationAuthorization ?? null,
         liveActivitiesEnabled: d.hello?.liveActivitiesEnabled ?? null, resourceVersion: d.hello?.resourceVersion ?? null, languagePackageVersion: d.hello?.languagePackageVersion ?? null,
         appState: d.heartbeat?.appState ?? null, protectedDataAvailable: d.heartbeat?.protectedDataAvailable ?? null, currentSessionId: d.heartbeat?.currentSessionId ?? null,
       } : null,

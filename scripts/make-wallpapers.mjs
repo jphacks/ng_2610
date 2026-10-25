@@ -1,26 +1,13 @@
-// Renders the two lock-screen wallpapers (1170×2532 PNG) from the shared Figma pictograms.
-// Layout follows the Figma lock-screen frames: flat background, pictogram centred in the
-// 35–70 % band, no embedded text (spec §11.1). Requires rsvg-convert and ImageMagick (dev only).
-import { execFileSync } from 'node:child_process';
-import { mkdirSync, rmSync } from 'node:fs';
+// Approved raster artwork is the source of truth. Never regenerate it from the UI SVGs.
+// Validate and copy the same assets into the app's offline export resources.
+import { copyFile, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { ROOT } from '../server/demo/util.mjs';
+import { ROOT, sha256 } from '../server/demo/util.mjs';
 
-const OUT = join(ROOT, 'assets/wallpapers');
-const TMP = join(ROOT, 'state/tmp');
-const WALLPAPERS = [
-  { kind: 'earthquake', pictogram: 'protect-head', background: '#ffe7d9' },
-  { kind: 'tsunami', pictogram: 'tsunami-evacuate', background: '#ff6b35' },
-];
-const SIZE = 640; // ≈ 52 % of the width; spans 37–63 % of the height when centred
-
-mkdirSync(OUT, { recursive: true });
-mkdirSync(TMP, { recursive: true });
-for (const { kind, pictogram, background } of WALLPAPERS) {
-  const raster = join(TMP, `${pictogram}.png`);
-  execFileSync('rsvg-convert', ['-w', String(SIZE), '-h', String(SIZE), '-o', raster, join(ROOT, 'assets/pictograms', `${pictogram}.svg`)]);
-  execFileSync('magick', ['-size', '1170x2532', `xc:${background}`, raster, '-gravity', 'center', '-composite',
-    '-depth', '8', '-strip', '-define', 'png:exclude-chunks=date,time', `PNG24:${join(OUT, `${kind}.png`)}`]);
-  console.log(`wrote assets/wallpapers/${kind}.png`);
+for (const kind of ['earthquake', 'tsunami']) {
+  const source = join(ROOT, 'assets/wallpapers', `${kind}.png`);
+  const bytes = await readFile(source);
+  if (!bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) throw new Error(`invalid-png:${kind}`);
+  await copyFile(source, join(ROOT, 'nigeyo-ios/Nigeyo/Resources/Wallpapers', `${kind}.png`));
+  console.log(`verified ${kind}.png (${sha256(bytes)}) and copied to iOS`);
 }
-rmSync(TMP, { recursive: true, force: true });
