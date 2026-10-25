@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "packageVersion": 4,
+  "packageVersion": 5,
   "languageId": "ja",
   "displayName": "Japanese",
   "nativeName": "日本語",
@@ -102,9 +102,9 @@
     "practice.earthquake": "地震の訓練",
     "practice.earthquakeBody": "頭を守る → 安全確認 → 避難場所",
     "practice.tsunami": "地震 ＋ 津波の訓練",
-    "practice.tsunamiBody": "地震のあと、津波の訓練通知が届きます",
+    "practice.tsunamiBody": "開始3秒後に地震、その10秒後に津波の訓練通知が届きます",
     "practice.lockTitle": "ロックして、通知を待ちます",
-    "practice.lockBody": "開始後、5〜15秒の間に訓練通知が届きます。実際の地震情報は使用しません。",
+    "practice.lockBody": "開始3秒後に訓練通知が届きます。地震＋津波では、その10秒後に津波の通知が届きます。実際の災害情報は使用しません。",
     "practice.start": "地震の訓練を開始する",
     "practice.startTsunami": "地震＋津波の訓練を開始する",
     "practice.footnote": "いつでもキャンセルできます。",
@@ -429,6 +429,9 @@
     "onboarding.lock.lockScreenTested": "ロック画面の表示を確認しました",
     "onboarding.language.more": "他の言語も順次追加予定です…",
     "onboarding.lock.shortcutsAdded": "ショートカットを追加しました",
-    "distance.walkingTime": "徒歩 {distance}・約{minutes}分"
+    "distance.walkingTime": "徒歩 {distance}・約{minutes}分",
+    "practice.tsunamiOnly": "津波だけの訓練",
+    "practice.tsunamiOnlyBody": "開始3秒後に津波の訓練通知が届きます",
+    "practice.startTsunamiOnly": "津波だけの訓練を開始する"
   }
 }

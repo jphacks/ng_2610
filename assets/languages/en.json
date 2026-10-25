@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "packageVersion": 4,
+  "packageVersion": 5,
   "languageId": "en",
   "displayName": "English",
   "nativeName": "English",
@@ -102,9 +102,9 @@
     "practice.earthquake": "Earthquake drill",
     "practice.earthquakeBody": "Protect head → Safety checks → Evacuation site",
     "practice.tsunami": "Earthquake + tsunami drill",
-    "practice.tsunamiBody": "A tsunami drill alert follows the earthquake",
+    "practice.tsunamiBody": "Earthquake alert after 3 seconds, then tsunami 10 seconds later",
     "practice.lockTitle": "Lock your phone and wait",
-    "practice.lockBody": "A drill notification arrives 5–15 seconds after you start. No real earthquake data is used.",
+    "practice.lockBody": "The first drill alert arrives 3 seconds after you start. In the earthquake + tsunami drill, the tsunami alert follows 10 seconds later. No real disaster data is used.",
     "practice.start": "Start earthquake drill",
     "practice.startTsunami": "Start earthquake + tsunami drill",
     "practice.footnote": "You can cancel anytime.",
@@ -429,6 +429,9 @@
     "onboarding.lock.lockScreenTested": "Lock-screen display checked",
     "onboarding.language.more": "More languages coming soon…",
     "onboarding.lock.shortcutsAdded": "Shortcuts added",
-    "distance.walkingTime": "Walk {distance} · about {minutes} min"
+    "distance.walkingTime": "Walk {distance} · about {minutes} min",
+    "practice.tsunamiOnly": "Tsunami-only drill",
+    "practice.tsunamiOnlyBody": "A tsunami drill alert arrives 3 seconds after you start",
+    "practice.startTsunamiOnly": "Start tsunami-only drill"
   }
 }

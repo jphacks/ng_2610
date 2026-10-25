@@ -15,8 +15,8 @@ enum HomeNotice: Equatable { case missingSession }
 @Observable
 final class AppModel {
     static let resumeWindow: TimeInterval = 30 * 60
-    static let trainingDelayRange = 5...15
-    static let localTsunamiDelay: TimeInterval = 30
+    static let trainingDelay: TimeInterval = 3
+    static let localTsunamiDelay: TimeInterval = 10
 
     @ObservationIgnored let services: Services
     @ObservationIgnored let location = LocationService()
@@ -191,7 +191,7 @@ final class AppModel {
         }
     }
 
-    /// In-app drill: local only, 5–15 s random delay, never touches the earthquake API.
+    /// Local drill: first alert after 3 seconds; a combined drill adds tsunami 10 seconds later.
     func startTraining(scenario: Scenario) async -> Bool {
         if notificationAuthorization == .notDetermined { notificationAuthorization = await services.notifications.requestAuthorization() }
         guard notificationAuthorization == .authorized || notificationAuthorization == .provisional else {
@@ -199,11 +199,15 @@ final class AppModel {
             return false
         }
         guard let snap = await snapshot() else { return false }
-        let delay = TimeInterval(Int.random(in: Self.trainingDelayRange))
-        let s = GuideSession.new(mode: .training, source: .local, scenario: scenario, quake: nil, snapshot: snap)
+        let delay = Self.trainingDelay
+        let s = GuideSession.new(mode: .training, source: .local, scenario: scenario, quake: nil, snapshot: snap,
+                                 hazard: scenario == .tsunami ? .tsunami : .earthquake)
         do {
             try await services.store.prepare(s, receivedAt: Date())
-            try await services.notifications.schedule(GuideContent.earthquakeNotification(for: s), after: delay)
+            let notification = scenario == .tsunami
+                ? GuideContent.tsunamiNotification(for: s, commandId: nil)
+                : GuideContent.earthquakeNotification(for: s)
+            try await services.notifications.schedule(notification, after: delay)
             let fireAt = Date().addingTimeInterval(delay)
             try await services.store.markNotificationScheduled(sessionId: s.sessionId, fireAt: fireAt)
             if scenario == .earthquakeTsunami {

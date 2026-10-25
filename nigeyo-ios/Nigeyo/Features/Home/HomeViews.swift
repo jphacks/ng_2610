@@ -102,8 +102,10 @@ struct PracticeView: View {
                     background: scenario == .earthquake ? .orangeSoft : .white) { scenario = .earthquake }
             RowCard(title: t["practice.tsunami"], subtitle: t["practice.tsunamiBody"], accessory: .radio(scenario == .earthquakeTsunami),
                     background: scenario == .earthquakeTsunami ? .orangeSoft : .white) { scenario = .earthquakeTsunami }
+            RowCard(title: t["practice.tsunamiOnly"], subtitle: t["practice.tsunamiOnlyBody"], accessory: .radio(scenario == .tsunami),
+                    background: scenario == .tsunami ? .orangeSoft : .white) { scenario = .tsunami }
             Card {
-                Pictogram(name: "protect-head", size: 56).padding(.bottom, 12)
+                Pictogram(name: scenario == .tsunami ? "tsunami-evacuate" : "protect-head", size: 56).padding(.bottom, 12)
                 Text(t["practice.lockTitle"]).nFont(17, .bold).foregroundStyle(Color.ink)
                 Text(t["practice.lockBody"]).nFont(14).foregroundStyle(Color.muted).fixedSize(horizontal: false, vertical: true)
             }
@@ -111,7 +113,7 @@ struct PracticeView: View {
                 Text(t["practice.notificationsDenied"]).nFont(12, .bold).foregroundStyle(Color.danger)
             }
         } actions: {
-            NButton(scenario == .earthquake ? t["practice.start"] : t["practice.startTsunami"], kind: starting ? .disabled : .accent) {
+            NButton(t[scenario == .earthquake ? "practice.start" : scenario == .tsunami ? "practice.startTsunamiOnly" : "practice.startTsunami"], kind: starting ? .disabled : .accent) {
                 starting = true
                 Task {
                     if await model.startTraining(scenario: scenario) { model.homePath = [] }

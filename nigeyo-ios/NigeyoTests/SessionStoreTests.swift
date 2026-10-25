@@ -352,6 +352,26 @@ extension Bundle {
         #expect(state.badge == nil)
     }
 
+    @Test func tsunamiOnlyTrainingStartsWithTsunamiGuidanceAndOneStartNotification() async throws {
+        let store = SessionStore(persistence: MemoryPersistence())
+        let session = GuideSession.new(mode: .training, source: .local, scenario: .tsunami, quake: nil,
+                                       snapshot: await Fixtures.snapshot(), hazard: .tsunami)
+        try await store.prepare(session, receivedAt: Date())
+        let fireAt = Date().addingTimeInterval(3)
+        try await store.markNotificationScheduled(sessionId: session.sessionId, fireAt: fireAt)
+        let saved = try #require(await store.snapshot())
+        let notification = GuideContent.tsunamiNotification(for: saved, commandId: nil)
+        #expect(saved.phase == .tsunamiEvacuate)
+        #expect(saved.pendingLocalHazard == nil)
+        #expect(notification.title == GuideContent.tsunamiTitle)
+        #expect(notification.userInfo["hazard"] == "tsunami")
+        #expect(notification.userInfo["commandId"] == nil)
+        #expect(notification.identifier == "nigeyo.\(session.sessionId.uuidString.lowercased())")
+        #expect(!LiveActivityCoordinator.wantsActivity(saved, now: fireAt.addingTimeInterval(-1)))
+        #expect(LiveActivityCoordinator.wantsActivity(saved, now: fireAt))
+        #expect(GuideContent.activityState(for: saved).layout == .tsunami)
+    }
+
     @Test func trainingStaysOffTheLockScreenUntilTheNotificationFires() async throws {
         var s = GuideSession.new(mode: .training, source: .local, scenario: .earthquake, quake: nil, snapshot: await Fixtures.snapshot())
         s.notificationScheduledFor = Date().addingTimeInterval(10)
@@ -414,7 +434,8 @@ extension Bundle {
         #expect(Pairing.parse("wss://demo.example.com/public/device") == nil)
     }
 
-    @Test @MainActor func trainingDelayIsFiveToFifteenSeconds() {
-        #expect(AppModel.trainingDelayRange == 5...15)
+    @Test @MainActor func trainingDelaysAreThreeSecondsThenTenSeconds() {
+        #expect(AppModel.trainingDelay == 3)
+        #expect(AppModel.localTsunamiDelay == 10)
     }
 }

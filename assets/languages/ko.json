@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "packageVersion": 4,
+  "packageVersion": 5,
   "languageId": "ko",
   "displayName": "Korean",
   "nativeName": "한국어",
@@ -102,9 +102,9 @@
     "practice.earthquake": "지진 훈련",
     "practice.earthquakeBody": "머리 보호 → 안전 확인 → 대피 장소",
     "practice.tsunami": "지진 + 쓰나미 훈련",
-    "practice.tsunamiBody": "지진 후 쓰나미 훈련 알림이 옵니다",
+    "practice.tsunamiBody": "시작 3초 후 지진, 그로부터 10초 후 쓰나미 훈련 알림이 도착합니다",
     "practice.lockTitle": "잠그고 알림을 기다립니다",
-    "practice.lockBody": "시작 후 5~15초 사이에 훈련 알림이 옵니다. 실제 지진 정보는 사용하지 않습니다.",
+    "practice.lockBody": "시작 3초 후 훈련 알림이 도착합니다. 지진＋쓰나미 훈련에서는 그로부터 10초 후 쓰나미 알림이 도착합니다. 실제 재난 정보는 사용하지 않습니다.",
     "practice.start": "지진 훈련 시작",
     "practice.startTsunami": "지진+쓰나미 훈련 시작",
     "practice.footnote": "언제든지 취소할 수 있습니다.",
@@ -429,6 +429,9 @@
     "onboarding.lock.lockScreenTested": "잠금 화면 표시를 확인했습니다",
     "onboarding.language.more": "더 많은 언어가 곧 추가될 예정입니다…",
     "onboarding.lock.shortcutsAdded": "단축어를 추가했습니다",
-    "distance.walkingTime": "도보 {distance} · 약 {minutes}분"
+    "distance.walkingTime": "도보 {distance} · 약 {minutes}분",
+    "practice.tsunamiOnly": "쓰나미만 훈련",
+    "practice.tsunamiOnlyBody": "시작 3초 후 쓰나미 훈련 알림이 도착합니다",
+    "practice.startTsunamiOnly": "쓰나미만 훈련 시작"
   }
 }

@@ -470,6 +470,9 @@
     "setup.readyTitle": {},
     "setup.readyStatus": {},
     "setup.readyBody": {},
-    "setup.review": {}
+    "setup.review": {},
+    "practice.tsunamiOnly": {},
+    "practice.tsunamiOnlyBody": {},
+    "practice.startTsunamiOnly": {}
   }
 }
