@@ -60,3 +60,10 @@ Backend regression tests exercise two actual WebSocket clients, different concur
 - Four guided steps replace the previous instruction list and nested web setup page. The single completion action at each stage is an explicit user confirmation; opening a file never marks it installed. Progress persists without completing onboarding.
 - `npm test`: 41 tests passed. `xcodebuild test` on iPhone 17 / iOS 27.0 simulator: 36 Swift tests passed, including bundled-file export/name consistency and partial-progress persistence/reset.
 - Physical-device import via the system document handoff (including Save to Files fallback), Shortcuts automation enablement, wallpaper changes and locked notification execution remain pending. Simulator GUI interaction was unavailable through the current automation interface; no visual walkthrough is claimed.
+
+## Confirmation after wallpaper change (2026-10-25)
+
+- Shortcut v1.5.1 changes the lock-screen wallpaper before showing a cancellable alert; OK continues to `nigeyo://guide`.
+- The initial `is.workflow.actions.showalert` identifier appeared as an unknown action on the iPhone. Corrected it to `is.workflow.actions.alert`, rebuilt and signed both files, and installed the updated app on the connected iPhone 16.
+- The user confirmed that the corrected version worked on the physical iPhone and approved merging. Separate results for both hazards, locked notification execution, and each OK/Cancel path were not individually reported.
+- The six shortcut regression tests passed, including inspection of the actual signed files and matching app-bundled bytes. The device Debug build succeeded.

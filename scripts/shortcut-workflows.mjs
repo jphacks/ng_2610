@@ -50,6 +50,11 @@ export function workflow(png, { triggerTitle, bundleIdentifier } = {}) {
       { WFWorkflowActionIdentifier: 'is.workflow.actions.detect.images', WFWorkflowActionParameters: { WFInput: output(decodeId, 'Base64 Encoded'), UUID: imageId } },
       { WFWorkflowActionIdentifier: 'is.workflow.actions.wallpaper.set', WFWorkflowActionParameters: {
         WFInput: output(imageId, 'Images'), WFWallpaperShowPreview: false, WFWallpaperLocation: 'Lock Screen' } },
+      // Cancel stops the workflow here, after the wallpaper has already changed.
+      { WFWorkflowActionIdentifier: 'is.workflow.actions.alert', WFWorkflowActionParameters: {
+        WFAlertActionTitle: '避難案内を開きますか？',
+        WFAlertActionMessage: '壁紙は変更済みです。OKでNigeyoの案内を開きます。',
+        WFAlertActionCancelButtonShown: true } },
       { WFWorkflowActionIdentifier: 'is.workflow.actions.openurl', WFWorkflowActionParameters: { WFInput: 'nigeyo://guide' } },
     ],
   };

@@ -1,6 +1,6 @@
 // Builds the two distributable shortcuts (earthquake / tsunami), signs them with `shortcuts sign`
 // when available, zips them with the guide, and writes assets/shortcuts/manifest.json (spec §11.4–11.5).
-// Each shortcut: bundled PNG → decode locally → Set Wallpaper → Open nigeyo://guide.
+// Each shortcut: bundled PNG → decode locally → Set Wallpaper → Confirm → Open nigeyo://guide.
 // Each includes a native OS 27 notification automation header with its exact title filter.
 // The recipient enables the imported trigger and verifies the target app and permissions.
 import { execFileSync } from 'node:child_process';
@@ -11,7 +11,7 @@ import { SHORTCUTS, workflow, plistValue } from './shortcut-workflows.mjs';
 
 const DIR = join(ROOT, 'assets/shortcuts');
 const TMP = join(ROOT, 'state/shortcuts-build');
-const VERSION = '1.4.0';
+const VERSION = '1.5.1';
 const STEPS_VERSION = 3;
 const APP_BUNDLE_ID = process.env.NIGEYO_APP_BUNDLE_ID ?? 'jp.nigeyo.hackathon';
 mkdirSync(DIR, { recursive: true });
@@ -44,7 +44,7 @@ for (const s of SHORTCUTS) {
     imageStorage: 'embedded-base64', imageFile: `${s.id}.png`, imageSHA256: sha256(png),
     file: signed ? file : null, sha256: signed ? sha256(readFileSync(join(DIR, file))) : null, iCloudURL: null, signed,
     importQuestions: [],
-    actions: ['Embedded PNG', 'Base64 Decode', 'Get Images from Input', 'Set Wallpaper (Lock Screen, preview off)', 'Open URL nigeyo://guide'],
+    actions: ['Embedded PNG', 'Base64 Decode', 'Get Images from Input', 'Set Wallpaper (Lock Screen, preview off)', 'Show Alert (confirm opening Nigeyo; Cancel stops)', 'Open URL nigeyo://guide'],
   });
   console.log(`${signed ? '✓' : '✗'} ${file}${signed ? '' : ' (unsigned; see docs/shortcuts.md for manual creation)'}`);
 }
