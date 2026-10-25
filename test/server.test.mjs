@@ -136,7 +136,7 @@ function fakeAssets(order = []) {
     resourceVersion: 2,
     languagePackageVersion: (id) => ({ en: 1, ja: 1, ko: 1 })[id] ?? null,
     wallpaper: () => Buffer.from('png'),
-    selectWallpaper: async (kind) => { order.push(`wallpaper:${kind}`); return { kind }; },
+    verifyWallpaper: async (kind) => { order.push(`wallpaper:${kind}`); return { kind }; },
   };
 }
 
@@ -161,7 +161,7 @@ async function readyController({ order = [], fetchImpl = fetchReturning(LIVE) } 
 const settle = () => new Promise((r) => setTimeout(r, 20));
 const ack = (runId, status = 'scheduled', extra = {}) => JSON.stringify({ schemaVersion: 2, type: 'notification-ack', runId, status, receivedAt: new Date().toISOString(), scheduledAt: new Date().toISOString(), appState: 'background', protectedDataAvailable: false, ...extra });
 
-test('run: wallpaper is prepared before start-guide is sent; ACK → scheduled', async () => {
+test('run: immutable asset is verified before start-guide; ACK → scheduled', async () => {
   const order = [];
   const { c, socket, sent } = await readyController({ order });
   const run = c.startRun({ scenario: 'earthquake' });
@@ -176,7 +176,7 @@ test('run: wallpaper is prepared before start-guide is sent; ACK → scheduled',
   assert.equal(c.run.status, 'scheduled');
 });
 
-test('run: tsunami scenario selects the tsunami wallpaper and sends start-guide with hazard tsunami', async () => {
+test('run: tsunami scenario verifies its fixed asset and sends hazard tsunami', async () => {
   const order = [];
   const { c, sent } = await readyController({ order });
   c.startRun({ scenario: 'tsunami' });
@@ -238,7 +238,7 @@ test('readiness requires authorized notifications and matching versions; provisi
   assert.ok(c.readiness().reasons.includes('resource-version-mismatch'));
 });
 
-test('tsunami: tsunami wallpaper before hazard-update; local source when no 552 data; same session', async () => {
+test('tsunami: verifies immutable asset; local source when no 552 data; same session', async () => {
   const order = [];
   const { c, socket, sent } = await readyController({ order, fetchImpl: async (url) => new Response(url.includes('552') ? '[]' : LIVE) });
   const run = c.startRun({ scenario: 'earthquake-tsunami' });
@@ -294,11 +294,13 @@ test('server: token is never reachable through the tunnel; public routes are all
     assert.equal(big.status, 413);
     const cfg = await (await fetch(`${base}/api/config`, { method: 'POST', headers: { origin: base }, body: JSON.stringify({ origin: 'https://demo.example.com' }) })).json();
     assert.match(cfg.pairingString, /^wss:\/\/demo\.example\.com\/public\/device\?token=[A-Za-z0-9_-]{43}$/);
-    // WebSocket: bearer required; one device at a time.
+    // WebSocket: bearer required; multiple phones may connect.
     await assert.rejects(new Promise((res, rej) => { const ws = new WebSocket(`ws://127.0.0.1:${port}/public/device`); ws.on('open', res); ws.on('error', rej); }));
     const ws1 = new WebSocket(`ws://127.0.0.1:${port}/public/device`, { headers: { authorization: `Bearer ${app.token}` } });
     await new Promise((res, rej) => { ws1.on('open', res); ws1.on('error', rej); });
-    await assert.rejects(new Promise((res, rej) => { const ws = new WebSocket(`ws://127.0.0.1:${port}/public/device`, { headers: { authorization: `Bearer ${app.token}` } }); ws.on('open', res); ws.on('error', rej); }));
+    const ws2 = new WebSocket(`ws://127.0.0.1:${port}/public/device`, { headers: { authorization: `Bearer ${app.token}` } });
+    await new Promise((res, rej) => { ws2.on('open', res); ws2.on('error', rej); });
+    ws2.close();
     ws1.close();
   } finally {
     await app.close();

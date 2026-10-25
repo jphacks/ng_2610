@@ -1,34 +1,65 @@
-# Nigeyo shortcut and automation
+# 地震・津波のローカル画像ショートカット
 
-One shortcut and one automation cover both earthquake and tsunami. Before each notification the server swaps the image behind the fixed URL `<origin>/public/assets/wallpaper.png` (earthquake or tsunami), so the iPhone side never changes.
+地震と津波でショートカット・通知オートメーションを分け、iOS 27のネイティブ通知トリガーを各配布ファイルに同梱します。画像は各 `.shortcut` にPNGのBase64として同梱されています。追加した時点で画像も端末内へ保存され、実行時はそのデータをデコードします。FilesやiCloudへの保存先指定、サーバーからの画像取得は不要です。
 
-`npm run shortcuts:build` generates and signs `assets/shortcuts/nigeyo-nigeyo.shortcut`. It is served from `GET /public/shortcuts/setup`.
+| 通知条件（アプリはNigeyo） | 実行するショートカット | 端末内の画像 |
+| --- | --- | --- |
+| タイトルに `EARTHQUAKE_TEST` を含む | **Nigeyo 地震** | 頭を守る・淡いオレンジ背景 |
+| タイトルに `TSUNAMI_TEST` を含む | **Nigeyo 津波** | 高台へ・淡い青背景 |
 
-| Item | Content |
-| --- | --- |
-| Shortcut **Nigeyo** | Get Contents of URL `<origin>/public/assets/wallpaper.png` → Set Wallpaper (lock screen, preview off) → open `nigeyo://guide` |
-| Automation | Notification → App **Nigeyo** (no title filter; titles are `EARTHQUAKE_TEST` / `TSUNAMI_TEST`) → Run Shortcut **Nigeyo** |
+どちらも「同梱PNG → Base64デコード → 入力から画像を取得 → ロック画面の壁紙に設定（プレビューなし）→ `nigeyo://guide` を開く」です。画像には訓練ラベルを入れていませんが、現在の通知・案内は訓練です。通知タイトルは既存アプリと互換の値を維持します。
 
-- iOS cannot import or share personal automations, so the automation is the one manual step. The shortcut already opens the app at the end, so the automation needs only the single Run Shortcut action.
-- The shortcut contains no token, key or personal bundle ID. The import question asks for the wallpaper URL; a new tunnel origin only means editing that one field.
+## 初回設定
 
-## Setup on the iPhone
+1. **旧設定を無効化**：全てのNigeyo通知から共通の「Nigeyo」を起動する古いオートメーションをオフにします。残すと二重実行になります。旧共通URL `/public/assets/wallpaper.png` は410を返します。
+2. iPhoneアプリの「設定 → ショートカットを設定」からセットアップページを開きます。URLは `https://<origin>/public/shortcuts/setup`。
+3. **Nigeyo 地震** と **Nigeyo 津波** をそれぞれ追加します。画像も一緒に保存されます。URLの入力や画像の別ダウンロードは必要ありません。
+4. 追加した **Nigeyo 地震** の編集画面で、通知トリガーのアプリが手元のNigeyo、タイトルが **EARTHQUAKE_TEST** を含むことを確認します。
+5. **Nigeyo 津波** は同じアプリ、タイトル **TSUNAMI_TEST** を含むことを確認します。**条件付きトリガーは既に入っているので、別の自動化を新規作成する必要はありません。**
+6. **両方とも対象アプリを端末にインストール済みのNigeyoへ選び直してから**、自動化を有効にし、必要に応じ「ロック中の実行を許可」をオンにします。有効化・初回権限の確認は端末で行います。アプリIDを解決できない環境では別アプリ名が表示されることもあるため、表示名だけで判断せず選び直してください。
+7. 各ショートカットを手動で1回実行し、壁紙変更の権限と変更対象のロック画面を設定します。インポート後、画像取得・壁紙の対象・プレビューが正しいか確認してください。
+8. 機内モードでそれぞれ手動実行し、正しい壁紙になることを確認します。その後ネットを戻して通知起点でも検証します。
 
-1. Allow Nigeyo notifications.
-2. Open `https://<origin>/public/shortcuts/setup` (also linked from Settings → ショートカットを設定) and add **Nigeyo**. Replace `YOUR-TUNNEL.trycloudflare.com` with the tunnel host.
-3. Shortcuts → Automation → **+** → Notification → App: Nigeyo. Choose **Run Immediately**, turn off **Notify When Run**, action **Run Shortcut → Nigeyo**.
-4. Run the shortcut once by hand to grant the network and wallpaper permissions.
-5. Lock the phone and start a demo from the Mac. Earthquake and tsunami demos can be started back to back; each new run replaces the previous session on the phone.
+標準の対象アプリIDは `jp.nigeyo.hackathon` です。Personal Teamや開発用接尾辞で別IDになっている場合は、通知トリガーの対象アプリを選び直してください。タイトル条件を消した全通知対象の設定にはしないでください。
 
-## Offline backup
+「条件入りファイルの配布」と「追加先で有効になって自動実行できること」は別です。インポート後の有効化・権限・アプリの照合には利用者の操作が必要です。ロック解除が必要な処理はOSの判断に従います。[Appleの自動化追加手順](https://support.apple.com/guide/shortcuts/add-automations-apdfbdbd7123/ios)
 
-Settings → ショートカットを設定 → **壁紙をFilesに保存** exports `earthquake.png` and `tsunami.png`. Make a copy of the shortcut and replace **Get Contents of URL** with **Get File**.
+## 配布・更新
 
-## Reset
+`npm run shortcuts:build` で、通知トリガー・タイトル条件・画像を含む次のファイルを生成し、Appleのサービスで署名します。
 
-Deleting app data does not remove the shortcut, the automation, the wallpaper or files in Files. Remove them in the Shortcuts app and pick your original lock screen.
+- `assets/shortcuts/nigeyo-earthquake.shortcut`
+- `assets/shortcuts/nigeyo-tsunami.shortcut`
+- `assets/shortcuts/bundle.zip`：2つのショートカット・PNG2枚・この手順・manifest
 
-## Unverified (device test required)
+ネイティブ通知トリガーはルートの `WFWorkflowTriggers` に格納します。macOS 27のShortcuts画面で作成し書き出したサンプルの形式を確認して実装しています。`SelectedApps` は対象アプリID・表示名、`Conditions` は通知Titleのcontains条件です。個人のTeam IDや作業用コピーのアプリIDは配布しません。各ビルドで新しいトリガーUUIDを生成します。
 
-- The `Set Wallpaper` parameters (lock-screen target, preview off) must be checked on iOS 27. If they import wrongly, set them by hand.
-- Whether the automation runs while the phone is locked, and whether opening the app needs an unlock. Record what the OS actually does.
+開発用IDをあらかじめ埋め込みたい場合：
+
+```sh
+NIGEYO_APP_BUNDLE_ID=jp.nigeyo.hackathon.alice npm run shortcuts:build
+```
+
+画像は `assets/wallpapers/{earthquake,tsunami}.png` が原本です。署名済みファイルと原画像のSHA-256をmanifestに記録します。`npm run assets:wallpapers` は原画像を検証してiOSの共有用リソースへコピーし、旧SVGから画像を再生成しません。
+
+画像を変更した場合はショートカットを再ビルドし、iPhoneで再追加します。トンネルURLだけ変わった場合はショートカットの再設定は不要です。アプリを再インストールした場合やBundle IDを変更した場合は同梱通知トリガーの対象アプリを再選択します。
+
+セットアップページではPNG単体、ZIP一式も取得できます。アプリの「壁紙をFilesに保存」も引き続き使えますが、自動実行のためにFilesへ書き出す必要はありません。
+
+## 複数端末
+
+名古屋の端末には地震、東京の端末には津波を同時に通知しても、それぞれの端末の通知条件でローカル画像を選びます。サーバーに全員共通の「現在の画像」はありません。
+
+デモサーバーでは複数端末が同時接続できます。PC画面で送信先を選んで実行してください。各端末のセッション・言語・ACK・再送・津波対象区・観測は独立しています。複数端末時に送信先指定を省略したAPI要求は409で拒否します。接続が切れた場合は再接続後の新しい送信先を選び直します。
+
+この変更は通知の端末間混同を防ぐものです。地震の地理的対象判定や本番用の常時配信基盤を追加するものではありません。既存のPC操作によるデモ、および設定した対象区の552観測を使います。Xcode接続を維持するデモ条件も同じです。
+
+## 実機受入
+
+- 両方のショートカットの追加、PNGのデコード、壁紙設定、アプリ起動が成功する。
+- ネットなしで、地震用は地震画像、津波用は津波画像になる。
+- 通知種別ごとに対応する1つの自動化だけが動く。
+- 2台へ異なる種類を同時送信して画像が混ざらない。
+- ロック中・連続通知・権限拒否・端末再起動後の動作を記録する。
+
+Appleの署名成功や自動テストは、iPhoneでのロック中の自動実行を証明しません。実機確認結果を `docs/acceptance.md` に記録します。

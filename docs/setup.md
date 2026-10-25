@@ -4,7 +4,7 @@
 
 - macOS with Xcode 27.1 and an iPhone on iOS 27.0 or later.
 - Node.js 24 (team baseline; 22 also works).
-- `rsvg-convert` and ImageMagick, only needed to re-render the wallpapers. The PNGs are committed.
+- Approved wallpapers are committed PNGs; no image renderer is needed.
 
 ## 1. Signing (once per Mac)
 
@@ -21,7 +21,7 @@ cp nigeyo-ios/Local.xcconfig.example nigeyo-ios/Local.xcconfig
 
 ```sh
 npm ci
-npm run demo:prepare      # live 551 → fixtures/demo, wallpapers, manifests, copies language packs into the iOS bundle
+npm run demo:prepare      # live 551 → fixtures/demo, validates wallpapers, manifests, copies language packs into the iOS bundle
 npm run demo:server       # http://127.0.0.1:8788
 ```
 
@@ -43,8 +43,8 @@ npm test                  # server tests (node:test)
 1. Run the `Nigeyo` scheme from Xcode on the iPhone and keep the debugger attached for the main demo.
 2. Complete onboarding: language → home/school → four slots → lock-screen setup. Allow notifications.
 3. Go to Settings → **発表用デモ接続**, paste the pairing string and press **接続する**. The PC shows the device, language and heartbeat.
-4. Set up the shortcut and the automation (one each); see [shortcuts.md](shortcuts.md).
-5. Lock the iPhone. The PC must show *ready* (heartbeat within 15 s, notifications `authorized`, matching resource and language versions, no unfinished session).
+4. Add **Nigeyo 地震** and **Nigeyo 津波** (each includes its image), each includes a native notification-title-filtered automation. Enable both imported automations and verify the Nigeyo app selection; see [shortcuts.md](shortcuts.md). Disable the old catch-all automation.
+5. With multiple iPhones connected, select the intended phone on the PC. Each has its own run, ACK and retry state; a different browser window can select another phone. Lock the iPhone. The PC must show *ready* (heartbeat within 15 s, notifications `authorized`, matching resource and language versions).
 
 ## 4. Demo
 
@@ -74,6 +74,14 @@ xcodebuild -scheme Nigeyo -destination 'platform=iOS Simulator,name=iPhone 17' C
 | Earthquake API down or slow | 3 s timeout, then last-good, then fixture. The source is shown truthfully in the operator panel. |
 | iPhone disconnected / heartbeat stale | Start is disabled. Unlock the phone, reopen the app, check Xcode. |
 | ACK lost | One resend with the same runId. No double notification. |
-| Wallpaper hosting unreachable | Use the offline wallpapers saved to Files ([shortcuts.md](shortcuts.md)). |
+| Wallpaper hosting unreachable | Notification-time wallpaper changes still work: each shortcut has its own embedded image. Initial shortcut download requires a connection ([shortcuts.md](shortcuts.md)). |
 | Live Activity off or failed | The app, notification and wallpaper continue. It is not reported as a success. |
 | Venue network down | Run the in-app drill. Do not claim a live PC connection. |
+
+## Multiple devices and local-only wallpaper changes
+
+Connect both phones with the pairing string. Select one phone and start an earthquake demo, then select the other and start a tsunami demo immediately (or use two browser windows). Commands never broadcast. Two simultaneously connected phones require an explicit `deviceId` on `POST /api/demo/run`, `/api/demo/tsunami`, `/api/demo/reset` and `/api/tsunami/observe`. `GET /api/status` lists `devices`; add `?deviceId=<id>` to inspect one. The id is connection-specific and changes after reconnecting; stale targets return 404. An omitted target is accepted only with exactly one connected phone.
+
+552 target-area selection and observers are per connection. Configure each phone separately. These are explicit demo actions and the existing 552 observation feature, not automatic location-based 551 alert delivery. No GPS data or app UI changes are introduced. Keep the Xcode debugger attached as before.
+
+`/public/assets/wallpaper.png` returns 410. Only immutable per-hazard PNG downloads remain. Downloading the two signed shortcuts also installs their images into Shortcuts on the phone, with no image-server access at runtime. Reinstall the shortcuts to update their images.

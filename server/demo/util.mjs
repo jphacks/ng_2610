@@ -14,7 +14,7 @@ export const uuid = () => randomUUID();
 
 export async function atomicWrite(path, data) {
   await mkdir(dirname(path), { recursive: true });
-  const tmp = `${path}.${process.pid}.${Date.now()}.tmp`;
+  const tmp = `${path}.${process.pid}.${randomUUID()}.tmp`;
   await writeFile(tmp, data);
   await rename(tmp, path);
 }
