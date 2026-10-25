@@ -4,11 +4,11 @@
   "files": [
     {
       "path": "wallpapers/earthquake.png",
-      "sha256": "5bd83435f4b1a108d1e9ff050bdd38777bfd69a4f71173e8bf8b703c5f488ba1"
+      "sha256": "c916fccb7284b196d7588857681d75aa6fc074b82f4409780d2b36a0cf6817b0"
     },
     {
       "path": "wallpapers/tsunami.png",
-      "sha256": "f7263a8c3efe2b75c9f4e0f14a0ced464342b4462628f8004a8222892c839d56"
+      "sha256": "9361fec0cf843572650f4727b3f09d4843cbed2624e4bd82a70596164dabd2fd"
     },
     {
       "path": "cards.json",

@@ -5,7 +5,7 @@
     {
       "id": "earthquake",
       "title": "nigeyo 地震",
-      "version": "1.5.1",
+      "version": "1.5.2",
       "minimumOSVersion": "27.0",
       "triggerTitle": "EARTHQUAKE_TEST",
       "automation": {
@@ -17,9 +17,9 @@
       },
       "imageStorage": "embedded-base64",
       "imageFile": "earthquake.png",
-      "imageSHA256": "5bd83435f4b1a108d1e9ff050bdd38777bfd69a4f71173e8bf8b703c5f488ba1",
+      "imageSHA256": "c916fccb7284b196d7588857681d75aa6fc074b82f4409780d2b36a0cf6817b0",
       "file": "nigeyo-earthquake.shortcut",
-      "sha256": "046dafaf453ed08bd5322e4007fff1bbd158fb00f6ddd4459fb3d30fe29c94eb",
+      "sha256": "952fa2b696c7b462bdaaae35ff006eaec5768b273f9806a68be6a4d9fa89774a",
       "iCloudURL": null,
       "signed": true,
       "importQuestions": [],
@@ -35,7 +35,7 @@
     {
       "id": "tsunami",
       "title": "nigeyo 津波",
-      "version": "1.5.1",
+      "version": "1.5.2",
       "minimumOSVersion": "27.0",
       "triggerTitle": "TSUNAMI_TEST",
       "automation": {
@@ -47,9 +47,9 @@
       },
       "imageStorage": "embedded-base64",
       "imageFile": "tsunami.png",
-      "imageSHA256": "f7263a8c3efe2b75c9f4e0f14a0ced464342b4462628f8004a8222892c839d56",
+      "imageSHA256": "9361fec0cf843572650f4727b3f09d4843cbed2624e4bd82a70596164dabd2fd",
       "file": "nigeyo-tsunami.shortcut",
-      "sha256": "03f6c80b38f169b39405eed73ebb585ea65654046f5eaa08adbb2376a7a3deb6",
+      "sha256": "7fb13ca609b29b08d059167f0d5898362f6cc2cb63e02c1f0b739bf1ae6727f1",
       "iCloudURL": null,
       "signed": true,
       "importQuestions": [],
@@ -65,7 +65,7 @@
   ],
   "bundle": {
     "file": "bundle.zip",
-    "sha256": "7bfb39532c712bad418f2aaa32dc72b2ef03327ae379ed38c4db38537be13546",
+    "sha256": "79e01595566944c08f421dcbb382ea08445fdfada6de7132b3c762011858a5a7",
     "note": "Two shortcuts with embedded local images, standalone PNGs and setup guide. Notification triggers included. Enable each imported automation and verify the Nigeyo app selection on the iPhone."
   }
 }
