@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nigeyo.local/contracts/language-package.schema.json",
+  "title": "Nigeyo language package",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "packageVersion", "languageId", "displayName", "nativeName", "direction", "strings"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "packageVersion": { "type": "integer", "minimum": 1 },
+    "languageId": { "type": "string", "pattern": "^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$", "description": "BCP 47 tag" },
+    "displayName": { "type": "string", "minLength": 1 },
+    "nativeName": { "type": "string", "minLength": 1 },
+    "direction": { "enum": ["ltr", "rtl"] },
+    "strings": {
+      "type": "object",
+      "description": "Every key in required-string-keys.json, non-empty, with exactly the declared placeholders.",
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    }
+  }
+}

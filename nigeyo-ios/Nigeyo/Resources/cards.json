@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "actions": [
+    { "id": "protect", "pictogram": "protect-head", "titleKey": "guide.protect.title", "shortKey": "guide.protect.short", "bodyKey": "guide.protect.body", "buttonKey": "guide.shakingQuestion", "a11yKey": "a11y.pictogram.protect-head" },
+    { "id": "check-surroundings", "pictogram": "check-surroundings", "titleKey": "guide.surroundings.title", "bodyKey": "guide.surroundings.body", "a11yKey": "a11y.pictogram.check-surroundings" },
+    { "id": "check-fire", "pictogram": "check-fire", "titleKey": "guide.fire.title", "bodyKey": "guide.fire.body", "a11yKey": "a11y.pictogram.check-fire" },
+    { "id": "secure-exit", "pictogram": "secure-exit", "titleKey": "guide.exit.title", "bodyKey": "guide.exit.body", "a11yKey": "a11y.pictogram.secure-exit" },
+    { "id": "tsunami", "pictogram": "tsunami-evacuate", "titleKey": "guide.tsunami.title", "shortKey": "guide.tsunami.short", "bodyKey": "guide.tsunami.body", "buttonKey": "guide.tsunami.checkPlaces", "a11yKey": "a11y.pictogram.tsunami-evacuate" }
+  ],
+  "phases": {
+    "protect": ["protect"],
+    "safety-checks": ["check-surroundings", "check-fire", "secure-exit"],
+    "tsunami-evacuate": ["tsunami"]
+  }
+}

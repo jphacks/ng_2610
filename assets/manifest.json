@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "resourceVersion": 2,
+  "files": [
+    {
+      "path": "wallpapers/earthquake.png",
+      "sha256": "2611705cfcfae38000c4855d3a13cefa6d8c07c1982087746f987ab4151d56ba"
+    },
+    {
+      "path": "wallpapers/tsunami.png",
+      "sha256": "ab7100c6f87704606e6b83ca57c5b3061ca9b5f51f800e81384e8fca310e83be"
+    },
+    {
+      "path": "cards.json",
+      "sha256": "037a7f6b20a905fc5cface5dfdd6298f97d1c40fa7c13b991f6ab76fe8410ac0"
+    },
+    {
+      "path": "pictograms/protect-head.svg",
+      "sha256": "134d46b6ac2a083ea29a086f27d86dbbd526ffa43e401a4b777866f51dcd59d8"
+    },
+    {
+      "path": "pictograms/check-surroundings.svg",
+      "sha256": "5185569db337d644650c21e90da961202ce65d26662d3118ed0f10d6a709ce49"
+    },
+    {
+      "path": "pictograms/check-fire.svg",
+      "sha256": "4957adca72aa93cad3d48ac15f3fd6a7d85fed7c6fd9314887e0578f0b9fc1a7"
+    },
+    {
+      "path": "pictograms/secure-exit.svg",
+      "sha256": "4f5dab452fb29766d19e70e9de15b01cb2041ee8165825e0059491d01323b73e"
+    },
+    {
+      "path": "pictograms/tsunami-evacuate.svg",
+      "sha256": "db402092a7a880826deea3167f83d6c3ea4121747dc269ca09756e3edcb06161"
+    }
+  ]
+}

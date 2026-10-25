@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "languages": [
+    {
+      "languageId": "en",
+      "packageVersion": 1,
+      "nativeName": "English",
+      "displayName": "English",
+      "direction": "ltr",
+      "file": "en.json",
+      "bytes": 21264,
+      "sha256": "f32300006987bd95a30e7a883c043edcf8513f47acc275df293ea63d86fd0d96"
+    },
+    {
+      "languageId": "ja",
+      "packageVersion": 1,
+      "nativeName": "日本語",
+      "displayName": "Japanese",
+      "direction": "ltr",
+      "file": "ja.json",
+      "bytes": 24301,
+      "sha256": "0274deef9bf204216d6932d685d90661970e5e7aa83d4e5ac1be7f118db0f112"
+    },
+    {
+      "languageId": "ko",
+      "packageVersion": 1,
+      "nativeName": "한국어",
+      "displayName": "Korean",
+      "direction": "ltr",
+      "file": "ko.json",
+      "bytes": 23664,
+      "sha256": "6155795f26b9da62bc3fda87bbece9c49f34944c5245a516b2b817b56996f527"
+    }
+  ]
+}

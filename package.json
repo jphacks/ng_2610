@@ -1,0 +1,24 @@
+{
+  "name": "nigeyo",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "demo:prepare": "node scripts/demo-prepare.mjs",
+    "demo:server": "node server/demo/server.mjs",
+    "demo:preflight": "node scripts/demo-preflight.mjs",
+    "languages:validate": "node scripts/languages-validate.mjs",
+    "languages:prepare": "node scripts/languages-prepare.mjs",
+    "assets:wallpapers": "node scripts/make-wallpapers.mjs",
+    "evacuation:import": "node scripts/import-evacuation-sites.mjs",
+    "shortcuts:build": "node scripts/build-shortcuts.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "ws": "8.18.3"
+  },
+  "devDependencies": {
+    "csv-parse": "5.6.0"
+  }
+}
