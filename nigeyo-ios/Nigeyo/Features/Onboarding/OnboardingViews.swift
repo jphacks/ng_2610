@@ -87,9 +87,9 @@ struct PlacesStepView: View {
             ScreenTitle(t["onboarding.places.title"])
             BodyText(t["onboarding.places.body"])
             placeRow(.home, icon: "house", title: t["onboarding.places.home"])
-            if let p = places.places[.home] { MapPreview(coordinate: p.coordinate, caption: t["destination.mapCaption"], pinLabel: p.title, height: 120) }
+            if let p = places.places[.home] { MapPreview(coordinate: p.coordinate, caption: t["destination.mapCaption"], pinLabel: t["onboarding.places.home"], height: 120) }
             placeRow(.university, icon: "building.columns", title: t["onboarding.places.university"])
-            if let p = places.places[.university] { MapPreview(coordinate: p.coordinate, caption: t["destination.mapCaption"], pinLabel: p.title, height: 120) }
+            if let p = places.places[.university] { MapPreview(coordinate: p.coordinate, caption: t["destination.mapCaption"], pinLabel: t["onboarding.places.university"], height: 120) }
             BodyText(t["onboarding.places.pinHint"], size: 13)
             NoteCard(title: t["onboarding.places.privacyTitle"], message: t["onboarding.places.privacyBody"])
         } actions: {
@@ -145,7 +145,7 @@ struct PlaceSearchSheet: View {
     var body: some View {
         NavigationStack {
             ZStack(alignment: .top) {
-                PinMap(center: center, meters: meters, pinTitle: pickedTitle ?? strings["a11y.mapPin"], pin: $pin)
+                PinMap(center: center, meters: meters, pinTitle: title, pin: $pin)
                     .ignoresSafeArea(edges: .bottom)
                 VStack(spacing: 8) {
                     TextField(strings["onboarding.places.searchHint"], text: $search.query)

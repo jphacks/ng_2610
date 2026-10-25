@@ -8,8 +8,8 @@
       "displayName": "English",
       "direction": "ltr",
       "file": "en.json",
-      "bytes": 27848,
-      "sha256": "e757fdf15b58fc7619f10fca5df4f392cf9c6a1bd186fa090297ca7b04eaa3d9"
+      "bytes": 27985,
+      "sha256": "464032e85a2e92dad138b4f5c62374e5d1f021755c88f36c4f0c51bde82dae15"
     },
     {
       "languageId": "ja",
@@ -18,8 +18,8 @@
       "displayName": "Japanese",
       "direction": "ltr",
       "file": "ja.json",
-      "bytes": 32356,
-      "sha256": "2787d1b12483ced5ab704a32f8981ab971cc0028056bf08f64dd04f5b9413399"
+      "bytes": 32594,
+      "sha256": "bd2b85e91bb89becde856a1c5cda719e060cfa6ae461916cb9cfca5edb348cff"
     },
     {
       "languageId": "ko",
@@ -28,8 +28,8 @@
       "displayName": "Korean",
       "direction": "ltr",
       "file": "ko.json",
-      "bytes": 31193,
-      "sha256": "678fd584ec884fbfdc1f4190b100882f4af5ec1d346084c830c58c6b5721b7b8"
+      "bytes": 31369,
+      "sha256": "f39ce3d3ee99228eaa7f69f80131c2fe2724af184f3965712354c8d278595943"
     }
   ]
 }
