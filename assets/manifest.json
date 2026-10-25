@@ -24,11 +24,11 @@
     },
     {
       "path": "pictograms/check-fire.svg",
-      "sha256": "aa2685925a2d8d4c72d6eb35f353040f94125670a0fcdbefbf15adb91084749f"
+      "sha256": "750cc63c114bc3ae575de24801b2ed532e724a24613e72c160245baa5a47f354"
     },
     {
       "path": "pictograms/secure-exit.svg",
-      "sha256": "8f2d5a502714197c028391475132ae9271610b8b1209fbf5e0e7bc9ece4fc745"
+      "sha256": "0b417f0a3d8b9156875f924468ede6f51b8679798cdada5a0cef90374d1a57aa"
     },
     {
       "path": "pictograms/tsunami-evacuate.svg",
