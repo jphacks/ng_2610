@@ -15,7 +15,7 @@ struct HomeFlow: View {
                     case .savedPlaces: SavedPlacesView()
                     case .redoPlaces: RedoPlacesView()
                     case .lockScreen: LockScreenSetupView(counter: nil, onBack: { pop() }, onFinish: { pop() })
-                    case .shortcuts: ShortcutsSetupView { pop() }
+                    case .shortcuts: ShortcutsSetupView(onDone: { pop() })
                     case .languageUpdate: LanguageUpdateView()
                     case .demo: DemoConnectionView()
                     case .privacy: PrivacyView()

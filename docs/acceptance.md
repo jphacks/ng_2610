@@ -52,3 +52,11 @@ Backend regression tests exercise two actual WebSocket clients, different concur
 - Both final archives were Apple-signed and inspected: title filters, target bundle ID, embedded PNG bytes and guide URL match the source. All 30 Node tests and demo preflight pass.
 - The macOS import preview recognizes the earthquake notification trigger and title-contains condition. On this Mac the distribution bundle ID did not resolve and the preview showed Pages. Both recipients must reselect their installed Nigeyo app before enabling; correct iPhone app resolution is not yet verified.
 - Physical iPhone notification delivery and post-import enablement remain device acceptance checks.
+
+## App-bundled shortcut onboarding (2026-10-25)
+
+- Based on main at `7896658`, branch `feat/bundled-shortcut-onboarding`.
+- Both signed shortcuts are bundled in the iOS app; copied bytes match the distribution hashes. No public URL or pairing is used by the setup UI.
+- Four guided steps replace the previous instruction list and nested web setup page. The single completion action at each stage is an explicit user confirmation; opening a file never marks it installed. Progress persists without completing onboarding.
+- `npm test`: 41 tests passed. `xcodebuild test` on iPhone 17 / iOS 27.0 simulator: 36 Swift tests passed, including bundled-file export/name consistency and partial-progress persistence/reset.
+- Physical-device import via the system document handoff (including Save to Files fallback), Shortcuts automation enablement, wallpaper changes and locked notification execution remain pending. Simulator GUI interaction was unavailable through the current automation interface; no visual walkthrough is claimed.

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "packageVersion": 1,
+  "packageVersion": 3,
   "languageId": "en",
   "displayName": "English",
   "nativeName": "English",
@@ -17,18 +17,15 @@
     "common.retry": "Try again",
     "common.unknown": "Unknown",
     "common.stepCounter": "{current} / {total}",
-
     "training.badge": "DRILL",
     "training.badgeLong": "DRILL",
     "training.end": "End drill",
     "manual.end": "End guidance",
-
     "onboarding.language.eyebrow": "WELCOME",
     "onboarding.language.title": "Feel ready.\nFind your next step.",
     "onboarding.language.body": "Visual disaster guidance, in your language.",
     "onboarding.language.continue": "Continue →",
     "onboarding.language.footnote": "You can change your language anytime.",
-
     "onboarding.places.nav": "Set up",
     "onboarding.places.eyebrow": "YOUR EVERYDAY PLACES",
     "onboarding.places.title": "Start with the places\nyou know.",
@@ -46,7 +43,6 @@
     "onboarding.places.footnote": "You can add your school later.",
     "onboarding.places.searching": "Searching…",
     "onboarding.places.noResults": "No results. Try dropping a pin on the map.",
-
     "onboarding.destinations.nav": "Check evacuation sites",
     "onboarding.destinations.eyebrow": "SAVE YOUR DESTINATIONS",
     "onboarding.destinations.title": "Separate sites for\nearthquakes and tsunamis.",
@@ -61,7 +57,6 @@
     "onboarding.destinations.save": "Save these evacuation sites",
     "onboarding.destinations.loading": "Looking for nearby evacuation sites…",
     "onboarding.destinations.change": "Change",
-
     "onboarding.lock.nav": "Lock screen setup",
     "onboarding.lock.eyebrow": "ONE LESS THING TO THINK ABOUT",
     "onboarding.lock.title": "Your next step,\neven on the lock screen.",
@@ -81,7 +76,6 @@
     "onboarding.lock.notificationsAllowed": "Notifications are allowed",
     "onboarding.lock.notificationsDenied": "Notifications are off. Turn them on in Settings.",
     "onboarding.lock.testNotification": "Test a notification",
-
     "home.settings": "Settings",
     "home.eyebrow": "SMALL STEPS, MORE CONFIDENCE",
     "home.title": "So you know\nwhat to do.",
@@ -101,7 +95,6 @@
     "home.discard": "End it",
     "home.missingSession": "Guidance record not found",
     "home.missingSessionBody": "You can start a drill or manual guidance here.",
-
     "practice.nav": "Drill",
     "practice.eyebrow": "PRACTICE AT YOUR OWN PACE",
     "practice.title": "Learn by doing.\nOne step at a time.",
@@ -116,7 +109,6 @@
     "practice.startTsunami": "Start earthquake + tsunami drill",
     "practice.footnote": "You can cancel anytime.",
     "practice.notificationsDenied": "Notifications are off, so the drill alert can't be scheduled.",
-
     "waiting.eyebrow": "READY WHEN YOU ARE",
     "waiting.title": "Lock your iPhone\nand wait.",
     "waiting.body": "A drill notification is coming. When it arrives, open the guidance once it is safe to use your phone.",
@@ -125,14 +117,12 @@
     "waiting.cancel": "Cancel drill",
     "waiting.footnote": "This screen won't move to safety checks on its own.",
     "waiting.openNow": "Open guidance now",
-
     "guide.protect.step": "01 / PROTECT YOURSELF",
     "guide.protect.title": "Earthquake.\nProtect your head.",
     "guide.protect.short": "Stay low. Protect your head.",
     "guide.protect.body": "Stay low and protect your head.\nUse your phone when it is safe to do so.",
     "guide.shakingQuestion": "Has the shaking stopped?",
     "guide.shakingHint": "Only continue once the shaking has stopped.",
-
     "guide.checks.step": "02 / SAFETY CHECKS",
     "guide.checks.title": "Stay calm.\nCheck around you.",
     "guide.surroundings.title": "Stay safe",
@@ -143,7 +133,6 @@
     "guide.exit.body": "If safe, open a door to keep an exit.",
     "guide.unsafeButton": "If you feel unsafe",
     "guide.unsafeHint": "You can check evacuation sites when needed.",
-
     "guide.tsunami.step": "TSUNAMI / DRILL",
     "guide.tsunami.stepManual": "TSUNAMI",
     "guide.tsunami.title": "Tsunami coming.\nGo to high ground.",
@@ -157,7 +146,6 @@
     "guide.tsunami.grade.Warning": "Tsunami warning",
     "guide.tsunami.grade.Watch": "Tsunami advisory",
     "guide.tsunami.grade.Unknown": "Unknown",
-
     "place.nav": "Evacuation sites",
     "place.navTsunami": "Tsunami evacuation sites",
     "place.eyebrow": "WHERE ARE YOU NOW?",
@@ -180,7 +168,6 @@
     "place.tsunamiNote": "Even if no tsunami-ready site is nearby, earthquake-only sites won't be shown.",
     "place.backToChecks": "Back to safety checks",
     "place.backToTsunami": "Back to tsunami guidance",
-
     "candidates.nav": "Other evacuation sites",
     "candidates.navTsunami": "Tsunami evacuation sites",
     "candidates.eyebrow": "NEAR YOUR CURRENT LOCATION",
@@ -195,17 +182,14 @@
     "candidates.searching": "Searching nearby sites…",
     "candidates.lowAccuracy": "Your location may be imprecise ({accuracy}). Check your surroundings too.",
     "candidates.saved": "Saved evacuation site",
-
     "hazard.earthquake": "Earthquake",
     "hazard.tsunami": "Tsunami",
     "hazard.earthquakeSupported": "Earthquake-ready",
     "hazard.tsunamiSupported": "Tsunami-ready",
-
     "distance.straight": "Straight line {distance}",
     "distance.walking": "Walk {distance}",
     "distance.straightLabel": "Straight-line distance from you",
     "distance.savedLabel": "Distance when saved",
-
     "destination.nav": "Evacuation site",
     "destination.mapCaption": "Approximate location",
     "destination.note": "Being close doesn't guarantee safety or access.\nFollow road and building conditions and local guidance.",
@@ -213,7 +197,6 @@
     "destination.openMap": "View in Google Maps ↗",
     "destination.copyAddress": "Copy address and coordinates",
     "destination.openFailed": "Couldn't open Google Maps. You can copy the address and coordinates.",
-
     "onTheWay.nav": "Evacuating",
     "onTheWay.badge": "Destination chosen",
     "onTheWay.badgeTsunami": "Tsunami-ready destination",
@@ -225,7 +208,6 @@
     "onTheWay.mapsBody": "Check your location and the roads as you go.",
     "onTheWay.mapsBodyTsunami": "Follow your surroundings and local evacuation guidance first.",
     "onTheWay.openMaps": "Open route in Google Maps ↗",
-
     "locationError.nav": "Other evacuation sites",
     "locationError.eyebrow": "LET'S TRY ANOTHER WAY",
     "locationError.title": "We couldn't find\nyour location.",
@@ -234,7 +216,6 @@
     "locationError.pin": "Drop a pin on the map",
     "locationError.saved": "Choose home or school",
     "locationError.note": "Saved evacuation sites work without a connection or location.",
-
     "noCandidates.eyebrow": "NO NEARBY CANDIDATE",
     "noCandidates.badgeTsunami": "Tsunami-ready sites",
     "noCandidates.title": "No suitable site\nfound nearby.",
@@ -243,7 +224,6 @@
     "noCandidates.cardTitleEarthquake": "Move somewhere safe nearby",
     "noCandidates.cardBody": "No site found doesn't mean you don't need to evacuate. Follow your surroundings and local guidance.",
     "noCandidates.changePlace": "Search another place",
-
     "endConfirm.title": "End the drill?",
     "endConfirm.titleManual": "End guidance?",
     "endConfirm.body": "This ends the drill notification and the lock-screen Live Activity.",
@@ -254,7 +234,6 @@
     "endConfirm.endManual": "End guidance",
     "endConfirm.keep": "Keep going",
     "endConfirm.keepManual": "Keep going",
-
     "settings.nav": "Settings",
     "settings.language": "Language / 言語",
     "settings.savedPlaces": "Saved evacuation sites",
@@ -274,7 +253,6 @@
     "settings.version": "Nigeyo  /  v{version}",
     "settings.languageNav": "Language",
     "settings.languageNote": "Guidance already in progress keeps its language until it ends.",
-
     "languageUpdate.nav": "Update language packs",
     "languageUpdate.body": "Downloads verified language packs from the server set in Demo connection.",
     "languageUpdate.run": "Check for updates",
@@ -283,7 +261,6 @@
     "languageUpdate.noOrigin": "No server is set.",
     "languageUpdate.failed": "Update failed. Your current packs are still in use.",
     "languageUpdate.busy": "Can't update during guidance.",
-
     "demo.nav": "Demo connection",
     "demo.eyebrow": "DEMO CONNECTION",
     "demo.title": "Connect the\ndemo iPhone.",
@@ -302,7 +279,6 @@
     "demo.permissionsBody": "If they're off, check your iPhone Settings.",
     "demo.note": "This connection is for demos and testing. It doesn't mean the app always receives alerts.",
     "demo.backToSettings": "Back to Settings",
-
     "privacy.nav": "Privacy",
     "privacy.eyebrow": "YOUR PLACES STAY YOURS.",
     "privacy.title": "Only what you need\nto be prepared.",
@@ -313,7 +289,6 @@
     "privacy.mapsTitle": "Maps and location",
     "privacy.mapsBody": "Location is used only while the app is open. MapKit search and routing send locations to Apple.",
     "privacy.googleNote": "Opening Google Maps hands route guidance to an external service.",
-
     "delete.nav": "Delete data",
     "delete.badge": "Check before deleting",
     "delete.eyebrow": "RESET NIGEYO",
@@ -323,7 +298,6 @@
     "delete.manualBody": "iOS shortcuts, changed wallpapers and files saved in Files aren't deleted automatically.",
     "delete.manualHint": "Delete shortcuts in the Shortcuts app and choose your original lock screen.",
     "delete.confirm": "Delete all data",
-
     "shortcuts.nav": "Set up shortcuts",
     "shortcuts.eyebrow": "TWO SHORTCUTS. ONE PLACE.",
     "shortcuts.title": "Earthquake and tsunami.\nBe ready for both.",
@@ -341,9 +315,8 @@
     "shortcuts.finish": "Confirm and finish",
     "shortcuts.footnote": "You can also save offline wallpapers and a setup guide.",
     "shortcuts.setupPage": "Open setup page",
-    "shortcuts.noOrigin": "Set the server in Demo connection first.",
+    "shortcuts.noOrigin": "No Mac or download server connection is needed for this setup.",
     "shortcuts.saveWallpapers": "Save wallpapers to Files",
-
     "liveActivity.testTitle": "Live Activity test",
     "liveActivity.disabled": "Live Activities are off. Guidance continues in the app.",
     "liveActivity.unavailableTitle": "Guidance continues in the app",
@@ -352,16 +325,13 @@
     "liveActivity.compactChecks": "Safety checks",
     "liveActivity.compactTsunami": "High ground",
     "liveActivity.checkPlaces": "Check evacuation sites",
-
     "savedPlaces.nav": "Saved evacuation sites",
     "savedPlaces.redo": "Set up places again",
     "savedPlaces.empty": "Nothing saved yet.",
-
     "notification.earthquake.body": "[Drill · past data] {time} {place}, max intensity {scale}. Open the guidance when it's safe to use your phone.",
     "notification.earthquake.bodyTraining": "[Drill] Earthquake. Protect your head. Open the guidance when it's safe to use your phone.",
     "notification.tsunami.body": "[Drill] {time} {area} {grade}. Tsunami coming. Go to high ground.",
     "notification.tsunami.bodyTraining": "[Drill] Tsunami coming. Go to high ground. This is not a real tsunami.",
-
     "scale.10": "1",
     "scale.20": "2",
     "scale.30": "3",
@@ -371,7 +341,6 @@
     "scale.55": "6-",
     "scale.60": "6+",
     "scale.70": "7",
-
     "a11y.pictogram.protect-head": "Pictogram: person protecting their head under a desk",
     "a11y.pictogram.check-surroundings": "Pictogram: person checking their surroundings",
     "a11y.pictogram.check-fire": "Pictogram: turning off a fire",
@@ -379,7 +348,6 @@
     "a11y.pictogram.tsunami-evacuate": "Pictogram: person moving to high ground away from waves",
     "a11y.selected": "Selected",
     "a11y.mapPin": "Evacuation site location",
-
     "error.storage-failed": "Couldn't save the guidance.",
     "error.notifications-denied": "Notifications are not allowed.",
     "error.stale-revision": "The guidance was already updated.",
@@ -406,6 +374,56 @@
     "regions.status.active": "Warning active",
     "regions.status.cancelled": "Cancellation / all-clear received",
     "regions.status.unknown": "Update status unknown",
-    "regions.afterSave": "After saving, review or change this under Settings → Notification regions."
+    "regions.afterSave": "After saving, review or change this under Settings → Notification regions.",
+    "setup.progress": "Lock screen setup {current} / {total}",
+    "setup.step0.title": "First, allow\nnotifications.",
+    "setup.step0.body": "A notification can start the earthquake or tsunami guidance on your lock screen. Get ready in four steps.",
+    "setup.step1.title": "Add both\nshortcuts.",
+    "setup.step1.body": "Open each file and add it on the iOS screen. Once both are added, return to Nigeyo and continue.",
+    "setup.step2.title": "Let notifications\nchange the wallpaper.",
+    "setup.step2.body": "Check the notification conditions and enable automation for both shortcuts.",
+    "setup.step3.title": "Try each\nwallpaper.",
+    "setup.step3.body": "Try earthquake and tsunami one at a time. When the correct wallpapers appear and Nigeyo opens, finish using the button below.",
+    "setup.notificationsReason": "Notifications help you notice an alert even when the app is closed.",
+    "setup.notificationsPrompt": "Choose Allow on the next prompt.",
+    "setup.allowNotifications": "Allow notifications",
+    "setup.openSettings": "Open notification settings",
+    "setup.noServer": "No Mac or download server connection is needed for this setup.",
+    "setup.returnTitle": "Return to Nigeyo after adding",
+    "setup.returnBody": "Add earthquake → return here and check the box → add tsunami. Closing the import screen does not add a shortcut.",
+    "setup.importHelp": "Cannot find where to add it?",
+    "setup.importHelpBody": "Choose Shortcuts in the file handoff menu. If it is missing, choose Save to Files, then open the .shortcut file in Files. Reinstall the Shortcuts app if it was removed.",
+    "setup.manualConfirmation": "Use the button below only after adding both shortcuts. Progress is saved after each step.",
+    "setup.automation1": "Edit the two added shortcuts",
+    "setup.automation1Body": "In Shortcuts, edit “Nigeyo 地震” and “Nigeyo 津波”. The notification trigger is already included.",
+    "setup.automation2": "Select this Nigeyo as the notification app",
+    "setup.automation2Body": "Reselect the Nigeyo installed on this phone in both triggers, including when a different app name is shown.",
+    "setup.contains": "Keep the title-contains condition shown above for each shortcut. Do not trigger on every notification.",
+    "setup.automation3": "Enable automatic execution",
+    "setup.automation3Body": "Turn on both automations. Review options such as Run Immediately and Allow Running When Locked if iOS shows them.",
+    "setup.openShortcuts": "Open Shortcuts",
+    "setup.enabledConfirmed": "I checked both notification conditions and enabled both automations",
+    "setup.oldAutomation": "Turn off any old shared Nigeyo automation to prevent overlapping wallpaper changes.",
+    "setup.wallpaperNotice": "Your current wallpaper will change",
+    "setup.wallpaperNoticeBody": "Check your current wallpaper first if you want to restore it later. On the first run, allow wallpaper changes and choose the lock screen to update.",
+    "setup.earthquakePreview": "A peach background with a person protecting their head.",
+    "setup.tsunamiPreview": "A blue background with a person moving to higher ground.",
+    "setup.test.earthquake": "Try earthquake wallpaper",
+    "setup.test.tsunami": "Try tsunami wallpaper",
+    "setup.addConfirmed": "I completed Add on the import screen",
+    "setup.testConfirmed": "The correct wallpaper appeared and Nigeyo opened",
+    "setup.testScope": "This tests wallpaper changes and app opening. To try automatic execution from notifications, use Training on the home screen after setup. Restore your wallpaper in iPhone Settings. If you renamed a shortcut, run it directly in Shortcuts.",
+    "setup.endLiveTest": "End display test",
+    "setup.startLiveTest": "Try lock screen display (optional)",
+    "setup.liveTestBody": "Lock your iPhone to check the display, then return to end the test.",
+    "setup.openFailed": "Could not open the shortcut",
+    "setup.openFailedBody": "Check that Shortcuts is installed. If already added, run the shortcut directly in that app. You can return to setup later if needed.",
+    "setup.advance1": "Both added → Next",
+    "setup.advance2": "Both automations enabled → Next",
+    "setup.advance3": "Both work — Finish setup",
+    "setup.readyTitle": "Your lock screen\nis set up.",
+    "setup.readyStatus": "Confirmed during setup",
+    "setup.readyBody": "You recorded adding both shortcuts, enabling automation and testing both wallpapers. If you changed settings in iOS, use Review setup to check them again.",
+    "setup.review": "Review setup"
   }
 }

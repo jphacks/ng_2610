@@ -63,7 +63,7 @@
   ],
   "bundle": {
     "file": "bundle.zip",
-    "sha256": "fbeb720ba50af8e4cddc174b0f10cab25c0a12e1ab6607f2f662d08a51d8669f",
+    "sha256": "71e1dac50a095894c45b2206782055296a34a396e8b06465ac910d60cc9cc51a",
     "note": "Two shortcuts with embedded local images, standalone PNGs and setup guide. Notification triggers included. Enable each imported automation and verify the Nigeyo app selection on the iPhone."
   }
 }

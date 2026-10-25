@@ -102,50 +102,6 @@ struct RedoPlacesView: View {
 
 // MARK: 25 Shortcuts (earthquake + tsunami)
 
-struct ShortcutsSetupView: View {
-    @Environment(AppModel.self) private var model
-    @Environment(\.openURL) private var openURL
-    var onDone: () -> Void
-    @State private var added = false
-    @State private var tested = false
-
-    private var wallpaperFiles: [URL] {
-        ["earthquake", "tsunami"].compactMap { Bundle.main.url(forResource: $0, withExtension: "png") }
-    }
-
-    var body: some View {
-        let t = model.strings
-        let origin = model.pairing?.origin
-        Screen(navTitle: t["shortcuts.nav"], onBack: onDone) {
-            Eyebrow(t["shortcuts.eyebrow"])
-            ScreenTitle(t["shortcuts.title"])
-            BodyText(t["shortcuts.body"])
-            if let origin {
-                RowCard(title: t["shortcuts.setupPage"], subtitle: origin.host, accessory: .external) { openURL(origin.appending(path: "public/shortcuts/setup")) }
-            } else {
-                Text(t["shortcuts.noOrigin"]).nFont(12, .bold).foregroundStyle(Color.danger)
-            }
-            Toggle(t["shortcuts.addedBoth"], isOn: $added).toggleStyle(CheckboxStyle())
-            Toggle(t["shortcuts.testedBoth"], isOn: $tested).toggleStyle(CheckboxStyle())
-            BodyText(t["shortcuts.note"], size: 12)
-        } actions: {
-            NButton(t["shortcuts.finish"], kind: added && tested ? .primary : .disabled) {
-                model.settings.shortcutsAdded = true
-                model.settings.shortcutsTested = true
-                onDone()
-            }
-            if !wallpaperFiles.isEmpty {
-                ShareLink(items: wallpaperFiles) { Text(t["shortcuts.saveWallpapers"]).nFont(13, .bold).frame(minHeight: 44) }
-            }
-            Footnote(t["shortcuts.footnote"])
-        }
-        .onAppear {
-            added = model.settings.shortcutsAdded
-            tested = model.settings.shortcutsTested
-        }
-    }
-}
-
 struct CheckboxStyle: ToggleStyle {
     func makeBody(configuration: Configuration) -> some View {
         Button { configuration.isOn.toggle() } label: {

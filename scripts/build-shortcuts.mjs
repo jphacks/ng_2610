@@ -65,4 +65,7 @@ rmSync(TMP, { recursive: true, force: true });
 console.log('wrote assets/shortcuts/manifest.json');
 
 if (entries.some((e) => !e.signed)) process.exitCode = 1;
-else rmSync(join(DIR, 'nigeyo-nigeyo.shortcut'), { force: true });
+else {
+  rmSync(join(DIR, 'nigeyo-nigeyo.shortcut'), { force: true });
+  await import('./shortcuts-prepare.mjs');
+}

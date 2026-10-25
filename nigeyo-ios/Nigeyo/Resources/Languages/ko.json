@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "packageVersion": 1,
+  "packageVersion": 3,
   "languageId": "ko",
   "displayName": "Korean",
   "nativeName": "한국어",
@@ -17,18 +17,15 @@
     "common.retry": "다시 시도",
     "common.unknown": "알 수 없음",
     "common.stepCounter": "{current} / {total}",
-
     "training.badge": "훈련",
     "training.badgeLong": "훈련 / DRILL",
     "training.end": "훈련 종료",
     "manual.end": "안내 종료",
-
     "onboarding.language.eyebrow": "WELCOME",
     "onboarding.language.title": "미리 준비하고,\n다음 행동으로.",
     "onboarding.language.body": "내 언어로, 한눈에 보는 재난 안내.",
     "onboarding.language.continue": "계속 →",
     "onboarding.language.footnote": "언어는 언제든지 바꿀 수 있습니다.",
-
     "onboarding.places.nav": "초기 설정",
     "onboarding.places.eyebrow": "YOUR EVERYDAY PLACES",
     "onboarding.places.title": "자주 있는 곳부터\n준비해요.",
@@ -46,7 +43,6 @@
     "onboarding.places.footnote": "학교는 나중에 설정해도 됩니다.",
     "onboarding.places.searching": "검색 중…",
     "onboarding.places.noResults": "결과가 없습니다. 지도에 핀을 놓아 주세요.",
-
     "onboarding.destinations.nav": "대피 장소 확인",
     "onboarding.destinations.eyebrow": "SAVE YOUR DESTINATIONS",
     "onboarding.destinations.title": "지진과 쓰나미,\n대피 장소를 나눠요.",
@@ -61,7 +57,6 @@
     "onboarding.destinations.save": "이 대피 장소 저장",
     "onboarding.destinations.loading": "근처 대피 장소를 찾고 있습니다…",
     "onboarding.destinations.change": "후보 변경",
-
     "onboarding.lock.nav": "잠금 화면 준비",
     "onboarding.lock.eyebrow": "ONE LESS THING TO THINK ABOUT",
     "onboarding.lock.title": "잠금 화면에도,\n다음 행동을.",
@@ -81,7 +76,6 @@
     "onboarding.lock.notificationsAllowed": "알림이 허용되어 있습니다",
     "onboarding.lock.notificationsDenied": "알림이 꺼져 있습니다. 설정 앱에서 허용해 주세요.",
     "onboarding.lock.testNotification": "알림 테스트",
-
     "home.settings": "설정",
     "home.eyebrow": "SMALL STEPS, MORE CONFIDENCE",
     "home.title": "만일의 순간에\n당황하지 않도록.",
@@ -101,7 +95,6 @@
     "home.discard": "종료",
     "home.missingSession": "안내 기록을 찾을 수 없습니다",
     "home.missingSessionBody": "여기에서 훈련이나 수동 안내를 시작할 수 있습니다.",
-
     "practice.nav": "훈련",
     "practice.eyebrow": "PRACTICE AT YOUR OWN PACE",
     "practice.title": "몸으로 익히는\n만일의 한 걸음.",
@@ -116,7 +109,6 @@
     "practice.startTsunami": "지진+쓰나미 훈련 시작",
     "practice.footnote": "언제든지 취소할 수 있습니다.",
     "practice.notificationsDenied": "알림이 꺼져 있어 훈련 알림을 예약할 수 없습니다.",
-
     "waiting.eyebrow": "READY WHEN YOU ARE",
     "waiting.title": "iPhone을 잠그고\n기다려 주세요.",
     "waiting.body": "곧 훈련 알림이 옵니다. 알림이 오면 안전하게 조작할 수 있을 때 안내를 열어 주세요.",
@@ -125,14 +117,12 @@
     "waiting.cancel": "훈련 취소",
     "waiting.footnote": "이 화면에서 자동으로 안전 확인으로 넘어가지 않습니다.",
     "waiting.openNow": "지금 안내 열기",
-
     "guide.protect.step": "01 / 몸을 보호하세요",
     "guide.protect.title": "지진입니다.\n머리를 보호하세요.",
     "guide.protect.short": "자세를 낮추고 머리를 보호하세요.",
     "guide.protect.body": "자세를 낮추고 머리를 보호하세요.\n안전할 때 휴대전화를 조작하세요.",
     "guide.shakingQuestion": "흔들림이 멈췄나요?",
     "guide.shakingHint": "흔들림이 멈춘 후 눌러주세요.",
-
     "guide.checks.step": "02 / SAFETY CHECKS",
     "guide.checks.title": "침착하게,\n주변을 확인하세요.",
     "guide.surroundings.title": "안전 확보",
@@ -143,7 +133,6 @@
     "guide.exit.body": "안전하다면 문을 열어 출구를 확보하세요.",
     "guide.unsafeButton": "안전하지 않다고 느끼면",
     "guide.unsafeHint": "필요하면 대피 장소를 확인할 수 있습니다.",
-
     "guide.tsunami.step": "TSUNAMI / 쓰나미 훈련",
     "guide.tsunami.stepManual": "TSUNAMI / 쓰나미",
     "guide.tsunami.title": "쓰나미가 옵니다.\n높은 곳으로.",
@@ -157,7 +146,6 @@
     "guide.tsunami.grade.Warning": "쓰나미 경보",
     "guide.tsunami.grade.Watch": "쓰나미 주의보",
     "guide.tsunami.grade.Unknown": "알 수 없음",
-
     "place.nav": "대피 장소",
     "place.navTsunami": "쓰나미 대피 장소",
     "place.eyebrow": "WHERE ARE YOU NOW?",
@@ -180,7 +168,6 @@
     "place.tsunamiNote": "근처에 대응 시설이 없어도 지진 전용 시설은 표시하지 않습니다.",
     "place.backToChecks": "안전 확인으로 돌아가기",
     "place.backToTsunami": "쓰나미 안내로 돌아가기",
-
     "candidates.nav": "기타 대피 장소",
     "candidates.navTsunami": "쓰나미 대피 장소",
     "candidates.eyebrow": "NEAR YOUR CURRENT LOCATION",
@@ -195,17 +182,14 @@
     "candidates.searching": "근처 시설을 찾고 있습니다…",
     "candidates.lowAccuracy": "현재 위치가 부정확할 수 있습니다({accuracy}). 주변 상황도 확인하세요.",
     "candidates.saved": "저장한 대피 장소",
-
     "hazard.earthquake": "지진",
     "hazard.tsunami": "쓰나미",
     "hazard.earthquakeSupported": "지진 대응",
     "hazard.tsunamiSupported": "쓰나미 대응",
-
     "distance.straight": "직선 거리 {distance}",
     "distance.walking": "도보 {distance}",
     "distance.straightLabel": "현재 위치에서의 직선 거리",
     "distance.savedLabel": "저장 시 거리",
-
     "destination.nav": "대피 장소 확인",
     "destination.mapCaption": "위치 이미지",
     "destination.note": "가깝다고 안전하거나 도달 가능한 것은 아닙니다.\n도로·건물 상황과 지자체 안내를 우선하세요.",
@@ -213,7 +197,6 @@
     "destination.openMap": "Google Maps에서 위치 확인 ↗",
     "destination.copyAddress": "주소와 좌표 복사",
     "destination.openFailed": "Google Maps를 열지 못했습니다. 주소와 좌표를 복사할 수 있습니다.",
-
     "onTheWay.nav": "대피 시작",
     "onTheWay.badge": "대피 장소를 선택했습니다",
     "onTheWay.badgeTsunami": "쓰나미 대응 대피 장소",
@@ -225,7 +208,6 @@
     "onTheWay.mapsBody": "현재 위치와 도로 상황을 확인하며 이동하세요.",
     "onTheWay.mapsBodyTsunami": "주변 상황과 지자체 대피 안내를 우선하세요.",
     "onTheWay.openMaps": "Google Maps에서 경로 열기 ↗",
-
     "locationError.nav": "기타 대피 장소",
     "locationError.eyebrow": "LET'S TRY ANOTHER WAY",
     "locationError.title": "현재 위치를\n확인하지 못했습니다.",
@@ -234,7 +216,6 @@
     "locationError.pin": "지도에 핀 놓기",
     "locationError.saved": "집·학교에서 선택",
     "locationError.note": "저장한 대피 장소는 통신이나 위치 정보 없이도 확인할 수 있습니다.",
-
     "noCandidates.eyebrow": "NO NEARBY CANDIDATE",
     "noCandidates.badgeTsunami": "쓰나미 대응 시설",
     "noCandidates.title": "근처에 해당 시설을\n찾지 못했습니다.",
@@ -243,7 +224,6 @@
     "noCandidates.cardTitleEarthquake": "주변의 안전한 곳으로",
     "noCandidates.cardBody": "시설을 찾지 못해도 대피가 필요 없다는 뜻은 아닙니다. 주변 상황과 지자체 안내를 우선하세요.",
     "noCandidates.changePlace": "다른 장소로 찾기",
-
     "endConfirm.title": "훈련을 종료할까요?",
     "endConfirm.titleManual": "안내를 종료할까요?",
     "endConfirm.body": "이 훈련의 알림과 잠금 화면의 Live Activity를 종료합니다.",
@@ -254,7 +234,6 @@
     "endConfirm.endManual": "안내 종료",
     "endConfirm.keep": "훈련 계속",
     "endConfirm.keepManual": "안내 계속",
-
     "settings.nav": "설정",
     "settings.language": "언어 / Language",
     "settings.savedPlaces": "저장한 대피 장소",
@@ -274,7 +253,6 @@
     "settings.version": "Nigeyo  /  v{version}",
     "settings.languageNav": "언어",
     "settings.languageNote": "진행 중인 안내에는 다음 시작부터 반영됩니다.",
-
     "languageUpdate.nav": "언어 패키지 업데이트",
     "languageUpdate.body": "발표용 데모 연결에서 설정한 서버에서 검증된 언어 패키지를 받습니다.",
     "languageUpdate.run": "업데이트 확인",
@@ -283,7 +261,6 @@
     "languageUpdate.noOrigin": "연결 대상이 설정되지 않았습니다.",
     "languageUpdate.failed": "업데이트하지 못했습니다. 현재 패키지를 계속 사용합니다.",
     "languageUpdate.busy": "안내 중에는 업데이트할 수 없습니다.",
-
     "demo.nav": "발표용 데모 연결",
     "demo.eyebrow": "DEMO CONNECTION",
     "demo.title": "발표용 iPhone을\n연결합니다.",
@@ -302,7 +279,6 @@
     "demo.permissionsBody": "허용되지 않은 경우 iPhone 설정에서 확인하세요.",
     "demo.note": "이 연결은 발표·검증용입니다. 평소 실행 시 상시 수신을 뜻하지 않습니다.",
     "demo.backToSettings": "설정으로 돌아가기",
-
     "privacy.nav": "개인정보",
     "privacy.eyebrow": "YOUR PLACES STAY YOURS.",
     "privacy.title": "대비에 필요한 정보만,\n필요한 만큼.",
@@ -313,7 +289,6 @@
     "privacy.mapsTitle": "지도와 위치 정보",
     "privacy.mapsBody": "위치 정보는 사용 중에만 사용합니다. MapKit 검색·경로 계산 시 위치가 Apple로 전송됩니다.",
     "privacy.googleNote": "Google Maps를 열면 경로 안내는 외부 서비스로 넘어갑니다.",
-
     "delete.nav": "데이터 삭제",
     "delete.badge": "삭제 전 확인",
     "delete.eyebrow": "RESET NIGEYO",
@@ -323,7 +298,6 @@
     "delete.manualBody": "iOS 단축어, 바뀐 배경화면, 파일 앱에 저장한 자료는 자동으로 삭제되지 않습니다.",
     "delete.manualHint": "단축어는 단축어 앱에서 삭제하고, 배경화면은 원래 잠금 화면을 선택하세요.",
     "delete.confirm": "모든 데이터 삭제",
-
     "shortcuts.nav": "단축어 설정",
     "shortcuts.eyebrow": "TWO SHORTCUTS. ONE PLACE.",
     "shortcuts.title": "지진과 쓰나미,\n모두 준비해요.",
@@ -341,9 +315,8 @@
     "shortcuts.finish": "확인하고 완료",
     "shortcuts.footnote": "오프라인용 배경화면·설정 가이드도 저장할 수 있습니다.",
     "shortcuts.setupPage": "설정 페이지 열기",
-    "shortcuts.noOrigin": "먼저 발표용 데모 연결에서 연결 대상을 설정하세요.",
+    "shortcuts.noOrigin": "이 준비에는 Mac이나 다운로드 서버 연결이 필요하지 않습니다.",
     "shortcuts.saveWallpapers": "배경화면을 파일 앱에 저장",
-
     "liveActivity.testTitle": "Live Activity 테스트",
     "liveActivity.disabled": "Live Activity가 꺼져 있습니다. 안내는 앱에서 계속할 수 있습니다.",
     "liveActivity.unavailableTitle": "안내는 앱에서 계속할 수 있습니다",
@@ -352,16 +325,13 @@
     "liveActivity.compactChecks": "안전 확인",
     "liveActivity.compactTsunami": "높은 곳으로",
     "liveActivity.checkPlaces": "대피 장소 확인",
-
     "savedPlaces.nav": "저장한 대피 장소",
     "savedPlaces.redo": "장소 다시 설정",
     "savedPlaces.empty": "아직 저장되지 않았습니다.",
-
     "notification.earthquake.body": "[훈련·과거 정보] {time} {place} 최대 진도 {scale}. 안전하게 조작할 수 있을 때 안내를 여세요.",
     "notification.earthquake.bodyTraining": "[훈련] 지진입니다. 머리를 보호하세요. 안전하게 조작할 수 있을 때 안내를 여세요.",
     "notification.tsunami.body": "[훈련] {time} {area} {grade}. 쓰나미가 옵니다, 높은 곳으로.",
     "notification.tsunami.bodyTraining": "[훈련] 쓰나미가 옵니다, 높은 곳으로. 실제 쓰나미가 아닙니다.",
-
     "scale.10": "1",
     "scale.20": "2",
     "scale.30": "3",
@@ -371,7 +341,6 @@
     "scale.55": "6약",
     "scale.60": "6강",
     "scale.70": "7",
-
     "a11y.pictogram.protect-head": "책상 아래에서 머리를 보호하는 사람 픽토그램",
     "a11y.pictogram.check-surroundings": "주변을 확인하는 사람 픽토그램",
     "a11y.pictogram.check-fire": "불을 끄는 픽토그램",
@@ -379,7 +348,6 @@
     "a11y.pictogram.tsunami-evacuate": "파도를 피해 높은 곳으로 대피하는 사람 픽토그램",
     "a11y.selected": "선택됨",
     "a11y.mapPin": "대피 장소 위치",
-
     "error.storage-failed": "안내를 저장하지 못했습니다.",
     "error.notifications-denied": "알림이 허용되지 않았습니다.",
     "error.stale-revision": "안내가 이미 업데이트되었습니다.",
@@ -406,6 +374,56 @@
     "regions.status.active": "경보 발효 중",
     "regions.status.cancelled": "취소·해제 정보 수신",
     "regions.status.unknown": "갱신 상태 불명",
-    "regions.afterSave": "저장 후 설정 → 알림 대상 지역에서 확인·수정하세요."
+    "regions.afterSave": "저장 후 설정 → 알림 대상 지역에서 확인·수정하세요.",
+    "setup.progress": "잠금 화면 준비 {current} / {total}",
+    "setup.step0.title": "먼저 알림을\n허용해 주세요.",
+    "setup.step0.body": "알림을 받으면 지진·쓰나미에 맞는 안내를 잠금 화면에 표시합니다. 네 단계로 준비합니다.",
+    "setup.step1.title": "두 가지 단축어를\n추가하세요.",
+    "setup.step1.body": "하나씩 열고 iOS 화면에서 추가하세요. 두 단축어를 추가한 뒤 Nigeyo로 돌아와 다음으로 진행합니다.",
+    "setup.step2.title": "알림이 오면\n자동으로 변경.",
+    "setup.step2.body": "두 단축어의 알림 조건을 확인하고 자동 실행을 켜 주세요.",
+    "setup.step3.title": "배경화면을\n확인해 보세요.",
+    "setup.step3.body": "지진·쓰나미를 하나씩 실행하세요. 올바른 배경화면으로 바뀌고 Nigeyo가 열리면 아래 버튼으로 완료하세요.",
+    "setup.notificationsReason": "앱을 닫은 상태에서도 알림을 알아차릴 수 있도록 합니다.",
+    "setup.notificationsPrompt": "다음 화면에서 알림을 허용해 주세요.",
+    "setup.allowNotifications": "알림 허용",
+    "setup.openSettings": "알림 설정 열기",
+    "setup.noServer": "이 준비에는 Mac이나 다운로드 서버 연결이 필요하지 않습니다.",
+    "setup.returnTitle": "추가한 뒤 Nigeyo로 돌아오기",
+    "setup.returnBody": "지진 추가 → 이 화면으로 돌아와 체크 → 쓰나미 추가 순서로 진행합니다. 추가 화면을 닫기만 하면 완료되지 않습니다.",
+    "setup.importHelp": "추가할 앱이 보이지 않나요?",
+    "setup.importHelpBody": "파일 전달 메뉴에서 단축어를 선택하세요. 없다면 ‘파일에 저장’한 뒤 파일 앱에서 .shortcut 파일을 여세요. 단축어 앱을 삭제했다면 다시 설치해 주세요.",
+    "setup.manualConfirmation": "두 단축어를 실제로 추가한 뒤 아래 버튼을 눌러 주세요. 진행 상황은 단계마다 저장됩니다.",
+    "setup.automation1": "추가한 두 단축어 편집",
+    "setup.automation1Body": "단축어 앱에서 ‘Nigeyo 地震’, ‘Nigeyo 津波’를 편집하세요. 알림을 받았을 때의 시작 조건은 이미 포함되어 있습니다.",
+    "setup.automation2": "알림 앱으로 이 Nigeyo 선택",
+    "setup.automation2Body": "두 조건 모두 현재 설치된 Nigeyo로 다시 선택하세요. 다른 앱 이름이 표시되어도 반드시 변경하세요.",
+    "setup.contains": "각 제목에 위 문자열이 포함되는 조건을 유지하세요. 모든 알림을 대상으로 설정하지 마세요.",
+    "setup.automation3": "자동 실행 켜기",
+    "setup.automation3Body": "두 자동화를 켜세요. iOS에 ‘즉시 실행’, ‘잠겨 있는 동안 실행 허용’ 등이 표시되면 확인 후 설정하세요.",
+    "setup.openShortcuts": "단축어 앱 열기",
+    "setup.enabledConfirmed": "두 알림 조건을 확인하고 자동 실행을 켰습니다",
+    "setup.oldAutomation": "기존 공통 Nigeyo 자동화가 있다면 꺼 주세요. 중복 실행으로 배경화면이 덮어써질 수 있습니다.",
+    "setup.wallpaperNotice": "현재 배경화면이 변경됩니다",
+    "setup.wallpaperNoticeBody": "나중에 복원하려면 현재 배경화면을 먼저 확인하세요. 처음 실행할 때 배경화면 변경을 허용하고 변경할 잠금 화면을 선택하세요.",
+    "setup.earthquakePreview": "연한 주황색 배경에 머리를 보호하는 모습을 표시합니다.",
+    "setup.tsunamiPreview": "연한 파란색 배경에 높은 곳으로 대피하는 모습을 표시합니다.",
+    "setup.test.earthquake": "지진 배경화면 테스트",
+    "setup.test.tsunami": "쓰나미 배경화면 테스트",
+    "setup.addConfirmed": "추가 화면에서 추가를 완료했습니다",
+    "setup.testConfirmed": "올바른 배경화면이 표시되고 Nigeyo가 열렸습니다",
+    "setup.testScope": "여기서는 배경화면 변경과 앱 실행을 테스트합니다. 알림 자동 실행은 설정 후 홈의 훈련에서 테스트할 수 있습니다. 배경화면은 iPhone 설정에서 복원할 수 있습니다. 이름을 바꾼 단축어는 단축어 앱에서 직접 실행하세요.",
+    "setup.endLiveTest": "표시 테스트 종료",
+    "setup.startLiveTest": "잠금 화면 표시 테스트 (선택)",
+    "setup.liveTestBody": "iPhone을 잠가 표시를 확인한 뒤 돌아와 테스트를 종료하세요.",
+    "setup.openFailed": "단축어를 열 수 없습니다",
+    "setup.openFailedBody": "단축어 앱이 설치되어 있는지 확인하세요. 이미 추가했다면 단축어 앱에서 직접 실행하세요. 해결되지 않으면 나중에 설정할 수 있습니다.",
+    "setup.advance1": "두 단축어 추가 완료 → 다음",
+    "setup.advance2": "두 자동화 활성화 완료 → 다음",
+    "setup.advance3": "두 동작을 확인하고 완료",
+    "setup.readyTitle": "잠금 화면 준비가\n완료되었습니다.",
+    "setup.readyStatus": "설정 시 동작 확인 완료",
+    "setup.readyBody": "두 단축어 추가, 자동 실행 설정, 배경화면 수동 테스트를 완료한 기록이 있습니다. iOS에서 설정을 변경했다면 설정 다시 보기로 확인하세요.",
+    "setup.review": "설정 다시 보기"
   }
 }
