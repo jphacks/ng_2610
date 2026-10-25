@@ -19,6 +19,7 @@ final class OnboardingModel {
         var site: EvacuationSite
         var straight: Double
         var walking: Double?
+        var walkingSeconds: Double? = nil
         var id: String { site.id }
     }
 
@@ -44,7 +45,7 @@ final class OnboardingModel {
                     let top = (try? await repository.nearest(latitude: coordinate.latitude, longitude: coordinate.longitude, hazard: slot.hazard, limit: 3)) ?? []
                     guard !top.isEmpty else { return (slot, .noSite) }
                     let walking = await WalkingDistance.batch(from: coordinate, to: top.map(\.site))
-                    let candidates = top.map { Candidate(site: $0.site, straight: $0.meters, walking: walking[$0.site.id] ?? nil) }
+                    let candidates = top.map { Candidate(site: $0.site, straight: $0.meters, walking: (walking[$0.site.id] ?? nil)?.meters, walkingSeconds: (walking[$0.site.id] ?? nil)?.seconds) }
                     return (slot, .ready(candidates: OnboardingModel.order(candidates), selected: 0, walkingUnavailable: candidates.allSatisfy { $0.walking == nil }))
                 }
             }
@@ -75,7 +76,7 @@ final class OnboardingModel {
             switch slots[slot] {
             case .ready(let c, let i, _):
                 let pick = c[i]
-                saved[slot.key] = SavedDestination(site: pick.site, meters: pick.walking ?? pick.straight, distanceKind: pick.walking == nil ? .straight : .walking)
+                saved[slot.key] = SavedDestination(site: pick.site, meters: pick.walking ?? pick.straight, distanceKind: pick.walking == nil ? .straight : .walking, seconds: pick.walkingSeconds)
             case .noSite:
                 saved[slot.key] = SavedDestination(site: nil, meters: nil, distanceKind: nil)
             default:

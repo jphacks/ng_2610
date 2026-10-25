@@ -71,20 +71,21 @@ final class PlaceSearchModel: NSObject, MKLocalSearchCompleterDelegate {
     }
 }
 
-/// Walking distance for the onboarding top-3 only: ≤2 concurrent, 8 s each. No polyline,
-/// steps or ETA are ever shown (spec §15.2).
+/// Walking distance and time for the onboarding top-3 only: ≤2 concurrent, 8 s each. No polyline
+/// or steps are ever shown (spec §15.2).
 enum WalkingDistance {
+    typealias Route = (meters: Double, seconds: Double)
     static let timeout: Duration = .seconds(8)
 
-    static func meters(from origin: CLLocationCoordinate2D, to destination: CLLocationCoordinate2D) async -> Double? {
+    static func route(from origin: CLLocationCoordinate2D, to destination: CLLocationCoordinate2D) async -> Route? {
         let request = MKDirections.Request()
         request.source = MKMapItem(location: CLLocation(latitude: origin.latitude, longitude: origin.longitude), address: nil)
         request.destination = MKMapItem(location: CLLocation(latitude: destination.latitude, longitude: destination.longitude), address: nil)
         request.transportType = .walking
         // MKDirections is not Sendable; it is only touched by these two child tasks (calculate / cancel).
         nonisolated(unsafe) let directions = MKDirections(request: request)
-        return await withTaskGroup(of: Double?.self) { group in
-            group.addTask { try? await directions.calculate().routes.first?.distance }
+        return await withTaskGroup(of: Route?.self) { group in
+            group.addTask { (try? await directions.calculate().routes.first).map { ($0.distance, $0.expectedTravelTime) } }
             group.addTask {
                 try? await Task.sleep(for: timeout)
                 directions.cancel()
@@ -96,12 +97,12 @@ enum WalkingDistance {
         }
     }
 
-    /// Returns walking metres (nil = failed) for each candidate, two requests at a time.
-    static func batch(from origin: CLLocationCoordinate2D, to sites: [EvacuationSite]) async -> [String: Double?] {
-        var result: [String: Double?] = [:]
+    /// Returns the walking route (nil = failed) for each candidate, two requests at a time.
+    static func batch(from origin: CLLocationCoordinate2D, to sites: [EvacuationSite]) async -> [String: Route?] {
+        var result: [String: Route?] = [:]
         for chunk in stride(from: 0, to: sites.count, by: 2).map({ Array(sites[$0..<min($0 + 2, sites.count)]) }) {
-            await withTaskGroup(of: (String, Double?).self) { group in
-                for site in chunk { group.addTask { (site.id, await meters(from: origin, to: site.coordinate)) } }
+            await withTaskGroup(of: (String, Route?).self) { group in
+                for site in chunk { group.addTask { (site.id, await route(from: origin, to: site.coordinate)) } }
                 for await (id, m) in group { result[id] = m }
             }
         }
@@ -109,21 +110,20 @@ enum WalkingDistance {
     }
 }
 
-enum GoogleMaps {
-    /// https://www.google.com/maps/dir/?api=1&destination=lat%2Clon&travelmode=walking — no origin, no API key.
+/// Hands off to the Apple Maps app via the `maps://` scheme (always the app, never a browser). No origin is sent;
+/// Maps uses the device's own location. In-app navigation is never implemented.
+enum AppleMaps {
+    /// Walking directions to the site.
     static func directionsURL(latitude: Double, longitude: Double) -> URL {
-        var c = URLComponents(string: "https://www.google.com/maps/dir/")!
-        c.queryItems = [URLQueryItem(name: "api", value: "1"),
-                        URLQueryItem(name: "destination", value: "\(latitude),\(longitude)"),
-                        URLQueryItem(name: "travelmode", value: "walking")]
-        c.percentEncodedQuery = c.percentEncodedQuery?.replacingOccurrences(of: ",", with: "%2C")
+        var c = URLComponents(string: "maps://")!
+        c.queryItems = [URLQueryItem(name: "daddr", value: "\(latitude),\(longitude)"), URLQueryItem(name: "dirflg", value: "w")]
         return c.url!
     }
 
-    static func searchURL(latitude: Double, longitude: Double) -> URL {
-        var c = URLComponents(string: "https://www.google.com/maps/search/")!
-        c.queryItems = [URLQueryItem(name: "api", value: "1"), URLQueryItem(name: "query", value: "\(latitude),\(longitude)")]
-        c.percentEncodedQuery = c.percentEncodedQuery?.replacingOccurrences(of: ",", with: "%2C")
+    /// A pin on the site, labelled with its name.
+    static func placeURL(latitude: Double, longitude: Double, name: String) -> URL {
+        var c = URLComponents(string: "maps://")!
+        c.queryItems = [URLQueryItem(name: "ll", value: "\(latitude),\(longitude)"), URLQueryItem(name: "q", value: name)]
         return c.url!
     }
 }
