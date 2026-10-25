@@ -2,7 +2,7 @@
 
 ロック画面の初期設定は「通知 → 地震・津波の追加 → 自動実行 → 壁紙の確認」の4ステップ。署名済みショートカットと画像をアプリに同梱し、追加時のMac・配布サーバー接続を不要にしています。
 
-[![IMAGE ALT TEXT HERE](https://jphacks.com/wp-content/uploads/2026/07/IMG_5316.png)](https://www.youtube.com/watch?v=piaNsc6ilBI)
+[![IMAGE ALT TEXT HERE](01_title.png)](https://youtu.be/hIeflDzVe6s)
 
 ## 製品概要
 ### 背景(製品開発のきっかけ、課題等）
