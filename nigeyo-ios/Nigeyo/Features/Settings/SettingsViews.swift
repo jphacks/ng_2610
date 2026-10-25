@@ -65,7 +65,7 @@ struct SavedPlacesView: View {
                         Text(site.name).nFont(17, .bold).foregroundStyle(Color.ink)
                         Text(site.address).nFont(12).foregroundStyle(Color.muted)
                         if let m = saved.meters {
-                            Text(saved.distanceKind == .walking ? t("distance.walking", ["distance": t.distance(m)]) : t("distance.straight", ["distance": t.distance(m)]))
+                            Text(saved.distanceKind == .walking ? t.walking(meters: m, seconds: saved.seconds) : t("distance.straight", ["distance": t.distance(m)]))
                                 .nFont(12).foregroundStyle(Color.muted)
                         }
                     } else if saved != nil {

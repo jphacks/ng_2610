@@ -40,7 +40,9 @@ import Testing
         value.tsunamiTested = true
         restored.shortcutPreparation = value
         #expect(restored.shortcutsTested)
+        restored.lockScreenTested = true
         restored.eraseAll()
         #expect(restored.shortcutPreparation == ShortcutPreparation())
+        #expect(!restored.lockScreenTested)
     }
 }

@@ -233,6 +233,7 @@ struct ShortcutsSetupView: View {
         } else if let snap = await model.services.registry.snapshot(for: model.settings.language) {
             let sample = GuideSession.new(mode: .training, source: .local, scenario: .earthquake, quake: nil, snapshot: snap)
             liveTestRunning = await model.services.liveActivities.startTest(state: GuideContent.activityState(for: sample, interactive: false))
+            if liveTestRunning { model.settings.lockScreenTested = true }
         }
     }
 }

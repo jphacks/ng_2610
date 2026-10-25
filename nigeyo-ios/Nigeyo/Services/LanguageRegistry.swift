@@ -175,6 +175,12 @@ struct Strings: Sendable, Equatable {
         return String(format: "%.1f km", meters / 1000)
     }
 
+    /// "Walk 404 m · about 5 min" when the route time is known, otherwise "Walk 404 m".
+    func walking(meters: Double, seconds: Double?) -> String {
+        guard let seconds else { return self("distance.walking", ["distance": distance(meters)]) }
+        return self("distance.walkingTime", ["distance": distance(meters), "minutes": String(Int(max(1, (seconds / 60).rounded(.up))))])
+    }
+
     func scale(_ value: Int?) -> String {
         guard let value else { return self["common.unknown"] }
         return table["scale.\(value)"] ?? self["common.unknown"]
