@@ -16,23 +16,23 @@
     },
     {
       "path": "pictograms/protect-head.svg",
-      "sha256": "134d46b6ac2a083ea29a086f27d86dbbd526ffa43e401a4b777866f51dcd59d8"
+      "sha256": "3fefd7ace0e7010990639c5b728861454dd25980be428ae152883bbe4cd04e9c"
     },
     {
       "path": "pictograms/check-surroundings.svg",
-      "sha256": "5185569db337d644650c21e90da961202ce65d26662d3118ed0f10d6a709ce49"
+      "sha256": "271a2a5c39f45c9904052b95a386090e1f9dcf71b782e0e324c471a6031f7cdb"
     },
     {
       "path": "pictograms/check-fire.svg",
-      "sha256": "4957adca72aa93cad3d48ac15f3fd6a7d85fed7c6fd9314887e0578f0b9fc1a7"
+      "sha256": "aa2685925a2d8d4c72d6eb35f353040f94125670a0fcdbefbf15adb91084749f"
     },
     {
       "path": "pictograms/secure-exit.svg",
-      "sha256": "4f5dab452fb29766d19e70e9de15b01cb2041ee8165825e0059491d01323b73e"
+      "sha256": "8f2d5a502714197c028391475132ae9271610b8b1209fbf5e0e7bc9ece4fc745"
     },
     {
       "path": "pictograms/tsunami-evacuate.svg",
-      "sha256": "db402092a7a880826deea3167f83d6c3ea4121747dc269ca09756e3edcb06161"
+      "sha256": "2867f82ea6717ad1ee630a077c5b004d6ddc96751e3e9a358864ed2e43a17ecd"
     }
   ]
 }

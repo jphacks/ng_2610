@@ -81,21 +81,21 @@ export function renderSetupPage(manifest) {
   const cards = (manifest?.shortcuts ?? []).map((s) => {
     const href = s.file ? `/public/shortcuts/${encodeURIComponent(s.file)}` : null;
     return `<li><h2>${escapeHtml(s.title)}</h2>
-<p>自動化の開始条件も同梱：アプリ <b>Nigeyo</b>、タイトルが <code>${escapeHtml(s.triggerTitle)}</code> を含む。</p>
+<p>自動化の開始条件も同梱：アプリ <b>nigeyo</b>、タイトルが <code>${escapeHtml(s.triggerTitle)}</code> を含む。</p>
 <p>画像はこのショートカットに同梱されています。追加すれば画像も端末に保存され、通知時のダウンロードは不要です。</p>
 ${href ? `<a class="btn" href="${escapeHtml(href)}">${escapeHtml(s.title)} を追加（自動化・画像込み）</a>` : '<p>配布ファイルの署名が未完了です。Macで npm run shortcuts:build を実行してください。</p>'}
 <p><a download="${escapeHtml(s.id)}.png" href="/public/assets/wallpapers/${escapeHtml(s.id)}.png">画像だけ保存</a> · v${escapeHtml(s.version)}</p></li>`;
   }).join('');
   return `<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Nigeyo ショートカット</title><style>body{font:16px/1.6 -apple-system,system-ui,sans-serif;background:#f7f6f0;color:#20241f;margin:auto;padding:24px;max-width:640px}
+<title>nigeyo ショートカット</title><style>body{font:16px/1.6 -apple-system,system-ui,sans-serif;background:#f7f6f0;color:#20241f;margin:auto;padding:24px;max-width:640px}
 li{padding:12px}ol{padding-left:24px}.downloads{padding:0;list-style:none}.downloads li{background:#fff;border-radius:20px;margin:16px 0;padding:20px}.btn{display:inline-block;background:#20241f;color:white;padding:14px;border-radius:12px;text-decoration:none}code{background:#e6ede2;padding:2px 5px;border-radius:4px}</style></head>
 <body><h1>地震・津波の2種類を準備</h1>
-<p>まず以前の「Nigeyo」共通ショートカットを呼ぶ通知オートメーションを無効にしてください。重複すると壁紙が上書きされます。</p>
+<p>まず以前の「nigeyo」共通ショートカットを呼ぶ通知オートメーションを無効にしてください。重複すると壁紙が上書きされます。</p>
 <ol class="downloads">${cards}</ol>
 <h2>追加した自動化を有効にする</h2><ol>
 <li>上の2つを追加すると、画像と通知タイトルの条件も一緒に取り込まれます。別の自動化を新規作成する必要はありません。</li>
-<li>「Nigeyo 地震」の編集画面で、通知条件のアプリが手元の <b>Nigeyo</b>、タイトルが <code>EARTHQUAKE_TEST</code> を含むことを確認。</li>
-<li>「Nigeyo 津波」は同じアプリ、タイトルが <code>TSUNAMI_TEST</code> を含むことを確認。両方とも対象アプリを端末にインストール済みのNigeyoへ選び直してください。開発用IDや未インストールの場合、別アプリ名が表示されることがあります。</li>
+<li>「nigeyo 地震」の編集画面で、通知条件のアプリが手元の <b>nigeyo</b>、タイトルが <code>EARTHQUAKE_TEST</code> を含むことを確認。</li>
+<li>「nigeyo 津波」は同じアプリ、タイトルが <code>TSUNAMI_TEST</code> を含むことを確認。両方とも対象アプリを端末にインストール済みのnigeyoへ選び直してください。開発用IDや未インストールの場合、別アプリ名が表示されることがあります。</li>
 <li>インポートされた各オートメーションをオンにし、必要に応じて「ロック中の実行を許可」を有効にします。OSが求める確認は利用者が行います。</li>
 <li>両方を一度手動実行して壁紙変更の権限を許可。画像・プレビューオフ・ロック画面の対象を確認してください。</li>
 <li>ネット接続を切った状態でも各ショートカットで正しい画像になるか確認後、通知からの実行を試してください。</li></ol>
@@ -268,7 +268,7 @@ export async function createDemoServer({ port = PORT, stateDir = STATE_DIR, fetc
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const app = await createDemoServer();
-  console.log(`Nigeyo demo server on http://127.0.0.1:${PORT}`);
+  console.log(`nigeyo demo server on http://127.0.0.1:${PORT}`);
   console.log(`Tunnel: npm exec --cache /private/tmp/nigeyo-npm-cache --yes --package cloudflared -- cloudflared tunnel --protocol http2 --url http://127.0.0.1:${PORT}`);
   if (!app.assets.resourceVersion) console.warn('assets/manifest.json missing. Run: npm run demo:prepare');
 }
