@@ -21,7 +21,7 @@ struct NigeyoApp: App {
         }
         let model = AppModel()
         _model = State(initialValue: model)
-        Services.shared.notifications.onTap = { info in await model.handleNotification(userInfo: info) }
+        Services.shared.notifications.onTap = { info in await model.handleNotificationTap(userInfo: info) }
         Services.shared.notifications.onPresent = { info in await model.handleNotification(userInfo: info) }
     }
 

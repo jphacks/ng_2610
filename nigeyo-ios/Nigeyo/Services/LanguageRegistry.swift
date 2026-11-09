@@ -72,6 +72,10 @@ actor LanguageRegistry {
             ?? FileManager.default.temporaryDirectory).appendingPathComponent("Languages", isDirectory: true)
     }
 
+    func loadIfNeeded() {
+        if packages.isEmpty { load() }
+    }
+
     func load() {
         packages = [:]
         let skip: Set<String> = ["cards", "evacuation-sites", "required-string-keys", "manifest"]
