@@ -3,3 +3,6 @@
 // Fix the bundle ID before configuring the shortcuts; changing it means redoing notification automations.
 DEVELOPMENT_TEAM = ABCDE12345
 BUNDLE_ID_SUFFIX = .yourname
+
+// Uncomment for an APNs build signed by the paid team. Match the App Store Connect bundle ID.
+// NIGEYO_APNS_ENTITLEMENTS = Config/Nigeyo.entitlements

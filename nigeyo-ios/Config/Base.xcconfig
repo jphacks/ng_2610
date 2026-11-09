@@ -4,6 +4,12 @@ BUNDLE_ID_SUFFIX =
 DEVELOPMENT_TEAM =
 CODE_SIGN_STYLE = Automatic
 
+// Opt in only on a paid team whose App ID supports Push Notifications.
+// Keep the entitlement on the iOS app target, not the widget or test bundle.
+NIGEYO_APNS_ENTITLEMENTS =
+NIGEYO_ENTITLEMENTS_Nigeyo = $(NIGEYO_APNS_ENTITLEMENTS)
+CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*] = $(NIGEYO_ENTITLEMENTS_$(TARGET_NAME))
+
 #include? "../Local.xcconfig"
 
 // iOS only: keep Xcode from offering "My Mac (Designed for iPad)", which breaks UIKit indexing.

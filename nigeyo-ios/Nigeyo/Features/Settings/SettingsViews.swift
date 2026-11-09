@@ -251,12 +251,37 @@ struct DeleteDataView: View {
 
 struct DiagnosticsView: View {
     @Environment(AppModel.self) private var model
+    private let apns = APNsRegistration.shared
     @State private var text = ""
     @State private var copied = false
+    @State private var tokenCopied = false
 
     var body: some View {
         let t = model.strings
         Screen(navTitle: t["settings.diagnostics"], onBack: { model.pop() }) {
+            Card {
+                Text("APNs").nFont(17, .bold).foregroundStyle(Color.ink)
+                switch apns.state {
+                case .idle:
+                    Text("Register this device to test push notifications.").nFont(14)
+                case .registering:
+                    Text("Registering with APNs…").nFont(14)
+                case .registered(let token):
+                    NButton(tokenCopied ? t["common.copied"] : "Copy APNs device token", kind: .secondary) {
+                        UIPasteboard.general.setItems(
+                            [["public.utf8-plain-text": token]],
+                            options: [.localOnly: true, .expirationDate: Date().addingTimeInterval(120)]
+                        )
+                        tokenCopied = true
+                    }
+                case .failed(let message):
+                    Text(message).nFont(14).foregroundStyle(Color.ink)
+                }
+                NButton("Register for APNs", kind: .secondary) {
+                    tokenCopied = false
+                    apns.register()
+                }
+            }
             Text(text.isEmpty ? "—" : text).font(.system(size: 11, design: .monospaced)).foregroundStyle(Color.ink).textSelection(.enabled)
                 .frame(maxWidth: .infinity, alignment: .leading)
         } actions: {

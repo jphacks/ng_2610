@@ -26,6 +26,38 @@ notification. Repeat the same event after advancing the guide to verify it keeps
 progress, then try an expired event and verify it starts no guide. Run the in-app
 training separately to check that its scheduled notification still opens its guide.
 
+## TestFlight APNs delivery (#21)
+
+1. The Apple Developer Account Holder checks that the existing App Store Connect app
+   and the iOS App ID use the same bundle identifier, and enables Push Notifications
+   for that App ID in Certificates, Identifiers & Profiles.
+2. On the Account Holder's Mac, set `DEVELOPMENT_TEAM` and the matching bundle ID in
+   the git-ignored `nigeyo-ios/Local.xcconfig`. Add
+   `NIGEYO_APNS_ENTITLEMENTS = Config/Nigeyo.entitlements`. Leave the setting unset
+   for Personal Team builds. Archive the **Nigeyo** scheme, use a build number that
+   has not been uploaded for this version, and distribute through internal TestFlight.
+   The distribution signature should carry `aps-environment = production`. Xcode
+   uses the signing profile to set the environment during signing and distribution.
+3. On the iPhone, install that TestFlight build, complete onboarding, and allow
+   notifications and Lock Screen display. Open **Settings → Diagnostics → Register for APNs**.
+   After registration succeeds, use **Copy APNs device token** and share it privately
+   with the test sender. The token is kept in memory and is excluded from diagnostic
+   logs. Register again after relaunching or reinstalling to obtain the current token.
+4. In Apple's Push Notification Console, the Account Holder selects the app and
+   **Production**, then sends an **Alert** notification using that token and the
+   payload above. A `.p8` key is unnecessary for console sends. Use separate event
+   IDs for earthquake and tsunami, refresh the expiry, and end the first guide
+   before sending the second event.
+5. Disconnect Xcode and lock the phone. For both hazards, record whether the
+   notification appeared and whether tapping opened the corresponding guide with
+   the training label. If registration fails, read the error in Diagnostics and
+   check the build's signing entitlement and the phone's network. If registration
+   succeeds but no alert appears, check the console's response and the iPhone's
+   notification permissions separately.
+
+[APNs entitlement](https://developer.apple.com/documentation/bundleresources/entitlements/aps-environment)
+· [Push Notification Console](https://developer.apple.com/documentation/usernotifications/testing-notifications-using-the-push-notification-console)
+
 Fill this in on the presentation Mac, iPhone, signing setup and shortcuts. Only record what you observed. ActivityKit success and on-screen display are recorded separately.
 
 Device / iOS: ______ · App bundle ID: ______ · Xcode attached: yes / no · Date: ______
