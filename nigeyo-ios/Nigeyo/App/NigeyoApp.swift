@@ -7,6 +7,14 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         Services.shared.notifications.install()
         return true
     }
+
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        APNsRegistration.shared.didRegister(deviceToken: deviceToken)
+    }
+
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        APNsRegistration.shared.didFail(error: error)
+    }
 }
 
 @main
