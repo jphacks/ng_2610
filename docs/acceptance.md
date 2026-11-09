@@ -1,5 +1,31 @@
 # Device acceptance record (spec §20.2)
 
+## Remote training notification tap (#20)
+
+Use a fresh UUID and an ISO 8601 expiry a few minutes in the future. Inject the payload
+with `xcrun simctl push booted <app-bundle-id> <payload.apns>` after completing onboarding
+and allowing notifications. Switch to Home, then tap the notification. Repeat with the
+app terminated before delivery, then with `hazard` set to `tsunami` and a new event ID.
+Finish the previous guide before testing a new event. Use the `TSUNAMI_TEST` title for
+the tsunami payload.
+
+```json
+{
+  "aps": {
+    "alert": { "title": "EARTHQUAKE_TEST", "body": "Training: protect your head." }
+  },
+  "nigeyoType": "remote-training",
+  "eventId": "c2cd9760-121a-4f30-83af-6ab7e9ee1f8c",
+  "hazard": "earthquake",
+  "expiresAt": "2026-11-09T09:00:00Z"
+}
+```
+
+Check the training badge and the expected first card. The app should create no second
+notification. Repeat the same event after advancing the guide to verify it keeps its
+progress, then try an expired event and verify it starts no guide. Run the in-app
+training separately to check that its scheduled notification still opens its guide.
+
 Fill this in on the presentation Mac, iPhone, signing setup and shortcuts. Only record what you observed. ActivityKit success and on-screen display are recorded separately.
 
 Device / iOS: ______ · App bundle ID: ______ · Xcode attached: yes / no · Date: ______

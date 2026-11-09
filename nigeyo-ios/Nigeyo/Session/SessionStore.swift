@@ -113,6 +113,21 @@ actor SessionStore: SessionStoreProtocol {
         try commit(next)
     }
 
+    /// Resolve the tap atomically so repeated taps cannot overwrite a progressed guide.
+    func openRemoteTraining(_ notification: RemoteTrainingNotification, language: LanguageSnapshot) throws -> GuideSession? {
+        let receivedAt = now()
+        guard notification.expiresAt > receivedAt else { return nil }
+        if let current = state.session, current.sessionId == notification.eventId {
+            return current.isActive && current.source == .remoteTraining && current.hazard == notification.hazard ? current : nil
+        }
+        guard state.session?.isActive != true, try receipt(for: notification.eventId) == nil else { return nil }
+        let session = GuideSession.new(id: notification.eventId, mode: .training, source: .remoteTraining,
+                                       scenario: notification.hazard == .tsunami ? .tsunami : .earthquake,
+                                       quake: nil, snapshot: language, hazard: notification.hazard, now: receivedAt)
+        try prepare(session, receivedAt: receivedAt)
+        return session
+    }
+
     func markNotificationScheduled(sessionId: UUID, fireAt: Date) throws {
         var next = state
         if var s = next.session, s.sessionId == sessionId {

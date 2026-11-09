@@ -24,6 +24,7 @@ enum SessionMode: String, Codable, Sendable { case demo, training, manual, live 
 
 enum DemoSource: String, Codable, Sendable {
     case liveAPI = "live-api", lastGood = "last-good", fixture, local, manual
+    case remoteTraining = "remote-training"
 }
 
 enum Scenario: String, Codable, Sendable { case earthquake, earthquakeTsunami = "earthquake-tsunami", tsunami }
@@ -38,6 +39,24 @@ enum GuidePhase: String, Codable, Sendable {
 }
 
 enum Hazard: String, Codable, Sendable { case earthquake, tsunami }
+
+/// Custom APNs fields, alongside the system's `aps` alert. All values are strings.
+struct RemoteTrainingNotification: Sendable {
+    static let typeKey = "nigeyoType"
+    let eventId: UUID
+    let hazard: Hazard
+    let expiresAt: Date
+
+    init?(userInfo: [String: String]) {
+        guard userInfo[Self.typeKey] == "remote-training",
+              let eventId = userInfo["eventId"].flatMap(UUID.init(uuidString:)),
+              let hazard = userInfo["hazard"].flatMap(Hazard.init(rawValue:)),
+              let expiresAt = userInfo["expiresAt"].flatMap(ISO8601.parse) else { return nil }
+        self.eventId = eventId
+        self.hazard = hazard
+        self.expiresAt = expiresAt
+    }
+}
 
 enum PlaceContext: String, Codable, Sendable, CaseIterable { case home, university, other }
 

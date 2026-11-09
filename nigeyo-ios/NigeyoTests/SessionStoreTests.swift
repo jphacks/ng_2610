@@ -70,6 +70,54 @@ extension Bundle {
 // MARK: - SessionStore
 
 @Suite struct SessionStoreTests {
+    @Test(arguments: [Hazard.earthquake, .tsunami])
+    func remoteTrainingOpensOnceAndPreservesProgress(hazard: Hazard) async throws {
+        let now = Date(timeIntervalSince1970: 2_000_000_000)
+        let persistence = MemoryPersistence()
+        let store = SessionStore(persistence: persistence, now: { now })
+        let id = UUID()
+        let notification = try #require(RemoteTrainingNotification(userInfo: [
+            "nigeyoType": "remote-training", "eventId": id.uuidString, "hazard": hazard.rawValue,
+            "expiresAt": ISO8601.string(now.addingTimeInterval(60))
+        ]))
+        let language = await Fixtures.snapshot()
+        let initial = try #require(try await store.openRemoteTraining(notification, language: language))
+        #expect(initial.mode == .training)
+        #expect(initial.phase == (hazard == .earthquake ? .protect : .tsunamiEvacuate))
+        #expect(initial.notificationScheduledFor == nil)
+
+        let progressed = try await store.transition(sessionId: id, expectedRevision: initial.stateRevision, to: .choosePlace)
+        let reopened = SessionStore(persistence: persistence, now: { now })
+        #expect(try await reopened.openRemoteTraining(notification, language: language) == progressed)
+        try await reopened.complete(sessionId: id)
+        let next = await Fixtures.session()
+        try await reopened.prepare(next, receivedAt: now)
+        try await reopened.complete(sessionId: next.sessionId)
+        #expect(try await reopened.openRemoteTraining(notification, language: language) == nil)
+    }
+
+    @Test func remoteTrainingRejectsInvalidExpiredAndConflictingTaps() async throws {
+        let now = Date(timeIntervalSince1970: 2_000_000_000)
+        let store = SessionStore(persistence: MemoryPersistence(), now: { now })
+        var info = [
+            "nigeyoType": "remote-training", "eventId": UUID().uuidString, "hazard": "unknown",
+            "expiresAt": ISO8601.string(now)
+        ]
+        #expect(RemoteTrainingNotification(userInfo: info) == nil)
+        info["hazard"] = "earthquake"
+        let expired = try #require(RemoteTrainingNotification(userInfo: info))
+        let language = await Fixtures.snapshot()
+        #expect(try await store.openRemoteTraining(expired, language: language) == nil)
+        #expect(try await store.snapshot() == nil)
+
+        let live = GuideSession.new(mode: .live, source: .liveAPI, scenario: .earthquake, quake: nil, snapshot: language)
+        try await store.prepare(live, receivedAt: now)
+        info["expiresAt"] = ISO8601.string(now.addingTimeInterval(60))
+        let valid = try #require(RemoteTrainingNotification(userInfo: info))
+        #expect(try await store.openRemoteTraining(valid, language: language) == nil)
+        #expect(try await store.snapshot() == live)
+    }
+
     @Test func prepareRejectsADifferentActiveSessionButAllowsAfterCompletion() async throws {
         let store = SessionStore(persistence: MemoryPersistence())
         let a = await Fixtures.session()

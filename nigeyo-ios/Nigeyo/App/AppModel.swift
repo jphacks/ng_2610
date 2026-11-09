@@ -58,7 +58,7 @@ final class AppModel {
     func start() async {
         guard !started else { return }
         started = true
-        await services.registry.load()
+        await services.registry.loadIfNeeded()
         await reloadLanguages()
         Task.detached(priority: .utility) { await Services.shared.evacuation.preload() }
         Task {
@@ -175,7 +175,28 @@ final class AppModel {
         }
     }
 
+    func handleNotificationTap(userInfo: [String: String]) async {
+        guard userInfo[RemoteTrainingNotification.typeKey] != nil else {
+            await handleNotification(userInfo: userInfo)
+            return
+        }
+        guard let notification = RemoteTrainingNotification(userInfo: userInfo),
+              notification.expiresAt > Date() else { return }
+        // A notification response may arrive before the first scene's startup task.
+        await services.registry.loadIfNeeded()
+        guard let language = await snapshot() else { return }
+        do {
+            guard let guide = try await services.store.openRemoteTraining(notification, language: language) else { return }
+            resumeAcknowledged.insert(guide.sessionId)
+            homeNotice = nil
+            clock = Date()
+        } catch {
+            errorMessage = Strings(snapshot: language)["error.storage-failed"]
+        }
+    }
+
     func handleNotification(userInfo: [String: String]) async {
+        guard userInfo[RemoteTrainingNotification.typeKey] == nil else { return }
         await applyDueLocalHazard()
         guard let sid = userInfo["sessionId"].flatMap(UUID.init) else { return }
         let current = try? await services.store.snapshot()
