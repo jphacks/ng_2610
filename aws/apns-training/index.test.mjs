@@ -87,3 +87,42 @@ test("rejects caller-selected destinations and redacts failures", async () => {
   const unavailable = makeHandler({ loadSecret: async () => secret("invalid", { ...config, privateKey: "invalid" }) });
   assert.equal((await unavailable({ hazard: "earthquake" })).error, "apns_configuration_unavailable");
 });
+
+test("routes region drills among four registered devices and reports partial failures", async () => {
+  const { deviceToken, ...credentials } = config;
+  const devices = [
+    { id: "one", deviceToken, regions: { tsunami: ["石川県能登"] } },
+    { id: "two", deviceToken: "ccdd", regions: { tsunami: ["石川県能登"] } },
+    { id: "three", deviceToken: "eeff", regions: { earthquake: ["愛知県西部"] } },
+    { id: "four", deviceToken: "1122", regions: { tsunami: ["宮城県"] } },
+  ];
+  let activeSecret = secret("regional", { ...credentials, devices });
+  const sends = [];
+  const handler = makeHandler({
+    loadSecret: async () => activeSecret,
+    send: async (headers, payload) => {
+      sends.push({ path: headers[":path"], payload });
+      return headers[":path"].endsWith("ccdd") ? 410 : 200;
+    },
+  });
+
+  assert.equal((await handler({ hazard: "tsunami" })).error, "training_region_required");
+  assert.equal((await handler({ hazard: "earthquake", region: "石川県能登" })).error, "no_devices_in_region");
+  assert.deepEqual(sends, []);
+
+  const result = await handler({ hazard: "tsunami", region: "石川県能登" });
+  assert.equal(result.accepted, false);
+  assert.deepEqual(result.results, [
+    { id: "one", accepted: true, apnsStatus: 200 },
+    { id: "two", accepted: false, apnsStatus: 410 },
+  ]);
+  assert.equal(sends[0].payload.eventId, sends[1].payload.eventId);
+  assert.match(sends[0].payload.aps.alert.body, /^【訓練】石川県能登/);
+  assert.equal((await handler({ hazard: "earthquake", region: "愛知県西部" })).accepted, true);
+  assert.equal((await handler({ hazard: "tsunami", region: "宮城県" })).accepted, true);
+  assert.deepEqual(sends.map(({ path }) => path), ["/3/device/aabb", "/3/device/ccdd", "/3/device/eeff", "/3/device/1122"]);
+
+  activeSecret = secret("duplicates", { ...credentials, devices: [...devices.slice(0, 3), { ...devices[3], deviceToken: "AABB" }] });
+  assert.equal((await handler({ hazard: "tsunami", region: "宮城県" })).error, "apns_configuration_unavailable");
+  assert.equal(sends.length, 4);
+});

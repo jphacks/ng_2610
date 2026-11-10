@@ -12,8 +12,9 @@ ECS FargateのワーカーがP2P地震情報のWebSocketに常時接続し、既
    アプリの「通知対象地域」で自宅・学校の地域を確認して自動監視を有効にする。
 2. 「設定 → 診断ログ」で **Register for APNs** を押し、端末トークンを取得する。
    **Copy confirmed notification regions** で確認済み地域のJSONも取得する。
-3. 訓練用とは別のSecrets Managerシークレットを作成する。APNs用の5項目は
-   [訓練送信の設定](aws-training-push.md#初回セットアップ)と同じ。
+3. 訓練用とは別のSecrets Managerシークレットを作成する。APNsの署名設定は
+   [訓練送信の設定](aws-training-push.md#初回セットアップ)と同じ。送信先は単独端末の
+   `deviceToken` をトップレベルに設定する。
    コピーした地域JSONを `subscription` キーの値としてオブジェクトのまま追加する。
    キー・トークン・地域JSONはAWSコンソールで直接登録する。
 4. 端末や登録地域を変更したらシークレットを更新し、ECSサービスを再デプロイする。

@@ -10,19 +10,46 @@ const ttlSeconds = 120;
 const apnsOrigin = "https://api.push.apple.com";
 const secrets = new SecretsManagerClient({ maxAttempts: 1 });
 
-export function readConfig(value) {
-  const { teamId, keyId, privateKey, bundleId, deviceToken } = JSON.parse(value);
+function isDeviceToken(value) {
+  return typeof value === "string" && /^(?:[a-fA-F0-9]{2})+$/.test(value);
+}
+
+function isRegion(value) {
+  return typeof value === "string" && value.length > 0 && value.length <= 80 &&
+    value === value.trim() && !/[\p{C}]/u.test(value);
+}
+
+export function readConfig(value, { regional = false } = {}) {
+  const { teamId, keyId, privateKey, bundleId, deviceToken, devices } = JSON.parse(value);
   if (typeof teamId !== "string" || !/^[A-Z0-9]{10}$/.test(teamId) ||
       typeof keyId !== "string" || !/^[A-Z0-9]{10}$/.test(keyId) ||
       typeof bundleId !== "string" || !/^[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/.test(bundleId) ||
-      typeof deviceToken !== "string" || !/^(?:[a-fA-F0-9]{2})+$/.test(deviceToken)) {
+      ((!regional || devices === undefined) && !isDeviceToken(deviceToken))) {
     throw new Error("Invalid APNs configuration");
   }
   const key = createPrivateKey(privateKey);
   if (key.asymmetricKeyType !== "ec" || key.asymmetricKeyDetails.namedCurve !== "prime256v1") {
     throw new Error("Invalid APNs key type");
   }
-  return { teamId, keyId, key, bundleId, deviceToken };
+  if (!regional || devices === undefined) return { teamId, keyId, key, bundleId, deviceToken };
+
+  if (deviceToken !== undefined || !Array.isArray(devices) || devices.length < 1 || devices.length > 4) {
+    throw new Error("Invalid training device list");
+  }
+  const ids = new Set();
+  const tokens = new Set();
+  for (const device of devices) {
+    if (typeof device?.id !== "string" || !/^[A-Za-z0-9_-]{1,24}$/.test(device.id) ||
+        !isDeviceToken(device.deviceToken) || ids.has(device.id) || tokens.has(device.deviceToken.toLowerCase()) ||
+        !device.regions || Object.keys(device.regions).some((hazard) => !Object.hasOwn(drills, hazard)) ||
+        !Object.values(device.regions).some((areas) => Array.isArray(areas) && areas.length) ||
+        !Object.values(device.regions).every((areas) => Array.isArray(areas) && areas.every(isRegion))) {
+      throw new Error("Invalid training device");
+    }
+    ids.add(device.id);
+    tokens.add(device.deviceToken.toLowerCase());
+  }
+  return { teamId, keyId, key, bundleId, devices };
 }
 
 export function providerToken({ keyId, teamId, key }, issuedAt) {
@@ -60,9 +87,12 @@ export function makeHandler({ loadSecret, send = sendToAPNs, now = Date.now }) {
   // invalidates the cache immediately without putting credentials in the environment.
   let cached;
   return async (event) => {
-    if (!event || Object.keys(event).length !== 1 || !Object.hasOwn(event, "hazard") ||
+    if (!event || Object.keys(event).some((key) => key !== "hazard" && key !== "region") || !Object.hasOwn(event, "hazard") ||
         typeof event.hazard !== "string" || !Object.hasOwn(drills, event.hazard)) {
       return { accepted: false, error: "expected_earthquake_or_tsunami" };
+    }
+    if (Object.hasOwn(event, "region") && !isRegion(event.region)) {
+      return { accepted: false, error: "invalid_training_region" };
     }
 
     const hazard = event.hazard;
@@ -74,7 +104,7 @@ export function makeHandler({ loadSecret, send = sendToAPNs, now = Date.now }) {
       const secret = await loadSecret();
       issuedAt = Math.floor(now() / 1000);
       if (!cached || cached.version !== secret.VersionId || issuedAt >= cached.issuedAt + 45 * 60) {
-        config = readConfig(secret.SecretString);
+        config = readConfig(secret.SecretString, { regional: true });
         jwt = providerToken(config, issuedAt);
         cached = { version: secret.VersionId, issuedAt, config, jwt };
       } else {
@@ -84,33 +114,49 @@ export function makeHandler({ loadSecret, send = sendToAPNs, now = Date.now }) {
       return { accepted: false, eventId, error: "apns_configuration_unavailable" };
     }
 
-    const expires = issuedAt + ttlSeconds;
-    const payload = {
-      aps: { alert: drills[hazard], sound: "default" },
-      nigeyoType: "remote-training",
-      eventId,
-      hazard,
-      expiresAt: new Date(expires * 1000).toISOString(),
+    const sendDrill = async (deviceToken, region, apnsId = eventId) => {
+      const expires = issuedAt + ttlSeconds;
+      const alert = drills[hazard];
+      const payload = {
+        aps: { alert: region ? { ...alert, body: `【訓練】${region}：${alert.body.slice("【訓練】".length)}` } : alert, sound: "default" },
+        nigeyoType: "remote-training",
+        eventId,
+        hazard,
+        expiresAt: new Date(expires * 1000).toISOString(),
+      };
+      const headers = {
+        ":method": "POST",
+        ":path": `/3/device/${deviceToken}`,
+        "content-type": "application/json",
+        authorization: `bearer ${jwt}`,
+        [sensitiveHeaders]: ["authorization", ":path"],
+        "apns-topic": config.bundleId,
+        "apns-push-type": "alert",
+        "apns-priority": "10",
+        "apns-id": apnsId,
+        "apns-expiration": String(expires),
+      };
+      try {
+        const status = await send(headers, payload);
+        if (!Number.isInteger(status)) throw new Error("APNs response had no status");
+        return { accepted: status === 200, apnsStatus: status };
+      } catch {
+        return { accepted: false, error: "apns_transport_failed" };
+      }
     };
-    const headers = {
-      ":method": "POST",
-      ":path": `/3/device/${config.deviceToken}`,
-      "content-type": "application/json",
-      authorization: `bearer ${jwt}`,
-      [sensitiveHeaders]: ["authorization", ":path"],
-      "apns-topic": config.bundleId,
-      "apns-push-type": "alert",
-      "apns-priority": "10",
-      "apns-id": eventId,
-      "apns-expiration": String(expires),
-    };
-    try {
-      const status = await send(headers, payload);
-      if (!Number.isInteger(status)) throw new Error("APNs response had no status");
-      return { accepted: status === 200, eventId, apnsStatus: status };
-    } catch {
-      return { accepted: false, eventId, error: "apns_transport_failed" };
+
+    if (!config.devices) {
+      if (event.region) return { accepted: false, eventId, error: "regional_devices_not_configured" };
+      return { ...await sendDrill(config.deviceToken), eventId };
     }
+    if (!event.region) return { accepted: false, eventId, error: "training_region_required" };
+    const matches = config.devices.filter((device) => device.regions[hazard]?.includes(event.region));
+    if (!matches.length) return { accepted: false, eventId, error: "no_devices_in_region" };
+    const results = await Promise.all(matches.map(async (device) => ({
+      id: device.id,
+      ...await sendDrill(device.deviceToken, event.region, randomUUID()),
+    })));
+    return { accepted: results.every((result) => result.accepted), eventId, results };
   };
 }
 
