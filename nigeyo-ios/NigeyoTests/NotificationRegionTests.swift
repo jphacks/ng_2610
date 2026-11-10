@@ -10,6 +10,28 @@ import Testing
         EvacuationSite(id: city, name: "School", address: "愛知県\(city)1-1", municipality: "愛知県\(city)",
                        latitude: 0, longitude: 0, supportsEarthquake: true, supportsTsunami: true)
     }
+    @Test func nationwideCoordinatesAndSplitTsunamiMunicipality() {
+        let sendai = NationalNotificationRegions.suggest(latitude: 38.268, longitude: 140.869)
+        #expect(sendai.earthquake.map(\.id) == ["222"])
+        #expect(sendai.tsunami.map(\.id) == ["220"])
+        let toyohashi = NationalNotificationRegions.suggest(latitude: 34.7692, longitude: 137.3915)
+        #expect(Set(toyohashi.tsunami.map(\.id)) == ["390", "391"])
+        let inland = NationalNotificationRegions.suggest(latitude: 35.6556, longitude: 139.3389)
+        #expect(inland.municipalityFound && inland.tsunami.isEmpty)
+        let boundary = NationalNotificationRegions.suggest(latitude: 34.78895, longitude: 137.16832)
+        #expect(Set(boundary.earthquake.map(\.id)) == ["450", "451"])
+    }
+
+    @Test func changingEvacuationSiteKeepsConfirmedPlaceArea() {
+        let s = settings()
+        let slot = DestinationSlot(place: .home, hazard: .earthquake)
+        s.placeNotificationRegions = [.home: PlaceNotificationRegion(earthquakeId: "222", tsunamiId: "220")]
+        s.regionalMonitoringEnabled = true
+        s.destinations = [slot.key: SavedDestination(site: site(), meters: nil, distanceKind: nil)]
+        #expect(s.regionalSubscription.enabled)
+        #expect(s.regionalSubscription.targets.first?.earthquakeAreaId == "222")
+        #expect(s.regionalSubscription.targets.first?.tsunamiAreaIds == ["220"])
+    }
     @Test func automaticMappingAndLegacyMigrationRequireConfirmation() {
         let s = settings()
         let slot = DestinationSlot(place: .home, hazard: .earthquake)

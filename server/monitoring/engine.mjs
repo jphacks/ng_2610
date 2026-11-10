@@ -1,5 +1,5 @@
 import { jstToIso, uuid } from '../demo/util.mjs';
-import { validSubscription } from './regions.mjs';
+import { earthquakeAreaId, tsunamiAreaId, validSubscription } from './regions.mjs';
 
 const rank = { Watch: 1, Warning: 2, MajorWarning: 3 };
 export const initialState = () => ({ eew: {}, tsunami: { issuedAt: null, areas: {} } });
@@ -33,7 +33,9 @@ export function evaluate(item, subscription, state = initialState(), { now = new
       status = 'cancelled';
       matches = entry.matches;
     } else {
-      matches = targets.filter((t) => item.areas.some((a) => a.pref === t.earthquakeArea.pref && a.name === t.earthquakeArea.name))
+      matches = targets.filter((t) => item.areas.some((a) => subscription.version === 2
+        ? earthquakeAreaId(a) === t.earthquakeAreaId
+        : a.pref === t.earthquakeArea.pref && a.name === t.earthquakeArea.name))
         .map((t) => match(t, t.earthquakeArea.name));
       notify = matches.length > 0 && !entry.notified;
       entry.notified ||= notify;
@@ -55,7 +57,8 @@ export function evaluate(item, subscription, state = initialState(), { now = new
       areas[name] = current;
       if ((rank[current] ?? 0) > (rank[previous.areas[name]] ?? 0)) notify = true;
       if (current !== previous.areas[name] || item.cancelled) {
-        matches.push(...targets.filter((t) => t.tsunamiAreas.includes(name)).map((t) => match(t, name)));
+        matches.push(...targets.filter((t) => subscription.version === 2
+          ? t.tsunamiAreaIds.includes(tsunamiAreaId(name)) : t.tsunamiAreas.includes(name)).map((t) => match(t, name)));
       }
     }
     next.tsunami = { issuedAt, areas };

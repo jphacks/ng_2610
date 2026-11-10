@@ -40,6 +40,20 @@ test('subscriptions reject unknown, unconfirmed, duplicate slots and ambiguous t
   assert(validSubscription({ ...subscription, targets: [target('home.earthquake', { tsunamiStatus: 'none', tsunamiAreas: [] })] }));
 });
 
+test('nationwide subscriptions match official area IDs and reject inconsistent labels', () => {
+  const miyagi = { pref: '宮城', name: '宮城県中部' };
+  const registered = target('home.earthquake', {
+    siteId: 'place:home', earthquakeArea: miyagi, earthquakeAreaId: '222',
+    tsunamiAreas: ['宮城県'], tsunamiAreaIds: ['220'],
+  });
+  const sub = { version: 2, enabled: true, targets: [registered] };
+  assert(validSubscription(sub));
+  assert(!validSubscription({ ...sub, targets: [{ ...registered, tsunamiAreaIds: ['391'] }] }));
+  assert.equal(run(eew(), initialState(), sub).action, null);
+  assert.equal(run(eew(1, { areas: [miyagi] }), initialState(), sub).action.matches[0].region, '宮城県中部');
+  assert.equal(run(tsunami(1, 'Warning', { areas: [{ name: '宮城県', grade: 'Warning' }] }), initialState(), sub).action.matches[0].region, '宮城県');
+});
+
 test('556 groups home and school into one notification, without additional intensity/arrival checks', () => {
   const first = run(eew(), initialState());
   assert(first.action.notify);

@@ -31,13 +31,41 @@ final class OnboardingModel {
     var places: [PlaceContext: Place] = [:]
     var slots: [DestinationSlot: SlotState] = [:]
     private(set) var computedFor: [PlaceContext: Place] = [:]
+    struct RegionDraft {
+        var suggestion: NationalNotificationRegions.Suggestion
+        var earthquakeId: String?
+        var tsunamiId: String?
+        var tsunamiConfirmed: Bool
+
+        var resolved: PlaceNotificationRegion? {
+            guard let earthquakeId, tsunamiConfirmed else { return nil }
+            return PlaceNotificationRegion(earthquakeId: earthquakeId, tsunamiId: tsunamiId)
+        }
+
+        var canSave: Bool { resolved != nil || (suggestion.earthquake.isEmpty && earthquakeId == nil) }
+    }
+    var regionDrafts: [PlaceContext: RegionDraft] = [:]
 
     var isComputing: Bool { slots.values.contains(.loading) }
+    var regionsReady: Bool { places.keys.allSatisfy { regionDrafts[$0]?.canSave == true } }
 
     func compute(repository: EvacuationRepository) async {
-        guard computedFor != places || slots.isEmpty else { return }
-        computedFor = places
+        guard computedFor != places || slots.isEmpty || isComputing else { return }
+        let selected = places
+        computedFor = selected
+        regionDrafts = [:]
         for slot in DestinationSlot.all { slots[slot] = places[slot.place] == nil ? .notSet : .loading }
+        let points = selected.mapValues { ($0.coordinate.latitude, $0.coordinate.longitude) }
+        let suggestions = await Task.detached(priority: .userInitiated) {
+            points.mapValues { NationalNotificationRegions.suggest(latitude: $0.0, longitude: $0.1) }
+        }.value
+        guard !Task.isCancelled, computedFor == selected else { return }
+        regionDrafts = suggestions.mapValues { suggestion in
+            RegionDraft(suggestion: suggestion,
+                        earthquakeId: suggestion.earthquake.count == 1 ? suggestion.earthquake.first?.id : nil,
+                        tsunamiId: suggestion.tsunami.count == 1 ? suggestion.tsunami.first?.id : nil,
+                        tsunamiConfirmed: suggestion.tsunami.count == 1 || (suggestion.tsunami.isEmpty && suggestion.municipalityFound))
+        }
         let targets = DestinationSlot.all.compactMap { slot in places[slot.place].map { (slot, $0.coordinate) } }
         await withTaskGroup(of: (DestinationSlot, SlotState).self) { group in
             for (slot, coordinate) in targets {
@@ -49,7 +77,7 @@ final class OnboardingModel {
                     return (slot, .ready(candidates: OnboardingModel.order(candidates), selected: 0, walkingUnavailable: candidates.allSatisfy { $0.walking == nil }))
                 }
             }
-            for await (slot, state) in group { slots[slot] = state }
+            for await (slot, state) in group where !Task.isCancelled && computedFor == selected { slots[slot] = state }
         }
     }
 
@@ -83,6 +111,12 @@ final class OnboardingModel {
                 break
             }
         }
+        if !places.isEmpty {
+            var regions = settings.placeNotificationRegions ?? [:]
+            for place in places.keys { regions[place] = regionDrafts[place]?.resolved }
+            settings.regionalMonitoringEnabled = false
+            settings.placeNotificationRegions = regions
+        }
         settings.destinations = saved
         discard()
     }
@@ -91,5 +125,6 @@ final class OnboardingModel {
         places = [:]
         computedFor = [:]
         slots = [:]
+        regionDrafts = [:]
     }
 }

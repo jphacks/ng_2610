@@ -10,6 +10,6 @@ COPY aws/apns-training/index.mjs aws/apns-training/
 COPY aws/regional-worker.mjs aws/regional-state.mjs aws/
 COPY server/monitoring/ server/monitoring/
 COPY server/demo/util.mjs server/demo/
-COPY nigeyo-ios/Nigeyo/Resources/notification-regions-aichi.json nigeyo-ios/Nigeyo/Resources/
+COPY nigeyo-ios/Nigeyo/Resources/notification-regions-*.json nigeyo-ios/Nigeyo/Resources/
 USER node
 CMD ["node", "aws/regional-worker.mjs"]

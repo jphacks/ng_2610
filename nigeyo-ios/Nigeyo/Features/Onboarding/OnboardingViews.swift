@@ -287,10 +287,45 @@ struct DestinationsStepView: View {
             }
             ForEach(DestinationSlot.all, id: \.self) { slot in slotCard(slot) }
             BodyText(t["onboarding.destinations.note"], size: 12)
+            ForEach([PlaceContext.home, .university], id: \.self) { place in
+                if let draft = places.regionDrafts[place] { regionCard(place, draft: draft) }
+            }
         } actions: {
-            NButton(t["onboarding.destinations.save"], kind: places.isComputing ? .disabled : .primary, action: onSave)
+            NButton(t["onboarding.destinations.save"], kind: places.isComputing || !places.regionsReady ? .disabled : .primary, action: onSave)
         }
-        .task { await places.compute(repository: model.services.evacuation) }
+        .task(id: places.places) { await places.compute(repository: model.services.evacuation) }
+    }
+
+    private func regionCard(_ place: PlaceContext, draft: OnboardingModel.RegionDraft) -> some View {
+        let t = model.strings
+        let catalog = NationalNotificationRegions.shared
+        return Card {
+            Text("\(t[place == .home ? "onboarding.places.home" : "onboarding.places.university"]) · \(t["regions.title"])")
+                .nFont(17, .bold)
+            Picker(t["regions.earthquake"], selection: Binding(
+                get: { places.regionDrafts[place]?.earthquakeId },
+                set: { places.regionDrafts[place]?.earthquakeId = $0 }
+            )) {
+                Text(t["regions.unconfigured"]).tag(nil as String?)
+                ForEach(draft.suggestion.earthquake.isEmpty ? catalog.earthquakeAreas : draft.suggestion.earthquake, id: \.id) {
+                    Text($0.name).tag(Optional($0.id))
+                }
+            }
+            Picker(t["regions.tsunami"], selection: Binding(
+                get: { places.regionDrafts[place]?.tsunamiConfirmed == true ? (places.regionDrafts[place]?.tsunamiId ?? "none") : "" },
+                set: {
+                    places.regionDrafts[place]?.tsunamiId = $0 == "none" || $0.isEmpty ? nil : $0
+                    places.regionDrafts[place]?.tsunamiConfirmed = !$0.isEmpty
+                }
+            )) {
+                Text(t["regions.unconfigured"]).tag("")
+                if draft.suggestion.tsunami.isEmpty { Text(t["regions.none"]).tag("none") }
+                ForEach(draft.suggestion.tsunami.isEmpty && !draft.suggestion.municipalityFound ? catalog.tsunamiAreas : draft.suggestion.tsunami, id: \.id) {
+                    Text($0.name).tag($0.id)
+                }
+            }
+            if draft.suggestion.tsunami.isEmpty { Text(t["regions.noneNote"]).nFont(12) }
+        }
     }
 
     @ViewBuilder private func slotCard(_ slot: DestinationSlot) -> some View {
@@ -309,7 +344,6 @@ struct DestinationsStepView: View {
             case .ready(let candidates, let selected, let walkingUnavailable):
                 let c = candidates[selected]
                 Text(c.site.name).nFont(17, .bold).foregroundStyle(Color.ink)
-                NotificationRegionSuggestion(site: c.site)
                 Text(distanceLine(c)).nFont(12).foregroundStyle(Color.muted)
                 MapPreview(coordinate: c.site.coordinate, caption: t["destination.mapCaption"], pinLabel: c.site.name, height: 120)
                 if walkingUnavailable { Text(t["onboarding.destinations.walkUnavailable"]).nFont(11).foregroundStyle(Color.danger) }

@@ -28,6 +28,8 @@ struct RegionalTarget: Codable, Equatable, Sendable {
     var earthquakeArea: EarthquakeRegion
     var tsunamiStatus: String
     var tsunamiAreas: [String]
+    var earthquakeAreaId: String? = nil
+    var tsunamiAreaIds: [String]? = nil
 }
 
 struct RegionalSubscription: Codable, Sendable {
@@ -83,6 +85,20 @@ extension SettingsStore {
     }
 
     var regionalSubscription: RegionalSubscription {
+        if let registered = placeNotificationRegions {
+            let table = NationalNotificationRegions.shared
+            let targets: [RegionalTarget] = [PlaceContext.home, .university].compactMap { place in
+                guard let region = registered[place],
+                      let earthquake = table.earthquakeAreas.first(where: { $0.id == region.earthquakeId }) else { return nil }
+                let tsunami = table.tsunamiAreas.filter { $0.id == region.tsunamiId }
+                guard region.tsunamiId == nil || !tsunami.isEmpty else { return nil }
+                return RegionalTarget(slot: "\(place.rawValue).earthquake", siteId: "place:\(place.rawValue)",
+                                      earthquakeArea: EarthquakeRegion(pref: earthquake.pref, name: earthquake.name),
+                                      tsunamiStatus: tsunami.isEmpty ? "none" : "configured", tsunamiAreas: tsunami.map(\.name),
+                                      earthquakeAreaId: earthquake.id, tsunamiAreaIds: tsunami.map(\.id))
+            }
+            return RegionalSubscription(version: 2, enabled: regionalMonitoringEnabled && !targets.isEmpty, targets: targets)
+        }
         let slots = DestinationSlot.all.filter { destination($0)?.site != nil }
         let targets = slots.compactMap { slot -> RegionalTarget? in
             guard let r = region(for: slot), r.isReady, let area = r.earthquakeArea else { return nil }
