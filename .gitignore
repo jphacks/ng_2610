@@ -7,3 +7,5 @@ nigeyo-ios/build/
 xcuserdata/
 *.xcuserstate
 DerivedData/
+.aws-sam/
+*.p8

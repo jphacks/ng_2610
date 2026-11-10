@@ -281,6 +281,15 @@ struct DiagnosticsView: View {
                     tokenCopied = false
                     apns.register()
                 }
+                if model.settings.regionalSubscription.enabled {
+                    NButton("Copy confirmed notification regions", kind: .secondary) {
+                        guard let data = try? JSONEncoder.nigeyo.encode(model.settings.regionalSubscription) else { return }
+                        UIPasteboard.general.setItems(
+                            [["public.utf8-plain-text": String(decoding: data, as: UTF8.self)]],
+                            options: [.localOnly: true, .expirationDate: Date().addingTimeInterval(120)]
+                        )
+                    }
+                }
             }
             Text(text.isEmpty ? "—" : text).font(.system(size: 11, design: .monospaced)).foregroundStyle(Color.ink).textSelection(.enabled)
                 .frame(maxWidth: .infinity, alignment: .leading)

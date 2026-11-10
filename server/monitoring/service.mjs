@@ -6,8 +6,16 @@ import { validSubscription } from './regions.mjs';
 
 /** A single national feed, with isolated durable per-installation state and outboxes. */
 export class RegionalMonitor {
-  constructor({ stateDir, log = async () => {}, WebSocketImpl = WebSocket, now = () => new Date() }) {
-    this.path = join(stateDir, 'regional-monitor.json');
+  constructor({ stateDir, stateStore, log = async () => {}, WebSocketImpl = WebSocket, now = () => new Date() }) {
+    if (stateStore) {
+      this.stateStore = stateStore;
+    } else {
+      const path = join(stateDir, 'regional-monitor.json');
+      this.stateStore = {
+        load: () => readJsonOrNull(path),
+        save: (snapshot) => atomicWrite(path, JSON.stringify(snapshot)),
+      };
+    }
     this.log = log;
     this.WebSocketImpl = WebSocketImpl;
     this.now = now;
@@ -18,7 +26,7 @@ export class RegionalMonitor {
     this.stopped = false;
   }
   async load() {
-    const saved = await readJsonOrNull(this.path);
+    const saved = await this.stateStore.load();
     if (saved?.version === 1) this.records = saved.records ?? {};
     if (Object.values(this.records).some((r) => r.subscription?.enabled)) this.connect();
   }
@@ -27,7 +35,7 @@ export class RegionalMonitor {
     this.queue = result.catch((e) => this.log('regional-monitor-error', { reason: e.message }));
     return result;
   }
-  save() { return atomicWrite(this.path, JSON.stringify({ version: 1, records: this.records })); }
+  save() { return this.stateStore.save({ version: 1, records: this.records }); }
   configure(id, subscription, send) {
     return this.serial(async () => {
       this.clients.set(id, send);
@@ -47,7 +55,11 @@ export class RegionalMonitor {
   acknowledge(id, commandId) {
     return this.serial(async () => {
       const r = this.records[id];
-      if (r) { r.pending = r.pending.filter((p) => p.commandId !== commandId); await this.save(); }
+      if (!r) return;
+      const previous = r.pending;
+      r.pending = previous.filter((p) => p.commandId !== commandId);
+      if (r.pending.length === previous.length) return;
+      try { await this.save(); } catch (e) { r.pending = previous; throw e; }
     });
   }
   ingest(item, { source = 'live' } = {}) {

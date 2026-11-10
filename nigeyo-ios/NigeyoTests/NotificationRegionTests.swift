@@ -34,7 +34,8 @@ import Testing
         #expect(NotificationRegionTable.shared.suggest(site: site("不明市")).earthquakeArea == nil)
     }
 
-    @Test func realReceiverPersistsDedupesAndDoesNotUseDrillTitlesOrTreatWatchAsEvacuation() async throws {
+    @Test(arguments: [false, true])
+    func realReceiverPersistsDedupesAndDoesNotUseDrillTitlesOrTreatWatchAsEvacuation(deliveredRemotely: Bool) async throws {
         let s = settings()
         let slot = DestinationSlot(place: .home, hazard: .earthquake)
         s.destinations = [slot.key: SavedDestination(site: site(), meters: nil, distanceKind: nil)]
@@ -52,15 +53,17 @@ import Testing
                                   issuedAt: now, status: "active", grade: "Watch", notify: true,
                                   matches: [.init(slot: slot.key, siteId: site().id, region: "伊勢・三河湾")],
                                   tsunamiAreas: ["伊勢・三河湾": "Watch"], mode: "live", sentAt: now, expiresAt: now.addingTimeInterval(20))
-        #expect(await receiver.receive(alert, now: now) != nil)
+        #expect(await receiver.receive(alert, now: now, deliveredRemotely: deliveredRemotely) != nil)
         #expect(try await store.snapshot() == nil, "Watch should not open high-ground guidance")
         let first = await notifications.scheduled
-        #expect(first.count == 1)
-        #expect(first.first?.title == "TSUNAMI_WATCH")
-        #expect(first.first?.body.contains("Home") == true)
+        #expect(first.count == (deliveredRemotely ? 0 : 1))
+        if !deliveredRemotely {
+            #expect(first.first?.title == "TSUNAMI_WATCH")
+            #expect(first.first?.body.contains("Home") == true)
+        }
         let relaunched = RegionalAlertReceiver(settings: s, notifications: notifications, registry: Fixtures.registry, store: store, persistence: persistence)
-        #expect(await relaunched.receive(alert, now: now) != nil)
-        #expect(await notifications.scheduled.count == 1)
+        #expect(await relaunched.receive(alert, now: now, deliveredRemotely: deliveredRemotely) != nil)
+        #expect(await notifications.scheduled.count == (deliveredRemotely ? 0 : 1))
         alert.commandId = UUID()
         alert.status = "cancelled"
         alert.notify = false
@@ -71,11 +74,11 @@ import Testing
         alert.status = "active"
         alert.grade = "Warning"
         alert.notify = true
-        #expect(await relaunched.receive(alert, now: now) != nil)
+        #expect(await relaunched.receive(alert, now: now, deliveredRemotely: deliveredRemotely) != nil)
         let session = try await store.snapshot()
         #expect(session?.mode == .live)
         #expect(session?.hazard == .tsunami)
-        #expect(await notifications.scheduled.count == 1)
+        #expect(await notifications.scheduled.count == (deliveredRemotely ? 0 : 1))
         alert.commandId = UUID()
         alert.status = "cancelled"
         alert.notify = false

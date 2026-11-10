@@ -59,19 +59,19 @@ actor RegionalAlertReceiver {
     func reset() throws { try persistence.delete(); state = State() }
     private func commit(_ next: State) throws { try persistence.save(JSONEncoder.nigeyo.encode(next)); state = next }
 
-    func receive(_ cmd: RegionalAlert, now: Date = Date()) async -> RegionalAck? {
+    func receive(_ cmd: RegionalAlert, now: Date = Date(), deliveredRemotely: Bool = false) async -> RegionalAck? {
         // Actors may reenter at awaits. Serialize whole commands so a late warning cannot
         // resume after a cancellation and restore the obsolete guidance.
         let previous = pendingTask
         let task = Task { [self] in
             _ = await previous?.value
-            return await process(cmd, now: now)
+            return await process(cmd, now: now, deliveredRemotely: deliveredRemotely)
         }
         pendingTask = task
         return await task.value
     }
 
-    private func process(_ cmd: RegionalAlert, now: Date) async -> RegionalAck? {
+    private func process(_ cmd: RegionalAlert, now: Date, deliveredRemotely: Bool) async -> RegionalAck? {
         guard cmd.schemaVersion == WireConstants.schemaVersion, cmd.type == "regional-alert", cmd.mode == "live",
               cmd.expiresAt >= now, cmd.sentAt.timeIntervalSince(now) < 5,
               ["active", "cancelled", "unknown"].contains(cmd.status), !cmd.matches.isEmpty else { return nil }
@@ -138,7 +138,7 @@ actor RegionalAlertReceiver {
             next.notificationPrepared[cmd.commandId] = content
         }
         do { try commit(next) } catch { return nil }
-        if let content = state.notificationPrepared[cmd.commandId] {
+        if !deliveredRemotely, let content = state.notificationPrepared[cmd.commandId] {
             guard await notifications.authorization() == .authorized else { return nil }
             // Reconcile crash after scheduling using the deterministic identifier.
             if !(await notifications.exists(identifier: identifier)) {
