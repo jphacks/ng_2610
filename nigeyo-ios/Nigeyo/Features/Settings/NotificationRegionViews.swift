@@ -10,7 +10,10 @@ struct NotificationRegionsView: View {
     private let table = NotificationRegionTable.shared
 
     private var registered: [DestinationSlot] { DestinationSlot.all.filter { model.settings.destination($0)?.site != nil } }
-    private var ready: Bool { !registered.isEmpty && registered.allSatisfy { drafts[$0.key]?.isReady == true } }
+    private var ready: Bool {
+        if model.settings.placeNotificationRegions != nil { return !model.settings.regionalSubscription.targets.isEmpty }
+        return !registered.isEmpty && registered.allSatisfy { drafts[$0.key]?.isReady == true }
+    }
 
     var body: some View {
         let t = model.strings
@@ -21,28 +24,44 @@ struct NotificationRegionsView: View {
                 Toggle(t["regions.enabled"], isOn: $enabled).disabled(!ready)
                 if !ready { Text(t["regions.needsConfirmation"]).foregroundStyle(.secondary) }
             }
-            ForEach(registered, id: \.self) { slot in
-                if let region = drafts[slot.key], let site = model.settings.destination(slot)?.site {
-                    Section {
-                        Text(site.name)
-                        Text(site.address).font(.caption)
-                        Picker(t["regions.earthquake"], selection: earthquakeBinding(slot)) {
-                            Text(t["regions.unconfigured"]).tag("")
-                            ForEach(table.earthquakeAreas, id: \.name) { area in Text(area.name).tag(area.name) }
+            if let places = model.settings.placeNotificationRegions {
+                ForEach([PlaceContext.home, .university], id: \.self) { place in
+                    if let region = places[place] {
+                        let catalog = NationalNotificationRegions.shared
+                        Section(t[place == .home ? "onboarding.places.home" : "onboarding.places.university"]) {
+                            LabeledContent(t["regions.earthquake"], value: catalog.earthquakeAreas.first { $0.id == region.earthquakeId }?.name ?? t["regions.unconfigured"])
+                            LabeledContent(t["regions.tsunami"], value: catalog.tsunamiAreas.first { $0.id == region.tsunamiId }?.name ?? t["regions.none"])
                         }
-                        Picker(t["regions.tsunami"], selection: tsunamiBinding(slot)) {
-                            Text(t["regions.unconfigured"]).tag("unconfigured")
-                            Text(t["regions.none"]).tag("none")
-                            ForEach(table.tsunamiAreas, id: \.self) { Text($0).tag($0) }
-                            Text(table.tsunamiAreas.joined(separator: " / ")).tag("both")
-                        }
-                        Text(t["regions.noneNote"]).font(.caption)
-                        Toggle(t["regions.confirm"], isOn: confirmationBinding(slot))
-                            .disabled(region.earthquakeArea == nil || region.tsunamiStatus == "unconfigured")
-                    } header: {
-                        Text("\(t[slot.place == .home ? "onboarding.places.home" : "onboarding.places.university"]) · \(t["hazard.\(slot.hazard.rawValue)"])")
                     }
                 }
+            } else {
+                ForEach(registered, id: \.self) { slot in
+                    if let region = drafts[slot.key], let site = model.settings.destination(slot)?.site {
+                        Section {
+                            Text(site.name)
+                            Text(site.address).font(.caption)
+                            Picker(t["regions.earthquake"], selection: earthquakeBinding(slot)) {
+                                Text(t["regions.unconfigured"]).tag("")
+                                ForEach(table.earthquakeAreas, id: \.name) { area in Text(area.name).tag(area.name) }
+                            }
+                            Picker(t["regions.tsunami"], selection: tsunamiBinding(slot)) {
+                                Text(t["regions.unconfigured"]).tag("unconfigured")
+                                Text(t["regions.none"]).tag("none")
+                                ForEach(table.tsunamiAreas, id: \.self) { Text($0).tag($0) }
+                                Text(table.tsunamiAreas.joined(separator: " / ")).tag("both")
+                            }
+                            Text(t["regions.noneNote"]).font(.caption)
+                            Toggle(t["regions.confirm"], isOn: confirmationBinding(slot))
+                                .disabled(region.earthquakeArea == nil || region.tsunamiStatus == "unconfigured")
+                        } header: {
+                            Text("\(t[slot.place == .home ? "onboarding.places.home" : "onboarding.places.university"]) · \(t["hazard.\(slot.hazard.rawValue)"])")
+                        }
+                    }
+                }
+            }
+            Button(t["savedPlaces.redo"]) {
+                model.homePath.append(.redoPlaces)
+                dismiss()
             }
             if !lastAlerts.isEmpty {
                 Section(t["regions.latest"]) {
@@ -95,19 +114,5 @@ struct NotificationRegionsView: View {
             drafts[slot.key]?.confirmed = value
             if !value { enabled = false }
         })
-    }
-}
-
-struct NotificationRegionSuggestion: View {
-    var site: EvacuationSite
-    @Environment(AppModel.self) private var model
-    var body: some View {
-        let r = NotificationRegionTable.shared.suggest(site: site)
-        let t = model.strings
-        VStack(alignment: .leading, spacing: 4) {
-            Text("\(t["regions.earthquake"]): \(r.earthquakeArea?.name ?? t["regions.unconfigured"])")
-            Text("\(t["regions.tsunami"]): \(r.tsunamiStatus == "none" ? t["regions.none"] : r.tsunamiAreas.isEmpty ? t["regions.unconfigured"] : r.tsunamiAreas.joined(separator: ", "))")
-            Text(t["regions.afterSave"])
-        }.font(.caption).foregroundStyle(.secondary)
     }
 }
