@@ -176,6 +176,17 @@ final class AppModel {
     }
 
     func handleNotificationTap(userInfo: [String: String]) async {
+        if userInfo[RemoteTrainingNotification.typeKey] == "regional-alert" {
+            guard let json = userInfo["regionalAlert"],
+                  let command = try? JSONDecoder.nigeyo.decode(RegionalAlert.self, from: Data(json.utf8)),
+                  command.status == "active", command.notify else { return }
+            await services.registry.loadIfNeeded()
+            if await services.regionalAlerts.receive(command, deliveredRemotely: true) != nil {
+                homeNotice = nil
+                clock = Date()
+            }
+            return
+        }
         guard userInfo[RemoteTrainingNotification.typeKey] != nil else {
             await handleNotification(userInfo: userInfo)
             return

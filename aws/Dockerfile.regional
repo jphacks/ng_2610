@@ -1,0 +1,15 @@
+FROM node:24-bookworm-slim
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --ignore-scripts
+COPY aws/package*.json ./aws/
+RUN npm ci --prefix aws --omit=dev --ignore-scripts
+COPY aws/apns-training/package*.json ./aws/apns-training/
+RUN npm ci --prefix aws/apns-training --omit=dev --ignore-scripts
+COPY aws/apns-training/index.mjs aws/apns-training/
+COPY aws/regional-worker.mjs aws/regional-state.mjs aws/
+COPY server/monitoring/ server/monitoring/
+COPY server/demo/util.mjs server/demo/
+COPY nigeyo-ios/Nigeyo/Resources/notification-regions-aichi.json nigeyo-ios/Nigeyo/Resources/
+USER node
+CMD ["node", "aws/regional-worker.mjs"]
