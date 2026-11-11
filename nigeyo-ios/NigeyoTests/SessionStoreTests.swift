@@ -96,7 +96,42 @@ extension Bundle {
         #expect(try await reopened.openRemoteTraining(notification, language: language) == nil)
     }
 
-    @Test func remoteTrainingRejectsInvalidExpiredAndConflictingTaps() async throws {
+    @Test(arguments: [SessionMode.training, .demo], [false, true])
+    func remoteTsunamiTrainingReplacesAnActiveEarthquakeGuide(mode: SessionMode, foregroundDelivery: Bool) async throws {
+        let now = Date(timeIntervalSince1970: 2_000_000_000)
+        let persistence = MemoryPersistence()
+        let store = SessionStore(persistence: persistence, now: { now })
+        let language = await Fixtures.snapshot()
+        let earthquake = await Fixtures.session(mode: mode)
+        let tsunami = try #require(RemoteTrainingNotification(userInfo: [
+            "nigeyoType": "remote-training", "eventId": UUID().uuidString, "hazard": "tsunami",
+            "expiresAt": ISO8601.string(now.addingTimeInterval(60))
+        ]))
+        if foregroundDelivery {
+            #expect(try await store.openRemoteTraining(tsunami, language: language, onlyIfReplacingEarthquake: true) == nil)
+        }
+        try await store.prepare(earthquake, receivedAt: now)
+        _ = try await store.transition(sessionId: earthquake.sessionId, expectedRevision: earthquake.stateRevision, to: .safetyChecks)
+
+        let switched = try #require(try await store.openRemoteTraining(
+            tsunami, language: language, onlyIfReplacingEarthquake: foregroundDelivery))
+        #expect(switched.sessionId == tsunami.eventId)
+        #expect(switched.phase == .tsunamiEvacuate)
+        #expect(switched.mode == .training)
+
+        let reopened = SessionStore(persistence: persistence, now: { now })
+        #expect(try await reopened.snapshot() == switched)
+        #expect(try await reopened.openRemoteTraining(tsunami, language: language) == switched)
+        let quakeTap = try #require(RemoteTrainingNotification(userInfo: [
+            "nigeyoType": "remote-training", "eventId": UUID().uuidString, "hazard": "earthquake",
+            "expiresAt": ISO8601.string(now.addingTimeInterval(60))
+        ]))
+        #expect(try await reopened.openRemoteTraining(quakeTap, language: language) == nil)
+        #expect(try await reopened.snapshot() == switched)
+    }
+
+    @Test(arguments: [Hazard.earthquake, .tsunami])
+    func remoteTrainingRejectsInvalidExpiredAndConflictingTaps(hazard: Hazard) async throws {
         let now = Date(timeIntervalSince1970: 2_000_000_000)
         let store = SessionStore(persistence: MemoryPersistence(), now: { now })
         var info = [
@@ -104,7 +139,7 @@ extension Bundle {
             "expiresAt": ISO8601.string(now)
         ]
         #expect(RemoteTrainingNotification(userInfo: info) == nil)
-        info["hazard"] = "earthquake"
+        info["hazard"] = hazard.rawValue
         let expired = try #require(RemoteTrainingNotification(userInfo: info))
         let language = await Fixtures.snapshot()
         #expect(try await store.openRemoteTraining(expired, language: language) == nil)

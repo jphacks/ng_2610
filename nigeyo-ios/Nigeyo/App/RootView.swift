@@ -8,7 +8,7 @@ struct RootView: View {
             switch model.root {
             case .onboarding: OnboardingFlow()
             case .waiting: WaitingView()
-            case .guide: GuideFlowView()
+            case .guide: GuideFlowView().id(model.session?.sessionId)
             case .resumePrompt: ResumePromptView()
             case .home: HomeFlow()
             }
