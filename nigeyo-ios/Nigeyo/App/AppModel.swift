@@ -191,13 +191,18 @@ final class AppModel {
             await handleNotification(userInfo: userInfo)
             return
         }
+        await openRemoteTraining(userInfo: userInfo)
+    }
+
+    private func openRemoteTraining(userInfo: [String: String], onlyIfReplacingEarthquake: Bool = false) async {
         guard let notification = RemoteTrainingNotification(userInfo: userInfo),
               notification.expiresAt > Date() else { return }
         // A notification response may arrive before the first scene's startup task.
         await services.registry.loadIfNeeded()
         guard let language = await snapshot() else { return }
         do {
-            guard let guide = try await services.store.openRemoteTraining(notification, language: language) else { return }
+            guard let guide = try await services.store.openRemoteTraining(notification, language: language,
+                onlyIfReplacingEarthquake: onlyIfReplacingEarthquake) else { return }
             resumeAcknowledged.insert(guide.sessionId)
             homeNotice = nil
             clock = Date()
@@ -207,7 +212,12 @@ final class AppModel {
     }
 
     func handleNotification(userInfo: [String: String]) async {
-        guard userInfo[RemoteTrainingNotification.typeKey] == nil else { return }
+        if userInfo[RemoteTrainingNotification.typeKey] != nil {
+            if isForeground, userInfo["hazard"] == Hazard.tsunami.rawValue {
+                await openRemoteTraining(userInfo: userInfo, onlyIfReplacingEarthquake: true)
+            }
+            return
+        }
         await applyDueLocalHazard()
         guard let sid = userInfo["sessionId"].flatMap(UUID.init) else { return }
         let current = try? await services.store.snapshot()

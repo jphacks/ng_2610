@@ -6,8 +6,12 @@ Use a fresh UUID and an ISO 8601 expiry a few minutes in the future. Inject the 
 with `xcrun simctl push booted <app-bundle-id> <payload.apns>` after completing onboarding
 and allowing notifications. Switch to Home, then tap the notification. Repeat with the
 app terminated before delivery, then with `hazard` set to `tsunami` and a new event ID.
-Finish the previous guide before testing a new event. Use the `TSUNAMI_TEST` title for
-the tsunami payload.
+Keep the earthquake training guide active when tapping the new `TSUNAMI_TEST`
+notification. Verify that it switches to the tsunami evacuation guide. Repeat with
+the earthquake guide visible and verify that the notification switches the guide
+without a tap. Tap a fresh
+earthquake training notification while the tsunami guide is active and verify it
+does not switch back.
 
 ```json
 {
@@ -46,8 +50,8 @@ training separately to check that its scheduled notification still opens its gui
 4. In Apple's Push Notification Console, the Account Holder selects the app and
    **Production**, then sends an **Alert** notification using that token and the
    payload above. A `.p8` key is unnecessary for console sends. Use separate event
-   IDs for earthquake and tsunami, refresh the expiry, and end the first guide
-   before sending the second event.
+   IDs for earthquake and tsunami and refresh the expiry. Leave the earthquake
+   training guide active when sending the tsunami event to test the switch.
 5. Disconnect Xcode and lock the phone. For both hazards, record whether the
    notification appeared and whether tapping opened the corresponding guide with
    the training label. If registration fails, read the error in Diagnostics and

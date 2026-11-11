@@ -107,24 +107,36 @@ actor SessionStore: SessionStoreProtocol {
         if let current = state.session, current.isActive, current.sessionId != session.sessionId {
             throw SessionStoreError.sessionBusy
         }
+        try savePreparedSession(session, receivedAt: receivedAt)
+    }
+
+    private func savePreparedSession(_ session: GuideSession, receivedAt: Date) throws {
         var next = state
         next.session = session
         next.receipts.append(NotificationReceipt(runId: session.sessionId, state: .prepared, receivedAt: receivedAt, fireAt: nil, errorCode: nil, stateRevision: session.stateRevision))
         try commit(next)
     }
 
-    /// Resolve the tap atomically so repeated taps cannot overwrite a progressed guide.
-    func openRemoteTraining(_ notification: RemoteTrainingNotification, language: LanguageSnapshot) throws -> GuideSession? {
+    /// Resolve delivery atomically so repeated notifications cannot overwrite a progressed guide.
+    func openRemoteTraining(_ notification: RemoteTrainingNotification, language: LanguageSnapshot,
+                            onlyIfReplacingEarthquake: Bool = false) throws -> GuideSession? {
         let receivedAt = now()
         guard notification.expiresAt > receivedAt else { return nil }
         if let current = state.session, current.sessionId == notification.eventId {
             return current.isActive && current.source == .remoteTraining && current.hazard == notification.hazard ? current : nil
         }
-        guard state.session?.isActive != true, try receipt(for: notification.eventId) == nil else { return nil }
+        guard try receipt(for: notification.eventId) == nil else { return nil }
+        if let current = state.session, current.isActive {
+            // A tsunami drill can supersede an earthquake drill or demo, never a real guide.
+            guard notification.hazard == .tsunami, current.hazard == .earthquake,
+                  current.mode == .training || current.mode == .demo else { return nil }
+        } else if onlyIfReplacingEarthquake {
+            return nil
+        }
         let session = GuideSession.new(id: notification.eventId, mode: .training, source: .remoteTraining,
                                        scenario: notification.hazard == .tsunami ? .tsunami : .earthquake,
                                        quake: nil, snapshot: language, hazard: notification.hazard, now: receivedAt)
-        try prepare(session, receivedAt: receivedAt)
+        try savePreparedSession(session, receivedAt: receivedAt)
         return session
     }
 
