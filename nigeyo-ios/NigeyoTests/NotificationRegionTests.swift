@@ -22,6 +22,23 @@ import Testing
         #expect(Set(boundary.earthquake.map(\.id)) == ["450", "451"])
     }
 
+    @Test @MainActor func confirmingTokyoHomeReplacesLegacySubscription() async {
+        let s = settings()
+        let homeEarthquake = DestinationSlot(place: .home, hazard: .earthquake)
+        s.destinations = [homeEarthquake.key: SavedDestination(site: site(), meters: nil, distanceKind: nil)]
+        let onboarding = OnboardingModel()
+        onboarding.places[.home] = .init(title: "本郷", coordinate: .init(latitude: 35.7126, longitude: 139.7610))
+        await onboarding.compute(repository: EvacuationRepository(sites: []))
+
+        #expect(onboarding.regionsReady)
+        #expect(onboarding.regionDrafts[.home]?.resolved?.earthquakeId == "350")
+        onboarding.save(to: s)
+
+        #expect(s.regionalSubscription.version == 2)
+        #expect(s.regionalSubscription.targets.count == 1)
+        #expect(s.regionalSubscription.targets.first?.earthquakeArea.name == "東京都２３区")
+    }
+
     @Test func changingEvacuationSiteKeepsConfirmedPlaceArea() {
         let s = settings()
         let slot = DestinationSlot(place: .home, hazard: .earthquake)
