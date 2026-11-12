@@ -413,8 +413,41 @@ final class AppModel {
         await endSession()
     }
 
+    func setLiveRegistration(enabled: Bool) async throws {
+        if enabled {
+            guard await services.notifications.requestAuthorization() == .authorized else {
+                throw LiveNotificationRegistration.Failure.notificationsDenied
+            }
+        }
+        var subscription = settings.regionalSubscription
+        subscription.enabled = enabled
+        if !enabled { subscription.targets = [] }
+        if enabled {
+            guard LiveNotificationRegistration.endpoint != nil else {
+                throw LiveNotificationRegistration.Failure.missingEndpoint
+            }
+            settings.liveRegistrationNeedsRevocation = true
+        }
+        try await LiveNotificationRegistration.update(subscription)
+        settings.liveRegistrationNeedsRevocation = enabled
+        settings.regionalMonitoringEnabled = enabled
+        await services.delivery.sendHello()
+    }
+
+    func revokeLiveRegistrationIfNeeded() async -> Bool {
+        guard settings.liveRegistrationNeedsRevocation else { return true }
+        do {
+            try await setLiveRegistration(enabled: false)
+            return true
+        } catch {
+            errorMessage = strings[LiveNotificationRegistration.messageKey(error)]
+            return false
+        }
+    }
+
     /// Deletes saved sites, language, guidance state and connection token (after confirmation in the UI).
     func deleteAllData() async {
+        guard await revokeLiveRegistrationIfNeeded() else { return }
         demoBackgroundGrace.end()
         await services.notifications.cancelAllNigeyo()
         await services.liveActivities.endAll()

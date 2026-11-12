@@ -87,15 +87,23 @@ struct RedoPlacesView: View {
     @Environment(AppModel.self) private var model
     @State private var places = OnboardingModel()
     @State private var showDestinations = false
+    @State private var saving = false
 
     var body: some View {
         PlacesStepView(places: places, counter: nil, onBack: { model.pop() }) { showDestinations = true }
             .navigationDestination(isPresented: $showDestinations) {
                 DestinationsStepView(places: places, counter: nil, onBack: { showDestinations = false }) {
-                    places.save(to: model.settings)
-                    Task { await model.services.delivery.sendHello() }
-                    model.homePath = [.settings, .savedPlaces]
+                    guard !saving else { return }
+                    saving = true
+                    Task {
+                        defer { saving = false }
+                        guard await model.revokeLiveRegistrationIfNeeded() else { return }
+                        places.save(to: model.settings)
+                        await model.services.delivery.sendHello()
+                        model.homePath = [.settings, .savedPlaces]
+                    }
                 }
+                .disabled(saving)
             }
             .onDisappear { if !showDestinations { places.discard() } }
     }

@@ -1,5 +1,7 @@
 import { pathToFileURL } from "node:url";
 import { sensitiveHeaders } from "node:http2";
+import { setTimeout as delay } from "node:timers/promises";
+import { loadLiveSubscription } from "./live-registration.mjs";
 import { createRegionalStateStore } from "./regional-state.mjs";
 import { RegionalMonitor } from "../server/monitoring/service.mjs";
 import { validSubscription } from "../server/monitoring/regions.mjs";
@@ -42,10 +44,12 @@ export function buildRegionalPush(command, now = Date.now()) {
   };
 }
 
-export async function runRegionalWorker({ stateStore, secret, send = sendToAPNs, WebSocketImpl, now = Date.now, log = console.log }) {
+export async function runRegionalWorker({ stateStore, secret, send = sendToAPNs, WebSocketImpl, now = Date.now, log = console.log, subscriptionSource }) {
   const config = readConfig(secret);
-  const { subscription } = JSON.parse(secret);
-  if (!validSubscription(subscription) || !subscription.enabled) throw new Error("Missing confirmed regional subscription");
+  let subscription = subscriptionSource ? await subscriptionSource() : JSON.parse(secret).subscription;
+  if (!validSubscription(subscription) || (!subscriptionSource && !subscription.enabled)) {
+    throw new Error("Missing confirmed regional subscription");
+  }
 
   const installation = "aws-demo-device";
   const monitor = new RegionalMonitor({ stateStore, WebSocketImpl, now: () => new Date(now()), log: (event) => log(event) });
@@ -53,13 +57,16 @@ export async function runRegionalWorker({ stateStore, secret, send = sendToAPNs,
   let token;
   let tokenIssuedAt;
 
-  function dispatch(command) {
+  function dispatch(command, fingerprint) {
     if (inFlight.has(command.commandId)) return;
     inFlight.add(command.commandId);
-    deliver(command).catch(() => log("regional-apns-retry")).finally(() => inFlight.delete(command.commandId));
+    deliver(command, fingerprint).catch(() => log("regional-apns-retry")).finally(() => inFlight.delete(command.commandId));
   }
 
-  async function deliver(command) {
+  async function deliver(command, fingerprint) {
+    // A disable or region change must also invalidate queued pushes between polls.
+    if (subscriptionSource && JSON.stringify(await subscriptionSource()) !== fingerprint) return;
+
     const timestamp = now();
     const push = buildRegionalPush(command, timestamp);
     if (!push || Buffer.byteLength(JSON.stringify(push.payload)) > 4096) {
@@ -92,15 +99,41 @@ export async function runRegionalWorker({ stateStore, secret, send = sendToAPNs,
   }
 
   await monitor.load();
-  await monitor.configure(installation, subscription, dispatch);
+  await configure(subscription);
+  if (subscriptionSource) void refreshSubscription();
   return monitor;
+
+  function configure(value) {
+    const fingerprint = JSON.stringify(value);
+    return monitor.configure(installation, value, (command) => dispatch(command, fingerprint));
+  }
+
+  async function refreshSubscription() {
+    while (!monitor.stopped) {
+      await delay(3000);
+      if (monitor.stopped) return;
+      try {
+        const next = await subscriptionSource();
+        if (JSON.stringify(next) === JSON.stringify(subscription)) continue;
+        const previous = subscription;
+        subscription = next;
+        try { await configure(next); }
+        catch (error) { subscription = previous; throw error; }
+      } catch {
+        log("regional-subscription-refresh-failed");
+      }
+    }
+  }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const { SecretString } = await loadAPNsSecret();
     const stateStore = createRegionalStateStore({ bucket: process.env.STATE_BUCKET });
-    const monitor = await runRegionalWorker({ stateStore, secret: SecretString });
+    const subscriptionSource = process.env.APP_REGISTRATION_ENABLED === "true"
+      ? () => loadLiveSubscription(process.env.STATE_BUCKET)
+      : undefined;
+    const monitor = await runRegionalWorker({ stateStore, secret: SecretString, subscriptionSource });
     process.on("SIGTERM", () => monitor.stop());
   } catch {
     console.error("regional-worker-startup-failed");

@@ -20,3 +20,4 @@
 !nigeyo-ios/Nigeyo/Resources/
 !nigeyo-ios/Nigeyo/Resources/notification-regions-aichi.json
 !nigeyo-ios/Nigeyo/Resources/notification-regions-national.json
+!aws/live-registration.mjs

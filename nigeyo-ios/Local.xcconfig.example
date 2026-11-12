@@ -6,3 +6,6 @@ BUNDLE_ID_SUFFIX = .yourname
 
 // Uncomment for an APNs build signed by the paid team. Match the App Store Connect bundle ID.
 // NIGEYO_APNS_ENTITLEMENTS = Config/Nigeyo.entitlements
+
+// Hostname of the LiveRegistrationUrl stack output (omit scheme and path).
+// NIGEYO_LIVE_REGISTRATION_HOST = example.execute-api.ap-northeast-1.amazonaws.com

@@ -38,7 +38,6 @@ export class RegionalMonitor {
   save() { return this.stateStore.save({ version: 1, records: this.records }); }
   configure(id, subscription, send) {
     return this.serial(async () => {
-      this.clients.set(id, send);
       if (!validSubscription(subscription)) subscription = { version: 1, enabled: false, targets: [] };
       const fingerprint = JSON.stringify(subscription);
       const old = this.records[id];
@@ -47,6 +46,7 @@ export class RegionalMonitor {
         try { await this.save(); }
         catch (e) { if (old) this.records[id] = old; else delete this.records[id]; throw e; }
       }
+      this.clients.set(id, send);
       if (subscription.enabled) this.connect();
       this.flush(id);
     });

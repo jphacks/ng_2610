@@ -25,6 +25,10 @@ Parameters:
     Type: String
     Default: 'false'
     AllowedValues: ['true', 'false']
+  AppRegistrationEnabled:
+    Type: String
+    Default: 'false'
+    AllowedValues: ['true', 'false']
   APNsSecretArn:
     Type: String
     Description: Full ARN of the existing Secrets Manager secret in this account and region.
@@ -51,7 +55,47 @@ Conditions:
   ConfigureLiveMonitoring: !Not [!Equals [!Ref WorkerImage, '']]
   EnableLiveMonitoring: !Equals [!Ref LiveEnabled, 'true']
 
+  ConfigureAppRegistration: !And
+    - !Condition ConfigureLiveMonitoring
+    - !Equals [!Ref AppRegistrationEnabled, 'true']
+
 Resources:
+  LiveRegistrationApi:
+    Condition: ConfigureAppRegistration
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 5
+        ThrottlingRateLimit: 2
+  LiveRegistration:
+    Condition: ConfigureAppRegistration
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      CodeUri: ..
+      Handler: aws/live-registration.handler
+      Runtime: nodejs24.x
+      Timeout: 8
+      Environment:
+        Variables:
+          APNS_SECRET_ARN: !Ref LiveSecretArn
+          STATE_BUCKET: !Ref RegionalState
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Ref LiveSecretArn
+        - Statement:
+            - Effect: Allow
+              Action: s3:PutObject
+              Resource: !Sub '${RegionalState.Arn}/live-subscription.json'
+      Events:
+        Register:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref LiveRegistrationApi
+            Path: /subscription
+            Method: PUT
+
   TrainingPush:
     Type: AWS::Serverless::Function
     Properties:
@@ -144,6 +188,12 @@ Resources:
               - Effect: Allow
                 Action: [s3:GetObject, s3:PutObject]
                 Resource: !Sub '${RegionalState.Arn}/regional-monitor.json'
+              - !If
+                - ConfigureAppRegistration
+                - Effect: Allow
+                  Action: s3:GetObject
+                  Resource: !Sub '${RegionalState.Arn}/live-subscription.json'
+                - !Ref AWS::NoValue
   WorkerTask:
     Condition: ConfigureLiveMonitoring
     Type: AWS::ECS::TaskDefinition
@@ -162,6 +212,8 @@ Resources:
           Environment:
             - {Name: APNS_SECRET_ARN, Value: !Ref LiveSecretArn}
             - {Name: STATE_BUCKET, Value: !Ref RegionalState}
+            - Name: APP_REGISTRATION_ENABLED
+              Value: !If [ConfigureAppRegistration, 'true', 'false']
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -188,6 +240,9 @@ Resources:
           Subnets: [!Ref PublicSubnet]
 
 Outputs:
+  LiveRegistrationUrl:
+    Condition: ConfigureAppRegistration
+    Value: !Sub 'https://${LiveRegistrationApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/subscription'
   ClusterName:
     Condition: ConfigureLiveMonitoring
     Value: !Ref Cluster

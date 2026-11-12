@@ -110,6 +110,12 @@ final class SettingsStore: @unchecked Sendable {
         set { defaults.set(newValue, forKey: "nigeyo.regionalMonitoringEnabled") }
     }
 
+    // Retain the need to revoke even if a registration response was lost.
+    var liveRegistrationNeedsRevocation: Bool {
+        get { defaults.bool(forKey: "nigeyo.liveRegistrationNeedsRevocation") }
+        set { defaults.set(newValue, forKey: "nigeyo.liveRegistrationNeedsRevocation") }
+    }
+
     var placeNotificationRegions: [PlaceContext: PlaceNotificationRegion]? {
         get {
             guard let data = defaults.data(forKey: "nigeyo.placeNotificationRegions") else { return nil }
@@ -138,7 +144,7 @@ final class SettingsStore: @unchecked Sendable {
     func destination(_ slot: DestinationSlot) -> SavedDestination? { destinations[slot.key] }
 
     func eraseAll() {
-        for key in [Key.language, Key.onboarding, Key.installation, Key.destinations, Key.shortcutsAdded, Key.shortcutsTested, Key.shortcutPreparation, Key.lockScreenTested, Key.demoAutoConnect, "nigeyo.notificationRegions", "nigeyo.regionalMonitoringEnabled", "nigeyo.placeNotificationRegions"] {
+        for key in [Key.language, Key.onboarding, Key.installation, Key.destinations, Key.shortcutsAdded, Key.shortcutsTested, Key.shortcutPreparation, Key.lockScreenTested, Key.demoAutoConnect, "nigeyo.notificationRegions", "nigeyo.regionalMonitoringEnabled", "nigeyo.liveRegistrationNeedsRevocation", "nigeyo.placeNotificationRegions"] {
             defaults.removeObject(forKey: key)
         }
     }
