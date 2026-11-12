@@ -285,76 +285,85 @@ struct DestinationsStepView: View {
             if places.isComputing {
                 HStack(spacing: 8) { ProgressView(); BodyText(t["onboarding.destinations.loading"], size: 13) }
             }
-            ForEach(DestinationSlot.all, id: \.self) { slot in slotCard(slot) }
-            BodyText(t["onboarding.destinations.note"], size: 12)
             ForEach([PlaceContext.home, .university], id: \.self) { place in
-                if let draft = places.regionDrafts[place] { regionCard(place, draft: draft) }
+                Card {
+                    Text(t[place == .home ? "onboarding.places.home" : "onboarding.places.university"])
+                        .nFont(17, .bold)
+                    destinationDetails(DestinationSlot(place: place, hazard: .earthquake))
+                    if let draft = places.regionDrafts[place] {
+                        earthquakePicker(place, draft: draft)
+                    }
+                    Divider()
+                    destinationDetails(DestinationSlot(place: place, hazard: .tsunami))
+                    if let draft = places.regionDrafts[place] {
+                        tsunamiPicker(place, draft: draft)
+                    }
+                }
             }
+            BodyText(t["onboarding.destinations.note"], size: 12)
         } actions: {
             NButton(t["onboarding.destinations.save"], kind: places.isComputing || !places.regionsReady ? .disabled : .primary, action: onSave)
         }
         .task(id: places.places) { await places.compute(repository: model.services.evacuation) }
     }
 
-    private func regionCard(_ place: PlaceContext, draft: OnboardingModel.RegionDraft) -> some View {
+    private func earthquakePicker(_ place: PlaceContext, draft: OnboardingModel.RegionDraft) -> some View {
         let t = model.strings
-        let catalog = NationalNotificationRegions.shared
-        return Card {
-            Text("\(t[place == .home ? "onboarding.places.home" : "onboarding.places.university"]) · \(t["regions.title"])")
-                .nFont(17, .bold)
-            Picker(t["regions.earthquake"], selection: Binding(
-                get: { places.regionDrafts[place]?.earthquakeId },
-                set: { places.regionDrafts[place]?.earthquakeId = $0 }
-            )) {
-                Text(t["regions.unconfigured"]).tag(nil as String?)
-                ForEach(draft.suggestion.earthquake.isEmpty ? catalog.earthquakeAreas : draft.suggestion.earthquake, id: \.id) {
-                    Text($0.name).tag(Optional($0.id))
-                }
-            }
-            Picker(t["regions.tsunami"], selection: Binding(
-                get: { places.regionDrafts[place]?.tsunamiConfirmed == true ? (places.regionDrafts[place]?.tsunamiId ?? "none") : "" },
-                set: {
-                    places.regionDrafts[place]?.tsunamiId = $0 == "none" || $0.isEmpty ? nil : $0
-                    places.regionDrafts[place]?.tsunamiConfirmed = !$0.isEmpty
-                }
-            )) {
-                Text(t["regions.unconfigured"]).tag("")
-                if draft.suggestion.tsunami.isEmpty { Text(t["regions.none"]).tag("none") }
-                ForEach(draft.suggestion.tsunami.isEmpty && !draft.suggestion.municipalityFound ? catalog.tsunamiAreas : draft.suggestion.tsunami, id: \.id) {
-                    Text($0.name).tag($0.id)
-                }
-            }
-            if draft.suggestion.tsunami.isEmpty { Text(t["regions.noneNote"]).nFont(12) }
+        let areas = draft.suggestion.earthquake.isEmpty
+            ? NationalNotificationRegions.shared.earthquakeAreas : draft.suggestion.earthquake
+        return Picker(t["regions.earthquake"], selection: Binding(
+            get: { places.regionDrafts[place]?.earthquakeId },
+            set: { places.regionDrafts[place]?.earthquakeId = $0 }
+        )) {
+            Text(t["regions.unconfigured"]).tag(nil as String?)
+            ForEach(areas, id: \.id) { Text($0.name).tag(Optional($0.id)) }
         }
     }
 
-    @ViewBuilder private func slotCard(_ slot: DestinationSlot) -> some View {
+    @ViewBuilder private func tsunamiPicker(_ place: PlaceContext, draft: OnboardingModel.RegionDraft) -> some View {
         let t = model.strings
-        let label = t("onboarding.destinations.slot", ["place": t[slot.place == .home ? "onboarding.places.home" : "onboarding.places.university"], "hazard": t["hazard.\(slot.hazard.rawValue)"]])
-        Card {
-            Text(label).nFont(12, .bold).foregroundStyle(Color.muted)
-            switch places.slots[slot] ?? .notSet {
-            case .notSet:
-                Text(t["onboarding.destinations.notSet"]).nFont(17, .bold).foregroundStyle(Color.muted)
-            case .loading:
-                ProgressView().frame(maxWidth: .infinity, alignment: .leading)
-            case .noSite:
-                Text(t["onboarding.destinations.none"]).nFont(17, .bold).foregroundStyle(Color.ink)
-                Text(t["onboarding.destinations.noneBody"]).nFont(12).foregroundStyle(Color.muted)
-            case .ready(let candidates, let selected, let walkingUnavailable):
-                let c = candidates[selected]
-                Text(c.site.name).nFont(17, .bold).foregroundStyle(Color.ink)
-                Text(distanceLine(c)).nFont(12).foregroundStyle(Color.muted)
-                MapPreview(coordinate: c.site.coordinate, caption: t["destination.mapCaption"], pinLabel: c.site.name, height: 120)
-                if walkingUnavailable { Text(t["onboarding.destinations.walkUnavailable"]).nFont(11).foregroundStyle(Color.danger) }
-                if candidates.count > 1 {
-                    Menu {
-                        ForEach(Array(candidates.enumerated()), id: \.element.id) { i, cand in
-                            Button("\(cand.site.name) · \(distanceLine(cand))") { places.select(slot, index: i) }
-                        }
-                    } label: {
-                        Text(t["onboarding.destinations.change"]).nFont(13, .bold).foregroundStyle(Color.ink).frame(minHeight: 44)
+        let areas = draft.suggestion.tsunami.isEmpty && !draft.suggestion.municipalityFound
+            ? NationalNotificationRegions.shared.tsunamiAreas : draft.suggestion.tsunami
+        Picker(t["regions.tsunami"], selection: Binding(
+            get: { places.regionDrafts[place]?.tsunamiConfirmed == true ? (places.regionDrafts[place]?.tsunamiId ?? "none") : "" },
+            set: {
+                places.regionDrafts[place]?.tsunamiId = $0 == "none" || $0.isEmpty ? nil : $0
+                places.regionDrafts[place]?.tsunamiConfirmed = !$0.isEmpty
+            }
+        )) {
+            Text(t["regions.unconfigured"]).tag("")
+            if draft.suggestion.tsunami.isEmpty { Text(t["regions.none"]).tag("none") }
+            ForEach(areas, id: \.id) {
+                Text($0.name).tag($0.id)
+            }
+        }
+        if draft.suggestion.tsunami.isEmpty { Text(t["regions.noneNote"]).nFont(12) }
+    }
+
+    @ViewBuilder private func destinationDetails(_ slot: DestinationSlot) -> some View {
+        let t = model.strings
+        Text(t["hazard.\(slot.hazard.rawValue)"]).nFont(12, .bold).foregroundStyle(Color.muted)
+        switch places.slots[slot] ?? .notSet {
+        case .notSet:
+            Text(t["onboarding.destinations.notSet"]).nFont(17, .bold).foregroundStyle(Color.muted)
+        case .loading:
+            ProgressView().frame(maxWidth: .infinity, alignment: .leading)
+        case .noSite:
+            Text(t["onboarding.destinations.none"]).nFont(17, .bold).foregroundStyle(Color.ink)
+            Text(t["onboarding.destinations.noneBody"]).nFont(12).foregroundStyle(Color.muted)
+        case .ready(let candidates, let selected, let walkingUnavailable):
+            let c = candidates[selected]
+            Text(c.site.name).nFont(17, .bold).foregroundStyle(Color.ink)
+            Text(distanceLine(c)).nFont(12).foregroundStyle(Color.muted)
+            MapPreview(coordinate: c.site.coordinate, caption: t["destination.mapCaption"], pinLabel: c.site.name, height: 120)
+            if walkingUnavailable { Text(t["onboarding.destinations.walkUnavailable"]).nFont(11).foregroundStyle(Color.danger) }
+            if candidates.count > 1 {
+                Menu {
+                    ForEach(Array(candidates.enumerated()), id: \.element.id) { i, cand in
+                        Button("\(cand.site.name) · \(distanceLine(cand))") { places.select(slot, index: i) }
                     }
+                } label: {
+                    Text(t["onboarding.destinations.change"]).nFont(13, .bold).foregroundStyle(Color.ink).frame(minHeight: 44)
                 }
             }
         }

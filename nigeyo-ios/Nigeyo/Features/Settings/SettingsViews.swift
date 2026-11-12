@@ -13,7 +13,7 @@ struct SettingsView: View {
     var body: some View {
         let t = model.strings
         Screen(navTitle: t["settings.nav"], onBack: { model.pop() }) {
-            RowCard(title: t["regions.title"], subtitle: t["regions.needsConfirmation"]) { showNotificationRegions = true }
+            RowCard(title: t["regions.title"], subtitle: nil) { showNotificationRegions = true }
             RowCard(title: t["settings.language"], subtitle: model.languages.first { $0.id == t.languageId }?.nativeName) { model.homePath.append(.language) }
             RowCard(title: t["settings.savedPlaces"], subtitle: t["settings.savedPlacesBody"]) { model.homePath.append(.savedPlaces) }
             RowCard(title: t["settings.lockScreen"], subtitle: t["settings.lockScreenBody"]) { model.homePath.append(.lockScreen) }
@@ -93,6 +93,7 @@ struct RedoPlacesView: View {
             .navigationDestination(isPresented: $showDestinations) {
                 DestinationsStepView(places: places, counter: nil, onBack: { showDestinations = false }) {
                     places.save(to: model.settings)
+                    Task { await model.services.delivery.sendHello() }
                     model.homePath = [.settings, .savedPlaces]
                 }
             }
