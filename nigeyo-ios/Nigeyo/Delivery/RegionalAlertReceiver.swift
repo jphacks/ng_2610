@@ -112,7 +112,7 @@ actor RegionalAlertReceiver {
             let opensGuide = cmd.hazard == .earthquake || ["Warning", "MajorWarning"].contains(cmd.grade ?? "")
             if opensGuide {
                 if let current = try? await store.snapshot(), current.isActive {
-                    if current.sessionId == cmd.commandId || current.mode == .live && current.hazard == .tsunami {
+                    if current.sessionId == cmd.commandId || current.mode == .live && current.hazard == .tsunami && cmd.hazard == .earthquake {
                         info["sessionId"] = current.sessionId.uuidString
                     } else {
                         try? await store.complete(sessionId: current.sessionId)

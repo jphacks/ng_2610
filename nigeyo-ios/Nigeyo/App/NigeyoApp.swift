@@ -4,7 +4,9 @@ import UIKit
 final class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         // The delegate must be in place before a notification tap is delivered at launch.
-        Services.shared.notifications.install()
+        let services = Services.shared
+        services.notifications.install()
+        Task { await services.liveActivities.observeRemoteActivities() }
         return true
     }
 

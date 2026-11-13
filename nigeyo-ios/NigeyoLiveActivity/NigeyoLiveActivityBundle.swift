@@ -21,7 +21,7 @@ private extension Color {
 struct NigeyoLiveActivityWidget: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: NigeyoActivityAttributes.self) { context in
-            LockScreenView(sessionId: context.attributes.sessionId, state: context.state)
+            LockScreenView(sessionId: context.attributes.sessionId, state: context.state, isStale: context.isStale)
                 .activityBackgroundTint(Color.paper)
                 .activitySystemActionForegroundColor(Color.ink)
         } dynamicIsland: { context in
@@ -35,20 +35,32 @@ struct NigeyoLiveActivityWidget: Widget {
                 }
                 DynamicIslandExpandedRegion(.bottom) {
                     VStack(spacing: 8) {
-                        PictogramRow(state: s, size: 40, tint: .white, labelColor: .white)
-                        ActionButton(sessionId: context.attributes.sessionId, state: s, inverted: true)
+                        if context.isStale, let message = s.staleMessage {
+                            Text(message).font(.caption)
+                        } else if !context.isStale {
+                            PictogramRow(state: s, size: 40, tint: .white, labelColor: .white)
+                        }
+                        if !context.isStale { ActionButton(sessionId: context.attributes.sessionId, state: s, inverted: true) }
                     }
                 }
             } compactLeading: {
-                Pict(name: s.pictograms.first ?? "protect-head", size: 20, tint: .ink)
-                    .padding(3)
-                    .background(Circle().fill(Color.orangeSoft))
+                if context.isStale {
+                    Image(systemName: "clock")
+                } else {
+                    Pict(name: s.pictograms.first ?? "protect-head", size: 20, tint: .ink)
+                        .padding(3)
+                        .background(Circle().fill(Color.orangeSoft))
+                }
             } compactTrailing: {
-                Text(s.compactLabel).font(.caption2.bold()).lineLimit(1).minimumScaleFactor(0.7)
+                Text(context.isStale ? s.appName : s.compactLabel).font(.caption2.bold()).lineLimit(1).minimumScaleFactor(0.7)
             } minimal: {
-                Pict(name: s.pictograms.first ?? "protect-head", size: 18, tint: .ink)
-                    .padding(3)
-                    .background(Circle().fill(Color.orangeSoft))
+                if context.isStale {
+                    Image(systemName: "clock")
+                } else {
+                    Pict(name: s.pictograms.first ?? "protect-head", size: 18, tint: .ink)
+                        .padding(3)
+                        .background(Circle().fill(Color.orangeSoft))
+                }
             }
             .keylineTint(Color.orangeSoft)
         }
@@ -127,6 +139,7 @@ struct ActionButton: View {
 struct LockScreenView: View {
     var sessionId: String
     var state: NigeyoActivityAttributes.ContentState
+    var isStale = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -136,9 +149,16 @@ struct LockScreenView: View {
                 if let badge = state.badge { Text(badge).font(.caption2.bold()).foregroundStyle(Color.drillRed) }
             }
             Spacer(minLength: 8)
-            PictogramRow(state: state, size: state.layout == .checks ? 48 : 56)
-            Spacer(minLength: 8)
-            ActionButton(sessionId: sessionId, state: state)
+            if isStale {
+                if let message = state.staleMessage {
+                    Text(message).font(.subheadline).foregroundStyle(Color.ink)
+                }
+                Spacer(minLength: 8)
+            } else {
+                PictogramRow(state: state, size: state.layout == .checks ? 48 : 56)
+                Spacer(minLength: 8)
+                ActionButton(sessionId: sessionId, state: state)
+            }
         }
         .padding(12)
         // iOS caps Lock Screen Live Activities at 160pt; fill it rather than hugging content.

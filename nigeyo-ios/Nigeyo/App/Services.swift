@@ -23,7 +23,8 @@ final class Services: Sendable {
         let notifications = NotificationService()
         let diagnostics = DiagnosticsLog()
         let log: @Sendable (String) async -> Void = { await diagnostics.record($0) }
-        let liveActivities = LiveActivityCoordinator(store: store, log: log)
+        let regionalAlerts = RegionalAlertReceiver(settings: settings, notifications: notifications, registry: registry, store: store)
+        let liveActivities = LiveActivityCoordinator(store: store, settings: settings, registry: registry, regionalAlerts: regionalAlerts, log: log)
         let processor = CommandProcessor(store: store, notifications: notifications, registry: registry,
                                          preferredLanguage: { settings.language }, deviceState: { await Services.deviceState() }, log: log)
         self.settings = settings
@@ -34,7 +35,6 @@ final class Services: Sendable {
         self.evacuation = EvacuationRepository()
         self.liveActivities = liveActivities
         self.processor = processor
-        let regionalAlerts = RegionalAlertReceiver(settings: settings, notifications: notifications, registry: registry, store: store)
         self.regionalAlerts = regionalAlerts
         self.delivery = WebSocketDeliveryService(
             processor: processor,
@@ -65,6 +65,8 @@ final class Services: Sendable {
     /// A stale or tsunami-superseded confirmation leaves the newer state on screen.
     func confirmShakingStopped(sessionId: String, expectedRevision: Int) async throws {
         guard let id = UUID(uuidString: sessionId) else { throw SessionStoreError.sessionNotFound }
+        await liveActivities.applyDueLocalTsunami()
+        await liveActivities.adoptRemoteActivities(sessionId: id)
         do {
             let session = try await store.transition(sessionId: id, expectedRevision: expectedRevision, to: .safetyChecks)
             await diagnostics.record("live activity: shaking stopped rev\(expectedRevision)")

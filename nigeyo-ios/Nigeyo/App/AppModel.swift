@@ -1,3 +1,4 @@
+import ActivityKit
 import CoreLocation
 import Foundation
 import Observation
@@ -60,6 +61,11 @@ final class AppModel {
         started = true
         await services.registry.loadIfNeeded()
         await reloadLanguages()
+        Task {
+            for await _ in Activity<NigeyoActivityAttributes>.pushToStartTokenUpdates {
+                await LiveNotificationRegistration.refreshActivity(settings: settings)
+            }
+        }
         Task.detached(priority: .utility) { await Services.shared.evacuation.preload() }
         Task {
             for await s in await services.store.changes() {
@@ -99,9 +105,11 @@ final class AppModel {
         notificationAuthorization = await services.notifications.authorization()
         liveActivitiesEnabled = services.liveActivities.areActivitiesEnabled
         await applyDueLocalHazard()
+        await services.liveActivities.adoptRemoteActivities()
         let current = try? await services.store.snapshot()
         session = current
         await services.liveActivities.sync(current, foreground: true)
+        Task { await LiveNotificationRegistration.refreshActivity(settings: settings) }
         if reconnect, let pairing, services.settings.demoAutoConnect {
             // A suspended socket may still appear connected until the next I/O.
             await services.delivery.connect(pairing)
@@ -160,6 +168,7 @@ final class AppModel {
             break
         case "evacuation":
             let id = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems?.first { $0.name == "sessionId" }?.value.flatMap(UUID.init)
+            if let id { await services.liveActivities.adoptRemoteActivities(sessionId: id) }
             guard let id, let s = try? await services.store.snapshot(), s.sessionId == id, s.isActive else {
                 homeNotice = .missingSession
                 return
@@ -260,30 +269,37 @@ final class AppModel {
             return false
         }
         guard let snap = await snapshot() else { return false }
-        let delay = Self.trainingDelay
-        let s = GuideSession.new(mode: .training, source: .local, scenario: scenario, quake: nil, snapshot: snap,
+        let fireAt = Date().addingTimeInterval(Self.trainingDelay)
+        var s = GuideSession.new(mode: .training, source: .local, scenario: scenario, quake: nil, snapshot: snap,
                                  hazard: scenario == .tsunami ? .tsunami : .earthquake)
+        s.notificationScheduledFor = fireAt
+        if scenario == .earthquakeTsunami {
+            s.pendingLocalHazard = PendingLocalHazard(commandId: UUID(), fireAt: fireAt.addingTimeInterval(Self.localTsunamiDelay))
+        }
+        let notification = scenario == .tsunami
+            ? GuideContent.tsunamiNotification(for: s, commandId: nil)
+            : GuideContent.earthquakeNotification(for: s)
+        var scheduled = [String]()
         do {
             try await services.store.prepare(s, receivedAt: Date())
-            let notification = scenario == .tsunami
-                ? GuideContent.tsunamiNotification(for: s, commandId: nil)
-                : GuideContent.earthquakeNotification(for: s)
-            try await services.notifications.schedule(notification, after: delay)
-            let fireAt = Date().addingTimeInterval(delay)
+            try await services.notifications.schedule(notification, after: max(0.1, fireAt.timeIntervalSinceNow))
+            scheduled.append(notification.identifier)
             try await services.store.markNotificationScheduled(sessionId: s.sessionId, fireAt: fireAt)
-            if scenario == .earthquakeTsunami {
-                let pending = PendingLocalHazard(commandId: UUID(), fireAt: fireAt.addingTimeInterval(Self.localTsunamiDelay))
+            if let pending = s.pendingLocalHazard {
                 var preview = s
                 preview.hazard = .tsunami
-                try await services.notifications.schedule(GuideContent.tsunamiNotification(for: preview, commandId: pending.commandId), after: delay + Self.localTsunamiDelay)
-                try await services.store.schedulePendingHazard(sessionId: s.sessionId, pending: pending)
+                let followUp = GuideContent.tsunamiNotification(for: preview, commandId: pending.commandId)
+                try await services.notifications.schedule(followUp, after: max(0.1, pending.fireAt.timeIntervalSinceNow))
+                scheduled.append(followUp.identifier)
             }
-            await services.diagnostics.record("training \(scenario.rawValue) scheduled in \(Int(delay))s")
+            await services.liveActivities.scheduleLocalTraining(s, at: fireAt)
+            await services.diagnostics.record("training \(scenario.rawValue) scheduled in \(Int(Self.trainingDelay))s")
             resumeAcknowledged.insert(s.sessionId)
             return true
         } catch SessionStoreError.sessionBusy {
             return true
         } catch {
+            await services.notifications.cancel(identifiers: scheduled)
             try? await services.store.complete(sessionId: s.sessionId)
             errorMessage = strings["error.generic"]
             return false
@@ -292,10 +308,7 @@ final class AppModel {
 
     /// Applies an in-app tsunami drill whose time has come, through the same store path as the server's.
     func applyDueLocalHazard() async {
-        guard let s = try? await services.store.snapshot(), s.isActive, let pending = s.pendingLocalHazard, pending.fireAt <= Date() else { return }
-        _ = try? await services.store.applyHazardUpdate(sessionId: s.sessionId, commandId: pending.commandId, revision: s.lastHazardRevision + 1, summary: nil, receivedAt: Date())
-        try? await services.store.markHazardNotificationScheduled(commandId: pending.commandId, fireAt: pending.fireAt)
-        await services.diagnostics.record("local tsunami drill applied")
+        await services.liveActivities.applyDueLocalTsunami()
     }
 
     // MARK: Guide actions
@@ -366,6 +379,7 @@ final class AppModel {
     func setLanguage(_ id: LanguageID) async {
         settings.language = id
         await reloadLanguages()
+        await LiveNotificationRegistration.refreshActivity(settings: settings)
         await services.delivery.sendHello()
     }
 
@@ -428,9 +442,10 @@ final class AppModel {
             }
             settings.liveRegistrationNeedsRevocation = true
         }
-        try await LiveNotificationRegistration.update(subscription)
+        try await LiveNotificationRegistration.update(subscription, language: settings.language)
         settings.liveRegistrationNeedsRevocation = enabled
         settings.regionalMonitoringEnabled = enabled
+        if !enabled { await services.liveActivities.endRemoteActivities() }
         await services.delivery.sendHello()
     }
 

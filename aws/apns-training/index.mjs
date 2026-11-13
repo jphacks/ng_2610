@@ -2,6 +2,8 @@ import { createPrivateKey, randomUUID, sign } from "node:crypto";
 import { connect, sensitiveHeaders } from "node:http2";
 import { GetSecretValueCommand, SecretsManagerClient } from "@aws-sdk/client-secrets-manager";
 
+import { buildActivityStart, sendActivity, validActivityRegistration } from "./activity-push.mjs";
+
 const drills = {
   earthquake: { title: "EARTHQUAKE_TEST", body: "【訓練】地震です。頭を守ってください。" },
   tsunami: { title: "TSUNAMI_TEST", body: "【訓練】津波です。高い場所へ避難してください。" },
@@ -118,7 +120,7 @@ export function makeHandler({ loadSecret, subscriptionSource, send = sendToAPNs,
       return { accepted: false, eventId, error: "apns_configuration_unavailable" };
     }
 
-    const sendDrill = async (deviceToken, region, apnsId = eventId) => {
+    const sendDrill = async (deviceToken, region, apnsId = eventId, activity) => {
       const expires = issuedAt + ttlSeconds;
       const alert = drills[hazard];
       const payload = {
@@ -140,13 +142,22 @@ export function makeHandler({ loadSecret, subscriptionSource, send = sendToAPNs,
         "apns-id": apnsId,
         "apns-expiration": String(expires),
       };
-      try {
-        const status = await send(headers, payload);
-        if (!Number.isInteger(status)) throw new Error("APNs response had no status");
-        return { accepted: status === 200, apnsStatus: status };
-      } catch {
-        return { accepted: false, error: "apns_transport_failed" };
-      }
+      const notification = (async () => {
+        try {
+          const status = await send(headers, payload);
+          if (!Number.isInteger(status)) throw new Error("APNs response had no status");
+          return { accepted: status === 200, apnsStatus: status };
+        } catch {
+          return { accepted: false, error: "apns_transport_failed" };
+        }
+      })();
+      if (!validActivityRegistration(activity)) return notification;
+      const activityPush = sendActivity({ send, config, jwt, token: activity.token, expires, eventId,
+        payload: buildActivityStart({ hazard, eventId, expiresAt: payload.expiresAt,
+          timestamp: issuedAt, alert: { title: "nigeyo", body: payload.aps.alert.body }, language: activity.language }),
+      });
+      const [result, liveActivity] = await Promise.all([notification, activityPush]);
+      return { ...result, liveActivity };
     };
 
     if (!config.devices && !subscriptionSource) {
@@ -158,21 +169,22 @@ export function makeHandler({ loadSecret, subscriptionSource, send = sendToAPNs,
     try {
       const devices = config.devices ?? [{ id: undefined, deviceToken: config.deviceToken }];
       const selected = await Promise.all(devices.map(async (device) => {
-        if (!subscriptionSource) return device.regions?.[hazard]?.includes(event.region);
+        if (!subscriptionSource) return device.regions?.[hazard]?.includes(event.region) ? { device } : null;
         const subscription = await subscriptionSource(device);
-        return subscription.enabled && subscription.targets.some((target) =>
+        const matchesRegion = subscription.enabled && subscription.targets.some((target) =>
           hazard === "earthquake"
             ? target.earthquakeArea.name === event.region
             : target.tsunamiAreas.includes(event.region));
+        return matchesRegion ? { device, activity: subscription.activity } : null;
       }));
-      matches = devices.filter((_, index) => selected[index]);
+      matches = selected.filter(Boolean);
     } catch {
       return { accepted: false, eventId, error: "regional_subscriptions_unavailable" };
     }
     if (!matches.length) return { accepted: false, eventId, error: "no_devices_in_region" };
-    const results = await Promise.all(matches.map(async (device) => ({
+    const results = await Promise.all(matches.map(async ({ device, activity }) => ({
       id: device.id ?? "iphone-1",
-      ...await sendDrill(device.deviceToken, event.region, randomUUID()),
+      ...await sendDrill(device.deviceToken, event.region, randomUUID(), activity),
     })));
     return { accepted: results.every((result) => result.accepted), eventId, results };
   };

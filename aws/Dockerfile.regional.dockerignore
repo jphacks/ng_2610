@@ -21,3 +21,9 @@
 !nigeyo-ios/Nigeyo/Resources/notification-regions-aichi.json
 !nigeyo-ios/Nigeyo/Resources/notification-regions-national.json
 !aws/live-registration.mjs
+!aws/apns-training/activity-push.mjs
+!assets/
+!assets/languages/
+!assets/languages/en.json
+!assets/languages/ja.json
+!assets/languages/ko.json

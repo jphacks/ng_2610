@@ -91,12 +91,24 @@ Resources:
               Resource:
                 - !Sub '${RegionalState.Arn}/live-subscription.json'
                 - !Sub '${RegionalState.Arn}/subscriptions/*'
+            - Effect: Allow
+              Action: [s3:GetObject, s3:PutObject]
+              Resource: !Sub '${RegionalState.Arn}/activity-updates/*'
+            - Effect: Allow
+              Action: s3:ListBucket
+              Resource: !GetAtt RegionalState.Arn
       Events:
         Register:
           Type: HttpApi
           Properties:
             ApiId: !Ref LiveRegistrationApi
             Path: /subscription
+            Method: PUT
+        Activity:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref LiveRegistrationApi
+            Path: /activity
             Method: PUT
 
   TrainingPush:
@@ -161,6 +173,12 @@ Resources:
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault: {SSEAlgorithm: AES256}
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpireActivityUpdateTokens
+            Prefix: activity-updates/
+            Status: Enabled
+            ExpirationInDays: 1
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         IgnorePublicAcls: true
@@ -215,6 +233,7 @@ Resources:
                   Resource:
                     - !Sub '${RegionalState.Arn}/live-subscription.json'
                     - !Sub '${RegionalState.Arn}/subscriptions/*'
+                    - !Sub '${RegionalState.Arn}/activity-updates/*'
                 - !Ref AWS::NoValue
   WorkerTask:
     Condition: ConfigureLiveMonitoring
