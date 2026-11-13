@@ -25,9 +25,18 @@ struct NigeyoActivityAttributes: ActivityAttributes {
         var appName: String
         /// False only for the onboarding test activity, where the button must not change state.
         var interactive: Bool
+        var staleMessage: String? = nil
+    }
+
+    struct RemoteTraining: Codable, Hashable, Sendable {
+        var hazard: String
+        var expiresAt: String
     }
 
     var sessionId: String
+    var remoteTraining: RemoteTraining? = nil
+    var regionalAlert: String? = nil
+    var localTsunami: Bool? = nil
 }
 
 enum NigeyoDeepLink {

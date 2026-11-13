@@ -118,9 +118,12 @@ test("four app-configured regions isolate both drill and live pushes", async (t)
   }
 
   const subscriptionSource = async (device) => subscriptions.get(device.id) ?? disabledSubscription;
+  const activity = { token: "ab".repeat(32), language: "ja" };
   const sends = [];
+  const cards = [];
   const send = async (headers, payload) => {
-    sends.push([headers[":path"], payload.aps.alert.title]);
+    if (headers["apns-push-type"] === "liveactivity") cards.push({ headers, aps: payload.aps });
+    else sends.push([headers[":path"], payload.aps.alert.title]);
     return 200;
   };
   const now = () => Date.parse("2026-11-13T03:00:05+09:00");
@@ -131,13 +134,27 @@ test("four app-configured regions isolate both drill and live pushes", async (t)
     assert.deepEqual((await drill({ hazard: "earthquake", region })).results.map((r) => r.id), [id]);
     assert.deepEqual(sends.splice(0), [[`/3/device/${devices[index].deviceToken}`, "EARTHQUAKE_TEST"]]);
   }
-  assert.equal((await drill({ hazard: "tsunami", region: "大阪府" })).accepted, true);
+  assert.equal((await register(devices[1], { ...values[1], activity: { ...activity, token: "invalid" } })).statusCode, 400);
+  assert.equal((await register(devices[1], { ...values[1], activity })).statusCode, 204);
+  const training = await drill({ hazard: "tsunami", region: "大阪府" });
+  assert.equal(training.results[0].liveActivity.accepted, true);
+  assert.equal(cards[0].headers[":path"], `/3/device/${activity.token}`);
+  assert.equal(cards[0].headers["apns-topic"], "jp.nigeyo.hackathon.push-type.liveactivity");
+  assert.equal(cards[0].aps.event, "start");
+  assert.equal(cards[0].aps.attributes.sessionId, training.eventId);
+  assert.equal(cards[0].aps["content-state"].layout, "tsunami");
+  assert.equal(cards[0].aps["content-state"].badge, "訓練");
+  cards.length = 0;
   assert.deepEqual(sends.splice(0), [[`/3/device/${devices[1].deviceToken}`, "TSUNAMI_TEST"]]);
 
   class Feed extends EventEmitter { terminate() {} }
+  const updateToken = "bc".repeat(32);
   const monitor = await runRegionalWorker({
     stateStore: { load: async () => null, save: async () => {} },
     secret, WebSocketImpl: Feed, now, subscriptionSource, send, log: () => {},
+    activityUpdateSource: async (device, hazard) => device.id === "osaka" && hazard === "earthquake"
+      ? { token: updateToken, sourceEventId: "osaka-event", issuedAt: "2026-11-13T03:00:00+09:00" }
+      : undefined,
   });
   t.after(() => monitor.stop());
   const event = {
@@ -147,6 +164,17 @@ test("four app-configured regions isolate both drill and live pushes", async (t)
   await monitor.ingest(event);
   await monitor.queue;
   assert.deepEqual(sends.splice(0), [[`/3/device/${devices[1].deviceToken}`, "EARTHQUAKE_ALERT"]]);
+  assert.equal(cards[0].headers[":path"], `/3/device/${activity.token}`);
+  assert.equal(cards[0].aps["content-state"].badge, undefined);
+  assert.equal(cards[0].aps["content-state"].layout, "protect");
+  const command = JSON.parse(cards[0].aps.attributes.regionalAlert);
+  assert.equal(command.mode, "live");
+  assert.equal(command.commandId, cards[0].aps.attributes.sessionId);
+  await monitor.ingest({ ...event, cancelled: true, areas: [], issue: { ...event.issue, serial: "2" } });
+  await monitor.queue;
+  assert.equal(cards[1].headers[":path"], `/3/device/${updateToken}`);
+  assert.equal(cards[1].aps.event, "end");
+  assert.equal(cards[1].aps["content-state"].interactive, false);
   await monitor.ingest({
     code: 552, id: "tsunami", cancelled: false, issue: { time: "2026/11/13 03:00:01", type: "Focus" },
     areas: [{ name: "福岡県日本海沿岸", grade: "Warning" }],
