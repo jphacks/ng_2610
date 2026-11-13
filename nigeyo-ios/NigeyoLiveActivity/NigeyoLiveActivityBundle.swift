@@ -129,15 +129,19 @@ struct LockScreenView: View {
     var state: NigeyoActivityAttributes.ContentState
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Text(state.appName).font(.caption.bold()).foregroundStyle(Color.ink)
                 Spacer()
                 if let badge = state.badge { Text(badge).font(.caption2.bold()).foregroundStyle(Color.drillRed) }
             }
-            PictogramRow(state: state, size: state.layout == .checks ? 40 : 44)
+            Spacer(minLength: 8)
+            PictogramRow(state: state, size: state.layout == .checks ? 48 : 56)
+            Spacer(minLength: 8)
             ActionButton(sessionId: sessionId, state: state)
         }
         .padding(12)
+        // iOS caps Lock Screen Live Activities at 160pt; fill it rather than hugging content.
+        .frame(height: 160)
     }
 }

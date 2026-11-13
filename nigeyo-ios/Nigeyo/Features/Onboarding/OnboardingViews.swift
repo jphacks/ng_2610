@@ -24,6 +24,8 @@ struct OnboardingFlow: View {
                         }
                     case .lockScreen:
                         LockScreenSetupView(counter: model.strings("common.stepCounter", ["current": "3", "total": "3"]), onBack: { path.removeLast() }) {
+                            // Discard coordinates only here, so Back from this step still shows the computed sites.
+                            places.discard()
                             model.completeOnboarding()
                         }
                     }

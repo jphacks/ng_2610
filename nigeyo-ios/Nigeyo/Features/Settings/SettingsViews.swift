@@ -99,6 +99,7 @@ struct RedoPlacesView: View {
                         defer { saving = false }
                         guard await model.revokeLiveRegistrationIfNeeded() else { return }
                         places.save(to: model.settings)
+                        places.discard()
                         await model.services.delivery.sendHello()
                         model.homePath = [.settings, .savedPlaces]
                     }
@@ -113,16 +114,19 @@ struct RedoPlacesView: View {
 
 struct CheckboxStyle: ToggleStyle {
     func makeBody(configuration: Configuration) -> some View {
-        Button { configuration.isOn.toggle() } label: {
-            HStack(spacing: 10) {
-                Image(systemName: configuration.isOn ? "checkmark.square.fill" : "square").foregroundStyle(Color.ink)
-                configuration.label.nFont(14).foregroundStyle(Color.ink)
-                Spacer()
+        // Spacer stays outside the button so only the box and its text toggle, not the blank row.
+        HStack(spacing: 0) {
+            Button { configuration.isOn.toggle() } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: configuration.isOn ? "checkmark.square.fill" : "square").foregroundStyle(Color.ink)
+                    configuration.label.nFont(14).foregroundStyle(Color.ink)
+                }
+                .frame(minHeight: 44)
             }
-            .frame(minHeight: 44)
+            .buttonStyle(.plain)
+            .accessibilityAddTraits(configuration.isOn ? .isSelected : [])
+            Spacer()
         }
-        .buttonStyle(.plain)
-        .accessibilityAddTraits(configuration.isOn ? .isSelected : [])
     }
 }
 

@@ -118,7 +118,6 @@ final class OnboardingModel {
             settings.placeNotificationRegions = regions
         }
         settings.destinations = saved
-        discard()
     }
 
     func discard() {
