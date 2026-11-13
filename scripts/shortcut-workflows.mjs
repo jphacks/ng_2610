@@ -5,6 +5,8 @@ import { randomUUID } from 'node:crypto';
 export const SHORTCUTS = [
   { id: 'earthquake', title: 'nigeyo 地震', triggerTitle: 'EARTHQUAKE_TEST' },
   { id: 'tsunami', title: 'nigeyo 津波', triggerTitle: 'TSUNAMI_TEST' },
+  { id: 'live-earthquake', hazard: 'earthquake', title: 'nigeyo 本番 地震', triggerTitle: 'EARTHQUAKE_ALERT' },
+  { id: 'live-tsunami', hazard: 'tsunami', title: 'nigeyo 本番 津波', triggerTitle: 'TSUNAMI_ALERT' },
 ];
 
 const output = (id, name) => ({ Value: { OutputUUID: id, Type: 'ActionOutput', OutputName: name }, WFSerializationType: 'WFTextTokenAttachment' });

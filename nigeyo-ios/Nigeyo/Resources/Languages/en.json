@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "packageVersion": 6,
+  "packageVersion": 7,
   "languageId": "en",
   "displayName": "English",
   "nativeName": "English",
@@ -363,6 +363,9 @@
     "regions.none": "No area suggested",
     "regions.noneNote": "No suggestion does not indicate that the location is safe.",
     "regions.confirm": "I have checked this destination’s regions",
+    "regions.shortcuts.live-earthquake": "Download the live earthquake shortcut",
+    "regions.shortcuts.live-tsunami": "Download the live tsunami shortcut",
+    "regions.shortcuts.help": "After importing, select Nigeyo in each notification automation and choose Run Immediately. On each iPhone, allow the wallpaper change on the first run.",
     "regions.registration.registered": "Registered for live alerts",
     "regions.registration.revoke": "Remove live alert registration",
     "regions.registration.unavailable": "Live alert registration is not configured in this build.",

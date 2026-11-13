@@ -1,7 +1,7 @@
 import { pathToFileURL } from "node:url";
 import { sensitiveHeaders } from "node:http2";
 import { setTimeout as delay } from "node:timers/promises";
-import { loadLiveSubscription } from "./live-registration.mjs";
+import { deviceFingerprint, disabledSubscription, loadLiveSubscription } from "./live-registration.mjs";
 import { createRegionalStateStore } from "./regional-state.mjs";
 import { RegionalMonitor } from "../server/monitoring/service.mjs";
 import { validSubscription } from "../server/monitoring/regions.mjs";
@@ -46,26 +46,25 @@ export function buildRegionalPush(command, now = Date.now()) {
 
 export async function runRegionalWorker({ stateStore, secret, send = sendToAPNs, WebSocketImpl, now = Date.now, log = console.log, subscriptionSource }) {
   const config = readConfig(secret);
-  let subscription = subscriptionSource ? await subscriptionSource() : JSON.parse(secret).subscription;
-  if (!validSubscription(subscription) || (!subscriptionSource && !subscription.enabled)) {
-    throw new Error("Missing confirmed regional subscription");
-  }
-
-  const installation = "aws-demo-device";
+  const devices = config.devices ?? [{ deviceToken: config.deviceToken, subscription: JSON.parse(secret).subscription }];
+  const installations = new Map(devices.map((device) => [
+    device.id ? `aws-device-${deviceFingerprint(device)}` : "aws-demo-device", device,
+  ]));
+  const subscriptions = new Map();
   const monitor = new RegionalMonitor({ stateStore, WebSocketImpl, now: () => new Date(now()), log: (event) => log(event) });
   const inFlight = new Set();
   let token;
   let tokenIssuedAt;
 
-  function dispatch(command, fingerprint) {
+  function dispatch(installation, device, command, fingerprint) {
     if (inFlight.has(command.commandId)) return;
     inFlight.add(command.commandId);
-    deliver(command, fingerprint).catch(() => log("regional-apns-retry")).finally(() => inFlight.delete(command.commandId));
+    deliver(installation, device, command, fingerprint).catch(() => log("regional-apns-retry")).finally(() => inFlight.delete(command.commandId));
   }
 
-  async function deliver(command, fingerprint) {
+  async function deliver(installation, device, command, fingerprint) {
     // A disable or region change must also invalidate queued pushes between polls.
-    if (subscriptionSource && JSON.stringify(await subscriptionSource()) !== fingerprint) return;
+    if (subscriptionSource && JSON.stringify(await subscriptionSource(device)) !== fingerprint) return;
 
     const timestamp = now();
     const push = buildRegionalPush(command, timestamp);
@@ -81,7 +80,7 @@ export async function runRegionalWorker({ stateStore, secret, send = sendToAPNs,
     }
     const status = await send({
       ":method": "POST",
-      ":path": `/3/device/${config.deviceToken}`,
+      ":path": `/3/device/${device.deviceToken}`,
       "content-type": "application/json",
       authorization: `bearer ${token}`,
       [sensitiveHeaders]: ["authorization", ":path"],
@@ -98,29 +97,37 @@ export async function runRegionalWorker({ stateStore, secret, send = sendToAPNs,
     }
   }
 
-  await monitor.load();
-  await configure(subscription);
-  if (subscriptionSource) void refreshSubscription();
+  try {
+    await monitor.load();
+    for (const id of Object.keys(monitor.records)) {
+      if (!installations.has(id)) await monitor.configure(id, disabledSubscription, () => {});
+    }
+    for (const [id, device] of installations) await configure(id, device);
+  } catch (error) {
+    monitor.stop();
+    throw error;
+  }
+  if (subscriptionSource) void refreshSubscriptions();
   return monitor;
 
-  function configure(value) {
-    const fingerprint = JSON.stringify(value);
-    return monitor.configure(installation, value, (command) => dispatch(command, fingerprint));
+  async function configure(id, device) {
+    const subscription = subscriptionSource ? await subscriptionSource(device) : device.subscription;
+    if (!validSubscription(subscription) || (!subscriptionSource && !subscription.enabled)) {
+      throw new Error("Missing confirmed regional subscription");
+    }
+    const fingerprint = JSON.stringify(subscription);
+    if (subscriptions.get(id) === fingerprint) return;
+    await monitor.configure(id, subscription, (command) => dispatch(id, device, command, fingerprint));
+    subscriptions.set(id, fingerprint);
   }
 
-  async function refreshSubscription() {
+  async function refreshSubscriptions() {
     while (!monitor.stopped) {
       await delay(3000);
       if (monitor.stopped) return;
-      try {
-        const next = await subscriptionSource();
-        if (JSON.stringify(next) === JSON.stringify(subscription)) continue;
-        const previous = subscription;
-        subscription = next;
-        try { await configure(next); }
-        catch (error) { subscription = previous; throw error; }
-      } catch {
-        log("regional-subscription-refresh-failed");
+      for (const [id, device] of installations) {
+        try { await configure(id, device); }
+        catch { log("regional-subscription-refresh-failed"); }
       }
     }
   }
@@ -131,7 +138,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     const { SecretString } = await loadAPNsSecret();
     const stateStore = createRegionalStateStore({ bucket: process.env.STATE_BUCKET });
     const subscriptionSource = process.env.APP_REGISTRATION_ENABLED === "true"
-      ? () => loadLiveSubscription(process.env.STATE_BUCKET)
+      ? (device) => loadLiveSubscription(process.env.STATE_BUCKET, device)
       : undefined;
     const monitor = await runRegionalWorker({ stateStore, secret: SecretString, subscriptionSource });
     process.on("SIGTERM", () => monitor.stop());

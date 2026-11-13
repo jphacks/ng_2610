@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Nigeyo training and live regional APNs for one opted-in iPhone.
+Description: Nigeyo training and live regional APNs for opted-in iPhones.
 
 Parameters:
   WorkerImage:
@@ -43,6 +43,7 @@ Rules:
     RuleCondition: !Or
       - !Equals [!Ref LiveEnabled, 'true']
       - !Not [!Equals [!Ref WorkerImage, '']]
+      - !Equals [!Ref AppRegistrationEnabled, 'true']
     Assertions:
       - Assert: !And
           - !Not [!Equals [!Ref WorkerImage, '']]
@@ -87,7 +88,9 @@ Resources:
         - Statement:
             - Effect: Allow
               Action: s3:PutObject
-              Resource: !Sub '${RegionalState.Arn}/live-subscription.json'
+              Resource:
+                - !Sub '${RegionalState.Arn}/live-subscription.json'
+                - !Sub '${RegionalState.Arn}/subscriptions/*'
       Events:
         Register:
           Type: HttpApi
@@ -98,17 +101,34 @@ Resources:
 
   TrainingPush:
     Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
     Properties:
-      CodeUri: apns-training/
-      Handler: index.handler
+      CodeUri: ..
+      Handler: aws/live-registration.trainingHandler
       Runtime: nodejs24.x
       Timeout: 12
       Environment:
         Variables:
-          APNS_SECRET_ARN: !Ref APNsSecretArn
+          APNS_SECRET_ARN: !If [ConfigureAppRegistration, !Ref LiveSecretArn, !Ref APNsSecretArn]
+          STATE_BUCKET: !If [ConfigureAppRegistration, !Ref RegionalState, '']
       Policies:
-        - AWSSecretsManagerGetSecretValuePolicy:
-            SecretArn: !Ref APNsSecretArn
+        - Statement:
+            - Effect: Allow
+              Action: secretsmanager:GetSecretValue
+              Resource: !If [ConfigureAppRegistration, !Ref LiveSecretArn, !Ref APNsSecretArn]
+        - !If
+          - ConfigureAppRegistration
+          - Statement:
+              - Effect: Allow
+                Action: s3:GetObject
+                Resource:
+                  - !Sub '${RegionalState.Arn}/live-subscription.json'
+                  - !Sub '${RegionalState.Arn}/subscriptions/*'
+              - Effect: Allow
+                Action: s3:ListBucket
+                Resource: !GetAtt RegionalState.Arn
+          - !Ref AWS::NoValue
 
   OperatorInvokePolicy:
     Type: AWS::IAM::Policy
@@ -192,7 +212,9 @@ Resources:
                 - ConfigureAppRegistration
                 - Effect: Allow
                   Action: s3:GetObject
-                  Resource: !Sub '${RegionalState.Arn}/live-subscription.json'
+                  Resource:
+                    - !Sub '${RegionalState.Arn}/live-subscription.json'
+                    - !Sub '${RegionalState.Arn}/subscriptions/*'
                 - !Ref AWS::NoValue
   WorkerTask:
     Condition: ConfigureLiveMonitoring

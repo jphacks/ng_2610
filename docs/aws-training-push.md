@@ -14,7 +14,16 @@ node --test aws/apns-training/index.test.mjs
 sam validate --lint --template-file aws/template.yaml
 ```
 
+## アプリで確認した地域を使う
+
+4台のTestFlightデモは [iPhoneの登録手順](aws-live-alerts.md#testflightの4台を登録する) を使う。
+`AppRegistrationEnabled=true` では、訓練Lambdaは `LiveSecretArn` の端末一覧とアプリの
+登録区域を使う。AWSに区域を転記する必要はない。`LiveEnabled=false` の間も訓練を送信できる。
+`APNsSecretArn` は既存のスタック入力なので、共用構成では `LiveSecretArn` と同じARNを指定できる。
+
 ## 初回セットアップ
+
+以下は `AppRegistrationEnabled=false` で訓練区域を手動登録する構成。
 
 1. [#21の手順](acceptance.md#testflight-apns-delivery-21)で、APNs対応のTestFlight版を
    発表用iPhone 4台に入れ、端末ごとにトークンを取得する。Appleのコンソールから先に送信し、
@@ -61,24 +70,31 @@ sam build --template-file aws/template.yaml
 sam deploy --guided
 ```
 
-## 発表用iPhoneで確認
+## 4台で確認する
+
+各iPhoneの「通知対象地域」に表示される区域名を使う。例えば、地震の東京23区は
+`東京都２３区`、大阪市は `大阪府北部`、名古屋市は `愛知県西部`、福岡市博多区は
+`福岡県福岡`。津波は別の区域名で照合する（例として大阪市の `大阪府`）。
+4台の自宅・大学の登録地域が重ならない状態で試す。
 
 発表担当のIAMロールで、スタック出力 `TrainingPushFunctionName` の値を使う。
-以下の例では `iphone-1` と `iphone-2` に送信し、残り2台には送信しない。
+下の例では、4台を同じ会場でロックしても、大阪府北部を登録したiPhoneだけに送信される。
 
 ```sh
 training_push_function_name='TrainingPushFunctionNameの出力値'
 aws lambda invoke \
   --function-name "$training_push_function_name" \
   --cli-binary-format raw-in-base64-out \
-  --payload '{"hazard":"tsunami","region":"石川県能登"}' \
+  --payload '{"hazard":"earthquake","region":"大阪府北部"}' \
   /tmp/nigeyo-training-push-result.json
 cat /tmp/nigeyo-training-push-result.json
 ```
 
-- `results` には対象端末ごとの `id` とAPNsの結果が入る。`apnsStatus: 200` はAppleが送信要求を受け付けた結果。
-  4台すべてで受信を確認するには、`earthquake` と `愛知県西部`、`tsunami` と `宮城県` の組み合わせでも実行する。
-  ロック中に通知が表示されたか、タップで対応する訓練ガイドが開いたかは、iPhoneで別々に記録する。
+- `results` に大阪の端末IDだけが出ることを確認する。`apnsStatus: 200` はAPNsによる受付。
+  実機で、ロック中の通知表示、壁紙の切替、タップ後の訓練ラベル付きガイドを別々に記録する。
+  東京・名古屋・博多の区域に順に変更し、対象の1台が切り替わることを確認する。
+- 津波は `{"hazard":"tsunami","region":"大阪府"}` で確認する。自動監視をオフにした端末は
+  次の送信から除外される。場所を変えたら、区域を確認して自動監視をオンにし直す。
 - `apnsStatus: 410` なら端末トークンを取り直す。`400` または `403` なら、
   同じTestFlight版のトークン、Bundle ID、Production対応の署名キーを照合する。
 - `apns_configuration_unavailable` ならシークレットのARN、Lambdaの読み取り権限、

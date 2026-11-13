@@ -14,8 +14,8 @@ import { ROOT, sha256 } from '../server/demo/util.mjs';
 test('each offline shortcut contains exactly its approved PNG and no network or file dependency', async () => {
   const hashes = new Set();
   for (const shortcut of SHORTCUTS) {
-    const png = await readFile(join(ROOT, `assets/wallpapers/${shortcut.id}.png`));
-    const appPng = await readFile(join(ROOT, `nigeyo-ios/Nigeyo/Resources/Wallpapers/${shortcut.id}.png`));
+    const png = await readFile(join(ROOT, `assets/wallpapers/${shortcut.hazard ?? shortcut.id}.png`));
+    const appPng = await readFile(join(ROOT, `nigeyo-ios/Nigeyo/Resources/Wallpapers/${shortcut.hazard ?? shortcut.id}.png`));
     assert.deepEqual(appPng, png);
     const w = workflow(png, shortcut);
     const actions = w.WFWorkflowActions;
@@ -39,7 +39,7 @@ test('each offline shortcut contains exactly its approved PNG and no network or 
   assert.equal(assets.wallpaper(), null, 'no shared mutable image');
 });
 
-test('setup explains two filtered automations and migration away from the catch-all', () => {
+test('setup explains filtered automations and migration away from the catch-all', () => {
   const page = renderSetupPage({ shortcuts: SHORTCUTS.map((s) => ({ ...s, file: `nigeyo-${s.id}.shortcut`, version: '1.2.0' })) });
   for (const s of SHORTCUTS) {
     assert.ok(page.includes(s.triggerTitle));
@@ -66,7 +66,7 @@ test('native automation headers bind each title to Nigeyo, with fresh trigger id
       [{ Property: 'Title', Operator: 0, Values: { Title: s.triggerTitle }, Removable: true }]);
     assert.notEqual(t.WFTriggerUUID, notificationTrigger(s.triggerTitle).WFTriggerUUID);
   }
-  assert.equal(ids.size, 2);
+  assert.equal(ids.size, SHORTCUTS.length);
   assert.throws(() => workflow(Buffer.from('test')), /unsupported-notification-title/);
   assert.throws(() => notificationTrigger('OTHER_APP'), /unsupported-notification-title/);
   assert.throws(() => notificationTrigger('EARTHQUAKE_TEST', ''), /invalid-app-bundle-id/);
@@ -77,7 +77,7 @@ test('native automation headers bind each title to Nigeyo, with fresh trigger id
 test('downloaded signed shortcuts and ZIP match the distributed manifest and approved images', async () => {
   const manifest = JSON.parse(await readFile(join(ROOT, 'assets/shortcuts/manifest.json'), 'utf8'));
   assert.equal(manifest.stepsVersion, 3);
-  assert.deepEqual(manifest.shortcuts.map((s) => s.id), ['earthquake', 'tsunami']);
+  assert.deepEqual(manifest.shortcuts.map((s) => s.id), SHORTCUTS.map((shortcut) => shortcut.id));
   for (const s of manifest.shortcuts) {
     assert.equal(s.signed, true);
     assert.equal(s.imageStorage, 'embedded-base64');
@@ -91,7 +91,7 @@ test('downloaded signed shortcuts and ZIP match the distributed manifest and app
   assert.equal(manifest.bundle.sha256, sha256(await readFile(join(ROOT, 'assets/shortcuts', manifest.bundle.file))));
 });
 
-test('actual signed distribution archives contain both native triggers and their exact offline images', { skip: process.platform !== 'darwin' }, async () => {
+test('actual signed distribution archives contain the matching native triggers and their exact offline images', { skip: process.platform !== 'darwin' }, async () => {
   const ids = new Set();
   for (const s of SHORTCUTS) {
     const w = inspectSignedShortcut(join(ROOT, `assets/shortcuts/nigeyo-${s.id}.shortcut`));
@@ -103,12 +103,12 @@ test('actual signed distribution archives contain both native triggers and their
     assert.deepEqual(p.Conditions.Value.WFActionParameterFilterTemplates,
       [{ Property: 'Title', Operator: 0, Values: { Title: s.triggerTitle }, Removable: true }]);
     assert.deepEqual(Buffer.from(w.WFWorkflowActions[0].WFWorkflowActionParameters.WFTextActionText, 'base64'),
-      await readFile(join(ROOT, `assets/wallpapers/${s.id}.png`)));
+      await readFile(join(ROOT, `assets/wallpapers/${s.hazard ?? s.id}.png`)));
     const actions = w.WFWorkflowActions;
     assert.deepEqual(actions.slice(3).map((a) => a.WFWorkflowActionIdentifier),
       ['is.workflow.actions.wallpaper.set']);
   }
-  assert.equal(ids.size, 2);
+  assert.equal(ids.size, SHORTCUTS.length);
 });
 
 const live = JSON.stringify([{ code: 551, id: 'multi-device-test', earthquake: { time: '2026/10/24 12:44:00', maxScale: 10, hypocenter: { name: 'test', magnitude: 2.9 } }, issue: { time: '2026/10/24 12:47:28' } }]);

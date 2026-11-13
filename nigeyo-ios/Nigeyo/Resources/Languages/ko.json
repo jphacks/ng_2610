@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "packageVersion": 6,
+  "packageVersion": 7,
   "languageId": "ko",
   "displayName": "Korean",
   "nativeName": "한국어",
@@ -363,6 +363,9 @@
     "regions.none": "후보 없음",
     "regions.noneNote": "후보가 없다고 해서 해당 장소가 안전하다는 뜻은 아닙니다.",
     "regions.confirm": "이 장소의 대상 지역을 확인했습니다",
+    "regions.shortcuts.live-earthquake": "실제 지진 알림 단축어 다운로드",
+    "regions.shortcuts.live-tsunami": "실제 쓰나미 알림 단축어 다운로드",
+    "regions.shortcuts.help": "추가한 후 각 알림 자동화의 앱을 Nigeyo로 지정하고 즉시 실행을 선택하세요. 각 iPhone에서 처음 실행할 때 잠금 화면 배경화면 변경을 허용하세요.",
     "regions.registration.registered": "실제 재난 알림 수신 등록 완료",
     "regions.registration.revoke": "실제 재난 알림 등록 해제",
     "regions.registration.unavailable": "이 빌드에는 실제 재난 알림 등록 서버가 설정되어 있지 않습니다.",

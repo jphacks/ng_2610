@@ -3,10 +3,12 @@ import { copyFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ROOT, sha256 } from '../server/demo/util.mjs';
 
+import { SHORTCUTS } from './shortcut-workflows.mjs';
+
 const source = join(ROOT, 'assets/shortcuts');
 const target = join(ROOT, 'nigeyo-ios/Nigeyo/Resources/Shortcuts');
 const manifest = JSON.parse(readFileSync(join(source, 'manifest.json'), 'utf8'));
-const files = ['earthquake', 'tsunami'].map((id) => {
+const files = SHORTCUTS.map(({ id }) => {
   const item = manifest.shortcuts.find((s) => s.id === id);
   if (!item?.signed || item.file !== `nigeyo-${id}.shortcut`) throw new Error(`missing-signed-shortcut:${id}`);
   const bytes = readFileSync(join(source, item.file));
