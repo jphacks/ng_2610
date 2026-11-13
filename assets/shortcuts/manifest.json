@@ -5,7 +5,7 @@
     {
       "id": "earthquake",
       "title": "nigeyo 地震",
-      "version": "1.6.0",
+      "version": "1.7.1",
       "minimumOSVersion": "27.0",
       "triggerTitle": "EARTHQUAKE_TEST",
       "automation": {
@@ -17,9 +17,9 @@
       },
       "imageStorage": "embedded-base64",
       "imageFile": "earthquake.png",
-      "imageSHA256": "c916fccb7284b196d7588857681d75aa6fc074b82f4409780d2b36a0cf6817b0",
+      "imageSHA256": "570de4d01013d807e6c3f4bfed37aad799f2719f9badccf0166b41353a575693",
       "file": "nigeyo-earthquake.shortcut",
-      "sha256": "b13fdc43d0300e5490f24c9004d40fd5c6a0909cb51c10d4ff2e9c0ee577a80a",
+      "sha256": "298dc5a50fc7b8eb68ab279c51bfb4740276b02aca566c822f59a25a7d4dc3ed",
       "iCloudURL": null,
       "signed": true,
       "importQuestions": [],
@@ -33,7 +33,7 @@
     {
       "id": "tsunami",
       "title": "nigeyo 津波",
-      "version": "1.6.0",
+      "version": "1.7.1",
       "minimumOSVersion": "27.0",
       "triggerTitle": "TSUNAMI_TEST",
       "automation": {
@@ -45,9 +45,9 @@
       },
       "imageStorage": "embedded-base64",
       "imageFile": "tsunami.png",
-      "imageSHA256": "9361fec0cf843572650f4727b3f09d4843cbed2624e4bd82a70596164dabd2fd",
+      "imageSHA256": "a40abf471186b17720ae447a7b16f992a9df4ffe796b7c81d28cbc188c6dffd4",
       "file": "nigeyo-tsunami.shortcut",
-      "sha256": "a769893b018e3dd60ed2ff2bbab32575d43d26d5ee9ffbd23be1aeb2bab123c6",
+      "sha256": "dba4a4c5fe8466c71490db545b364a1ab1f23e46b1c25812acdd728d6ae0c4b3",
       "iCloudURL": null,
       "signed": true,
       "importQuestions": [],
@@ -61,7 +61,7 @@
     {
       "id": "live-earthquake",
       "title": "nigeyo 本番 地震",
-      "version": "1.7.0",
+      "version": "1.7.1",
       "minimumOSVersion": "27.0",
       "triggerTitle": "EARTHQUAKE_ALERT",
       "automation": {
@@ -73,9 +73,9 @@
       },
       "imageStorage": "embedded-base64",
       "imageFile": "earthquake.png",
-      "imageSHA256": "c916fccb7284b196d7588857681d75aa6fc074b82f4409780d2b36a0cf6817b0",
+      "imageSHA256": "570de4d01013d807e6c3f4bfed37aad799f2719f9badccf0166b41353a575693",
       "file": "nigeyo-live-earthquake.shortcut",
-      "sha256": "88eb8ec7e2b949d39b1095462c7abdbc134c54b52aaf6cea5d0beb496a7cd8f1",
+      "sha256": "7f463fe3e77874ffc9dd7cb026bc6bb0798073cfd2436a8aa491407cfea642cc",
       "iCloudURL": null,
       "signed": true,
       "importQuestions": [],
@@ -89,7 +89,7 @@
     {
       "id": "live-tsunami",
       "title": "nigeyo 本番 津波",
-      "version": "1.7.0",
+      "version": "1.7.1",
       "minimumOSVersion": "27.0",
       "triggerTitle": "TSUNAMI_ALERT",
       "automation": {
@@ -101,9 +101,9 @@
       },
       "imageStorage": "embedded-base64",
       "imageFile": "tsunami.png",
-      "imageSHA256": "9361fec0cf843572650f4727b3f09d4843cbed2624e4bd82a70596164dabd2fd",
+      "imageSHA256": "a40abf471186b17720ae447a7b16f992a9df4ffe796b7c81d28cbc188c6dffd4",
       "file": "nigeyo-live-tsunami.shortcut",
-      "sha256": "e5531dd6a7e89391828b7f7598d5f6c3247b365878cd947945473c7c6f1d9f9f",
+      "sha256": "3840c5d0ca59972ab0ef30146d2c4fc652c3ed1af94f66b19dca588903b8dcc5",
       "iCloudURL": null,
       "signed": true,
       "importQuestions": [],
@@ -117,7 +117,7 @@
   ],
   "bundle": {
     "file": "bundle.zip",
-    "sha256": "ebdf454abc92607776c09b84e6ec65fe501effeda741da84b82ca724b4a216ce",
+    "sha256": "5ea85795e285eb2e38e076ae0c60f14a57ef9a460aec3a3c231596fb3cfc43f6",
     "note": "Four shortcuts with embedded local images, standalone PNGs and setup guide. Notification triggers included. Enable each imported automation and verify the Nigeyo app selection on the iPhone."
   }
 }

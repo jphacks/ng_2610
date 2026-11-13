@@ -59,7 +59,7 @@ v1.6.0では壁紙変更後の確認とアプリ起動を削除し、壁紙変�
 NIGEYO_APP_BUNDLE_ID=jp.nigeyo.hackathon.alice npm run shortcuts:build
 ```
 
-画像は `assets/wallpapers/{earthquake,tsunami}.png` が原本です。署名済みファイルと原画像のSHA-256をmanifestに記録します。`npm run assets:wallpapers` は原画像を検証してiOSの共有用リソースへコピーし、旧SVGから画像を再生成しません。
+ショートカットと配布ZIPには、ピクトグラムを上に調整した `assets/shortcuts/{earthquake,tsunami}.png` を同梱します。署名済みファイルと同梱画像のSHA-256をmanifestに記録します。単体ダウンロードとアプリの共有には `assets/wallpapers/{earthquake,tsunami}.png` を使います。`npm run assets:wallpapers` は原画像を検証してiOSの共有用リソースへコピーし、旧SVGから画像を再生成しません。
 
 v1.4.0では地震用を黄×黒、津波用を赤×白のピクトグラムへ更新しました。v1.5.2では地震用を両手で頭を守る姿勢に変更し、手の描写を簡略化しました。津波用は坂の先の水平な高台を広げ、位置を高くしました。画像を変更した場合はショートカットを再ビルドし、iPhoneで再追加します。アプリの更新だけでは追加済みショートカット内の画像は変わりません。既存の同名ショートカットを置き換え、通知トリガーの対象アプリ・タイトル条件・有効化と壁紙変更の権限を再確認してください。トンネルURLだけ変わった場合はショートカットの再設定は不要です。アプリを再インストールした場合やBundle IDを変更した場合は同梱通知トリガーの対象アプリを再選択します。
 

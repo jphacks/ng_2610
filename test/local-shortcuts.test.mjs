@@ -14,9 +14,7 @@ import { ROOT, sha256 } from '../server/demo/util.mjs';
 test('each offline shortcut contains exactly its approved PNG and no network or file dependency', async () => {
   const hashes = new Set();
   for (const shortcut of SHORTCUTS) {
-    const png = await readFile(join(ROOT, `assets/wallpapers/${shortcut.hazard ?? shortcut.id}.png`));
-    const appPng = await readFile(join(ROOT, `nigeyo-ios/Nigeyo/Resources/Wallpapers/${shortcut.hazard ?? shortcut.id}.png`));
-    assert.deepEqual(appPng, png);
+    const png = await readFile(join(ROOT, `assets/shortcuts/${shortcut.hazard ?? shortcut.id}.png`));
     const w = workflow(png, shortcut);
     const actions = w.WFWorkflowActions;
     assert.equal(actions.length, 4);
@@ -33,6 +31,11 @@ test('each offline shortcut contains exactly its approved PNG and no network or 
     assert.ok(!JSON.stringify(w).includes('getfile'));
   }
   assert.equal(hashes.size, 2, 'hazards must have different images');
+  for (const hazard of ['earthquake', 'tsunami']) {
+    const standalone = await readFile(join(ROOT, 'assets/wallpapers', `${hazard}.png`));
+    const appPng = await readFile(join(ROOT, 'nigeyo-ios/Nigeyo/Resources/Wallpapers', `${hazard}.png`));
+    assert.deepEqual(appPng, standalone);
+  }
   const assets = new AssetStore();
   await assets.load();
   assert.deepEqual(assets.wallpaper('earthquake'), await assets.verifyWallpaper('earthquake'));
@@ -84,7 +87,7 @@ test('downloaded signed shortcuts and ZIP match the distributed manifest and app
     assert.equal(s.automation.included, true);
     assert.equal(s.automation.titleContains, s.triggerTitle);
     assert.equal(s.automation.appBundleIdentifier, 'jp.nigeyo.hackathon');
-    assert.equal(s.imageSHA256, sha256(await readFile(join(ROOT, 'assets/wallpapers', s.imageFile))));
+    assert.equal(s.imageSHA256, sha256(await readFile(join(ROOT, 'assets/shortcuts', s.imageFile))));
     assert.equal(s.sha256, sha256(await readFile(join(ROOT, 'assets/shortcuts', s.file))));
     assert.equal(s.sha256, sha256(await readFile(join(ROOT, 'nigeyo-ios/Nigeyo/Resources/Shortcuts', s.file))), 'app and server distribute identical Apple-signed bytes');
   }
@@ -103,7 +106,7 @@ test('actual signed distribution archives contain the matching native triggers a
     assert.deepEqual(p.Conditions.Value.WFActionParameterFilterTemplates,
       [{ Property: 'Title', Operator: 0, Values: { Title: s.triggerTitle }, Removable: true }]);
     assert.deepEqual(Buffer.from(w.WFWorkflowActions[0].WFWorkflowActionParameters.WFTextActionText, 'base64'),
-      await readFile(join(ROOT, `assets/wallpapers/${s.hazard ?? s.id}.png`)));
+      await readFile(join(ROOT, `assets/shortcuts/${s.hazard ?? s.id}.png`)));
     const actions = w.WFWorkflowActions;
     assert.deepEqual(actions.slice(3).map((a) => a.WFWorkflowActionIdentifier),
       ['is.workflow.actions.wallpaper.set']);

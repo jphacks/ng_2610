@@ -11,7 +11,7 @@ import { SHORTCUTS, workflow, plistValue } from './shortcut-workflows.mjs';
 
 const DIR = join(ROOT, 'assets/shortcuts');
 const TMP = join(ROOT, 'state/shortcuts-build');
-const VERSION = '1.7.0';
+const VERSION = '1.7.1';
 const STEPS_VERSION = 3;
 const APP_BUNDLE_ID = process.env.NIGEYO_APP_BUNDLE_ID ?? 'jp.nigeyo.hackathon';
 mkdirSync(DIR, { recursive: true });
@@ -20,7 +20,7 @@ mkdirSync(TMP, { recursive: true });
 const entries = [];
 for (const s of SHORTCUTS) {
   const imageFile = `${s.hazard ?? s.id}.png`;
-  const png = readFileSync(join(ROOT, "assets/wallpapers", imageFile));
+  const png = readFileSync(join(DIR, imageFile));
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0">${plistValue(workflow(png, { ...s, bundleIdentifier: APP_BUNDLE_ID }))}</plist>\n`;
   const unsigned = join(TMP, `${s.id}.unsigned.shortcut`);
   writeFileSync(unsigned, xml);
@@ -59,7 +59,7 @@ for (const { file } of entries) await atomicWrite(join(DIR, file), readFileSync(
 
 writeFileSync(join(TMP, 'manifest.json'), JSON.stringify({ shortcuts: entries }, null, 2));
 const guide = join(ROOT, 'docs/shortcuts.md');
-const zipInputs = [...entries.filter((e) => e.file).map((e) => join(DIR, e.file)), join(TMP, 'manifest.json'), ...new Set(entries.map((entry) => join(ROOT, 'assets/wallpapers', entry.imageFile))), ...(existsSync(guide) ? [guide] : [])];
+const zipInputs = [...entries.filter((e) => e.file).map((e) => join(DIR, e.file)), join(TMP, 'manifest.json'), ...new Set(entries.map((entry) => join(DIR, entry.imageFile))), ...(existsSync(guide) ? [guide] : [])];
 let bundle = null;
 try {
   rmSync(join(DIR, 'bundle.zip'), { force: true });
