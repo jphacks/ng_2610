@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "packageVersion": 7,
+  "packageVersion": 8,
   "languageId": "en",
   "displayName": "English",
   "nativeName": "English",
@@ -56,7 +56,8 @@
     "onboarding.destinations.note": "Being close does not guarantee safety or that you can reach it.",
     "onboarding.destinations.save": "Save evacuation sites and alert areas",
     "onboarding.destinations.loading": "Looking for nearby evacuation sites…",
-    "onboarding.destinations.change": "Change",
+    "onboarding.destinations.change": "Choose another site",
+    "onboarding.destinations.areaHint": "You'll get an alert when a warning is issued for this area.",
     "onboarding.lock.nav": "Lock screen setup",
     "onboarding.lock.eyebrow": "ONE LESS THING TO THINK ABOUT",
     "onboarding.lock.title": "Your next step,\neven on the lock screen.",

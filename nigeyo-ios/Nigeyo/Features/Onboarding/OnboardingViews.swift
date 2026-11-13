@@ -290,15 +290,18 @@ struct DestinationsStepView: View {
             ForEach([PlaceContext.home, .university], id: \.self) { place in
                 Card {
                     Text(t[place == .home ? "onboarding.places.home" : "onboarding.places.university"])
-                        .nFont(17, .bold)
-                    destinationDetails(DestinationSlot(place: place, hazard: .earthquake))
-                    if let draft = places.regionDrafts[place] {
-                        earthquakePicker(place, draft: draft)
+                        .nFont(20, .bold)
+                    hazardSection {
+                        destinationDetails(DestinationSlot(place: place, hazard: .earthquake))
+                        if let draft = places.regionDrafts[place] {
+                            alertArea(t["regions.earthquake"]) { earthquakePicker(place, draft: draft) }
+                        }
                     }
-                    Divider()
-                    destinationDetails(DestinationSlot(place: place, hazard: .tsunami))
-                    if let draft = places.regionDrafts[place] {
-                        tsunamiPicker(place, draft: draft)
+                    hazardSection {
+                        destinationDetails(DestinationSlot(place: place, hazard: .tsunami))
+                        if let draft = places.regionDrafts[place] {
+                            alertArea(t["regions.tsunami"]) { tsunamiPicker(place, draft: draft) }
+                        }
                     }
                 }
             }
@@ -307,6 +310,28 @@ struct DestinationsStepView: View {
             NButton(t["onboarding.destinations.save"], kind: places.isComputing || !places.regionsReady ? .disabled : .primary, action: onSave)
         }
         .task(id: places.places) { await places.compute(repository: model.services.evacuation) }
+    }
+
+    /// One hazard per tinted box, so the site and its alert area read as a pair.
+    private func hazardSection(@ViewBuilder _ content: () -> some View) -> some View {
+        VStack(alignment: .leading, spacing: 6) { content() }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.paper, in: RoundedRectangle(cornerRadius: Radius.button))
+            .padding(.top, 8)
+    }
+
+    /// The bare menu picker shows only an area name; say what it is and what it is for.
+    @ViewBuilder private func alertArea(_ title: String, @ViewBuilder picker: () -> some View) -> some View {
+        Divider().padding(.vertical, 6)
+        Text(title).nFont(12, .bold).foregroundStyle(Color.muted)
+        Text(model.strings["onboarding.destinations.areaHint"]).nFont(12).foregroundStyle(Color.muted)
+        VStack(alignment: .leading, spacing: 4) { picker() }
+            .tint(Color.ink)
+            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+            .padding(.horizontal, 4)
+            .background(Color.white, in: RoundedRectangle(cornerRadius: Radius.button))
+            .overlay { RoundedRectangle(cornerRadius: Radius.button).strokeBorder(Color.line) }
     }
 
     private func earthquakePicker(_ place: PlaceContext, draft: OnboardingModel.RegionDraft) -> some View {
@@ -339,12 +364,12 @@ struct DestinationsStepView: View {
                 Text($0.name).tag($0.id)
             }
         }
-        if draft.suggestion.tsunami.isEmpty { Text(t["regions.noneNote"]).nFont(12) }
+        if draft.suggestion.tsunami.isEmpty { Text(t["regions.noneNote"]).nFont(12).padding([.horizontal, .bottom], 8) }
     }
 
     @ViewBuilder private func destinationDetails(_ slot: DestinationSlot) -> some View {
         let t = model.strings
-        Text(t["hazard.\(slot.hazard.rawValue)"]).nFont(12, .bold).foregroundStyle(Color.muted)
+        Text(t["hazard.\(slot.hazard.rawValue)"]).nFont(14, .bold).foregroundStyle(Color.ink)
         switch places.slots[slot] ?? .notSet {
         case .notSet:
             Text(t["onboarding.destinations.notSet"]).nFont(17, .bold).foregroundStyle(Color.muted)
@@ -365,7 +390,11 @@ struct DestinationsStepView: View {
                         Button("\(cand.site.name) · \(distanceLine(cand))") { places.select(slot, index: i) }
                     }
                 } label: {
-                    Text(t["onboarding.destinations.change"]).nFont(13, .bold).foregroundStyle(Color.ink).frame(minHeight: 44)
+                    Label(t["onboarding.destinations.change"], systemImage: "arrow.left.arrow.right")
+                        .nFont(13, .bold).foregroundStyle(Color.ink)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .background(Color.white, in: RoundedRectangle(cornerRadius: Radius.button))
+                        .overlay { RoundedRectangle(cornerRadius: Radius.button).strokeBorder(Color.line) }
                 }
             }
         }

@@ -83,6 +83,8 @@ struct PictogramRow: View {
     var size: CGFloat
     var tint: Color = .ink
     var labelColor: Color = .ink
+    /// The Lock Screen card has room for a larger instruction than the Dynamic Island.
+    var headlineFont: Font = .subheadline.bold()
 
     var body: some View {
         if state.layout == .checks {
@@ -100,7 +102,7 @@ struct PictogramRow: View {
         } else {
             HStack(spacing: 12) {
                 Pict(name: state.pictograms.first ?? "protect-head", size: size, tint: tint)
-                Text(state.headline).font(.subheadline.bold()).foregroundStyle(labelColor).lineLimit(2).minimumScaleFactor(0.8)
+                Text(state.headline).font(headlineFont).foregroundStyle(labelColor).lineLimit(2).minimumScaleFactor(0.7)
                 Spacer(minLength: 0)
             }
         }
@@ -155,7 +157,7 @@ struct LockScreenView: View {
                 }
                 Spacer(minLength: 8)
             } else {
-                PictogramRow(state: state, size: state.layout == .checks ? 48 : 56)
+                PictogramRow(state: state, size: state.layout == .checks ? 48 : 56, headlineFont: .title2.bold())
                 Spacer(minLength: 8)
                 ActionButton(sessionId: sessionId, state: state)
             }

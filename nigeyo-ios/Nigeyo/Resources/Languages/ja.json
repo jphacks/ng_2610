@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "packageVersion": 7,
+  "packageVersion": 8,
   "languageId": "ja",
   "displayName": "Japanese",
   "nativeName": "日本語",
@@ -56,7 +56,8 @@
     "onboarding.destinations.note": "近さは、安全や到達可能性を保証しません。",
     "onboarding.destinations.save": "避難場所と通知地域を保存する",
     "onboarding.destinations.loading": "近くの避難場所を探しています…",
-    "onboarding.destinations.change": "候補を変える",
+    "onboarding.destinations.change": "別の避難場所を選ぶ",
+    "onboarding.destinations.areaHint": "この地域に警報が出たときに通知が届きます。",
     "onboarding.lock.nav": "ロック画面の準備",
     "onboarding.lock.eyebrow": "ONE LESS THING TO THINK ABOUT",
     "onboarding.lock.title": "ロック画面にも、\n次の行動を。",

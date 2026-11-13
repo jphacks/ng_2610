@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "packageVersion": 7,
+  "packageVersion": 8,
   "languageId": "ko",
   "displayName": "Korean",
   "nativeName": "한국어",
@@ -56,7 +56,8 @@
     "onboarding.destinations.note": "가깝다고 해서 안전하거나 도달할 수 있다는 뜻은 아닙니다.",
     "onboarding.destinations.save": "대피 장소와 알림 구역 저장",
     "onboarding.destinations.loading": "근처 대피 장소를 찾고 있습니다…",
-    "onboarding.destinations.change": "후보 변경",
+    "onboarding.destinations.change": "다른 대피 장소 선택",
+    "onboarding.destinations.areaHint": "이 지역에 경보가 발표되면 알림을 받습니다.",
     "onboarding.lock.nav": "잠금 화면 준비",
     "onboarding.lock.eyebrow": "ONE LESS THING TO THINK ABOUT",
     "onboarding.lock.title": "잠금 화면에도,\n다음 행동을.",

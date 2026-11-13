@@ -3,33 +3,33 @@
   "languages": [
     {
       "languageId": "en",
-      "packageVersion": 7,
+      "packageVersion": 8,
       "nativeName": "English",
       "displayName": "English",
       "direction": "ltr",
       "file": "en.json",
-      "bytes": 29131,
-      "sha256": "9a796f683cd8aceca06f486181d32b9da38cf62c95906d4b9f395629709f963a"
+      "bytes": 29247,
+      "sha256": "8e8ffdf54d8a1f28a3559a778444eac632ebe87b9b572153907b3a88d0baf908"
     },
     {
       "languageId": "ja",
-      "packageVersion": 7,
+      "packageVersion": 8,
       "nativeName": "日本語",
       "displayName": "Japanese",
       "direction": "ltr",
       "file": "ja.json",
-      "bytes": 34051,
-      "sha256": "9cc50b5f56954ac23052f27ab3b46a65080ad75b26f296535bd9d99c3cd34111"
+      "bytes": 34167,
+      "sha256": "3858adb916fa4561fdce5476bf7fcd88670e615d3534854fd2bab1ae67db97f2"
     },
     {
       "languageId": "ko",
-      "packageVersion": 7,
+      "packageVersion": 8,
       "nativeName": "한국어",
       "displayName": "Korean",
       "direction": "ltr",
       "file": "ko.json",
-      "bytes": 32784,
-      "sha256": "f9d314897b0b160c9ea4b32ed2d9a16d5cbb50a877fc35afe732dd187b0b2641"
+      "bytes": 32902,
+      "sha256": "5a6e2fd521c1852a8c858bcdaa99343a34dff1892abcdf642e249439e72dc82a"
     }
   ]
 }

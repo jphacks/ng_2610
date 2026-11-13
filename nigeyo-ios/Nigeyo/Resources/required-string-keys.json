@@ -66,6 +66,7 @@
     "onboarding.destinations.save": {},
     "onboarding.destinations.loading": {},
     "onboarding.destinations.change": {},
+    "onboarding.destinations.areaHint": {},
     "onboarding.lock.nav": {},
     "onboarding.lock.eyebrow": {},
     "onboarding.lock.title": {},
