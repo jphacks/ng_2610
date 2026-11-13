@@ -5,6 +5,8 @@ struct NotificationRegionsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var enabled = false
     @State private var updating = false
+    @State private var shortcutDocument: ShortcutDocument?
+    @State private var shortcutExportFailed = false
 
     private var usesLiveRegistration: Bool {
         LiveNotificationRegistration.endpoint != nil || model.settings.liveRegistrationNeedsRevocation
@@ -41,6 +43,13 @@ struct NotificationRegionsView: View {
                     Toggle(t["regions.enabled"], isOn: $enabled).disabled(!ready)
                 }
                 if !ready { Text(t["regions.needsConfirmation"]).foregroundStyle(.secondary) }
+                ForEach(BundledShortcut.live) { shortcut in
+                    Button(t["regions.shortcuts.\(shortcut.rawValue)"]) {
+                        do { shortcutDocument = ShortcutDocument(url: try shortcut.exportURL()) }
+                        catch { shortcutExportFailed = true }
+                    }
+                }
+                Text(t["regions.shortcuts.help"]).font(.footnote).foregroundStyle(.secondary)
             }
             ForEach([PlaceContext.home, .university], id: \.self) { place in
                 let slots = DestinationSlot.all.filter { $0.place == place }
@@ -80,6 +89,13 @@ struct NotificationRegionsView: View {
                 }
             }
         }
+        .sheet(item: $shortcutDocument) { document in
+            ShortcutFileHandoff(url: document.url) { shortcutDocument = nil }
+                .presentationDetents([.medium, .large])
+        }
+        .alert(t["setup.openFailed"], isPresented: $shortcutExportFailed) {
+            Button(t["common.close"], role: .cancel) {}
+        } message: { Text(t["setup.openFailedBody"]) }
         .disabled(updating)
         .interactiveDismissDisabled(updating)
         .navigationTitle(t["regions.title"])

@@ -57,11 +57,67 @@
         "Get Images from Input",
         "Set Wallpaper (Lock Screen, preview off)"
       ]
+    },
+    {
+      "id": "live-earthquake",
+      "title": "nigeyo 本番 地震",
+      "version": "1.7.0",
+      "minimumOSVersion": "27.0",
+      "triggerTitle": "EARTHQUAKE_ALERT",
+      "automation": {
+        "included": true,
+        "type": "notification",
+        "appBundleIdentifier": "jp.nigeyo.hackathon",
+        "titleContains": "EARTHQUAKE_ALERT",
+        "requiresUserEnable": true
+      },
+      "imageStorage": "embedded-base64",
+      "imageFile": "earthquake.png",
+      "imageSHA256": "c916fccb7284b196d7588857681d75aa6fc074b82f4409780d2b36a0cf6817b0",
+      "file": "nigeyo-live-earthquake.shortcut",
+      "sha256": "88eb8ec7e2b949d39b1095462c7abdbc134c54b52aaf6cea5d0beb496a7cd8f1",
+      "iCloudURL": null,
+      "signed": true,
+      "importQuestions": [],
+      "actions": [
+        "Embedded PNG",
+        "Base64 Decode",
+        "Get Images from Input",
+        "Set Wallpaper (Lock Screen, preview off)"
+      ]
+    },
+    {
+      "id": "live-tsunami",
+      "title": "nigeyo 本番 津波",
+      "version": "1.7.0",
+      "minimumOSVersion": "27.0",
+      "triggerTitle": "TSUNAMI_ALERT",
+      "automation": {
+        "included": true,
+        "type": "notification",
+        "appBundleIdentifier": "jp.nigeyo.hackathon",
+        "titleContains": "TSUNAMI_ALERT",
+        "requiresUserEnable": true
+      },
+      "imageStorage": "embedded-base64",
+      "imageFile": "tsunami.png",
+      "imageSHA256": "9361fec0cf843572650f4727b3f09d4843cbed2624e4bd82a70596164dabd2fd",
+      "file": "nigeyo-live-tsunami.shortcut",
+      "sha256": "e5531dd6a7e89391828b7f7598d5f6c3247b365878cd947945473c7c6f1d9f9f",
+      "iCloudURL": null,
+      "signed": true,
+      "importQuestions": [],
+      "actions": [
+        "Embedded PNG",
+        "Base64 Decode",
+        "Get Images from Input",
+        "Set Wallpaper (Lock Screen, preview off)"
+      ]
     }
   ],
   "bundle": {
     "file": "bundle.zip",
-    "sha256": "b2f7eee6d0c6b0a609e136c431fd5e4c75dcbee62bfabfd195409ab896df71ce",
-    "note": "Two shortcuts with embedded local images, standalone PNGs and setup guide. Notification triggers included. Enable each imported automation and verify the Nigeyo app selection on the iPhone."
+    "sha256": "ebdf454abc92607776c09b84e6ec65fe501effeda741da84b82ca724b4a216ce",
+    "note": "Four shortcuts with embedded local images, standalone PNGs and setup guide. Notification triggers included. Enable each imported automation and verify the Nigeyo app selection on the iPhone."
   }
 }

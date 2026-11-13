@@ -133,7 +133,7 @@ struct ShortcutsSetupView: View {
     private var addStep: some View {
         let t = model.strings
         return VStack(alignment: .leading, spacing: 16) {
-            ForEach(BundledShortcut.allCases) { shortcut in
+            ForEach(BundledShortcut.training) { shortcut in
                 shortcutCard(shortcut, testing: false)
             }
             DisclosureGroup(t["setup.importHelp"]) {
@@ -212,7 +212,7 @@ struct ShortcutsSetupView: View {
         let t = model.strings
         return VStack(alignment: .leading, spacing: 16) {
             NoteCard(title: t["setup.wallpaperNotice"], message: t["setup.wallpaperNoticeBody"])
-            ForEach(BundledShortcut.allCases) { shortcut in
+            ForEach(BundledShortcut.training) { shortcut in
                 shortcutCard(shortcut, testing: true)
             }
             BodyText(t["setup.testScope"], size: 12)
@@ -258,14 +258,14 @@ struct ShortcutsSetupView: View {
     }
 }
 
-private struct ShortcutDocument: Identifiable {
+struct ShortcutDocument: Identifiable {
     let id = UUID()
     let url: URL
 }
 
 /// Use the system's file handoff, never try to install a workflow silently or report
 /// that dismissing the menu means success. Saving to Files is the OS fallback.
-private struct ShortcutFileHandoff: UIViewControllerRepresentable {
+struct ShortcutFileHandoff: UIViewControllerRepresentable {
     let url: URL
     var onClose: () -> Void
 

@@ -19,32 +19,36 @@ function isRegion(value) {
     value === value.trim() && !/[\p{C}]/u.test(value);
 }
 
-export function readConfig(value, { regional = false } = {}) {
+function validTrainingRegions(regions) {
+  return regions && Object.keys(regions).every((hazard) => Object.hasOwn(drills, hazard)) &&
+    Object.values(regions).some((areas) => Array.isArray(areas) && areas.length) &&
+    Object.values(regions).every((areas) => Array.isArray(areas) && areas.every(isRegion));
+}
+
+export function readConfig(value, { requireRegions = false } = {}) {
   const { teamId, keyId, privateKey, bundleId, deviceToken, devices } = JSON.parse(value);
   if (typeof teamId !== "string" || !/^[A-Z0-9]{10}$/.test(teamId) ||
       typeof keyId !== "string" || !/^[A-Z0-9]{10}$/.test(keyId) ||
       typeof bundleId !== "string" || !/^[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/.test(bundleId) ||
-      ((!regional || devices === undefined) && !isDeviceToken(deviceToken))) {
+      (devices === undefined && !isDeviceToken(deviceToken))) {
     throw new Error("Invalid APNs configuration");
   }
   const key = createPrivateKey(privateKey);
   if (key.asymmetricKeyType !== "ec" || key.asymmetricKeyDetails.namedCurve !== "prime256v1") {
     throw new Error("Invalid APNs key type");
   }
-  if (!regional || devices === undefined) return { teamId, keyId, key, bundleId, deviceToken };
+  if (devices === undefined) return { teamId, keyId, key, bundleId, deviceToken };
 
   if (deviceToken !== undefined || !Array.isArray(devices) || devices.length < 1 || devices.length > 4) {
-    throw new Error("Invalid training device list");
+    throw new Error("Invalid APNs device list");
   }
   const ids = new Set();
   const tokens = new Set();
   for (const device of devices) {
     if (typeof device?.id !== "string" || !/^[A-Za-z0-9_-]{1,24}$/.test(device.id) ||
         !isDeviceToken(device.deviceToken) || ids.has(device.id) || tokens.has(device.deviceToken.toLowerCase()) ||
-        !device.regions || Object.keys(device.regions).some((hazard) => !Object.hasOwn(drills, hazard)) ||
-        !Object.values(device.regions).some((areas) => Array.isArray(areas) && areas.length) ||
-        !Object.values(device.regions).every((areas) => Array.isArray(areas) && areas.every(isRegion))) {
-      throw new Error("Invalid training device");
+        ((requireRegions || device.regions !== undefined) && !validTrainingRegions(device.regions))) {
+      throw new Error("Invalid APNs device");
     }
     ids.add(device.id);
     tokens.add(device.deviceToken.toLowerCase());
@@ -82,7 +86,7 @@ export function sendToAPNs(headers, payload, openConnection = connect) {
   });
 }
 
-export function makeHandler({ loadSecret, send = sendToAPNs, now = Date.now }) {
+export function makeHandler({ loadSecret, subscriptionSource, send = sendToAPNs, now = Date.now }) {
   // Reuse the provider JWT across warm invocations. A new Secrets Manager version
   // invalidates the cache immediately without putting credentials in the environment.
   let cached;
@@ -104,7 +108,7 @@ export function makeHandler({ loadSecret, send = sendToAPNs, now = Date.now }) {
       const secret = await loadSecret();
       issuedAt = Math.floor(now() / 1000);
       if (!cached || cached.version !== secret.VersionId || issuedAt >= cached.issuedAt + 45 * 60) {
-        config = readConfig(secret.SecretString, { regional: true });
+        config = readConfig(secret.SecretString, { requireRegions: !subscriptionSource });
         jwt = providerToken(config, issuedAt);
         cached = { version: secret.VersionId, issuedAt, config, jwt };
       } else {
@@ -145,15 +149,29 @@ export function makeHandler({ loadSecret, send = sendToAPNs, now = Date.now }) {
       }
     };
 
-    if (!config.devices) {
+    if (!config.devices && !subscriptionSource) {
       if (event.region) return { accepted: false, eventId, error: "regional_devices_not_configured" };
       return { ...await sendDrill(config.deviceToken), eventId };
     }
     if (!event.region) return { accepted: false, eventId, error: "training_region_required" };
-    const matches = config.devices.filter((device) => device.regions[hazard]?.includes(event.region));
+    let matches;
+    try {
+      const devices = config.devices ?? [{ id: undefined, deviceToken: config.deviceToken }];
+      const selected = await Promise.all(devices.map(async (device) => {
+        if (!subscriptionSource) return device.regions?.[hazard]?.includes(event.region);
+        const subscription = await subscriptionSource(device);
+        return subscription.enabled && subscription.targets.some((target) =>
+          hazard === "earthquake"
+            ? target.earthquakeArea.name === event.region
+            : target.tsunamiAreas.includes(event.region));
+      }));
+      matches = devices.filter((_, index) => selected[index]);
+    } catch {
+      return { accepted: false, eventId, error: "regional_subscriptions_unavailable" };
+    }
     if (!matches.length) return { accepted: false, eventId, error: "no_devices_in_region" };
     const results = await Promise.all(matches.map(async (device) => ({
-      id: device.id,
+      id: device.id ?? "iphone-1",
       ...await sendDrill(device.deviceToken, event.region, randomUUID()),
     })));
     return { accepted: results.every((result) => result.accepted), eventId, results };
