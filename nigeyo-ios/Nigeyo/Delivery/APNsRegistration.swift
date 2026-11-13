@@ -19,6 +19,21 @@ final class APNsRegistration {
         UIApplication.shared.registerForRemoteNotifications()
     }
 
+    func tokenForLiveRegistration() async throws -> String {
+        if case .registered(let token) = state { return token }
+        register()
+        let clock = ContinuousClock()
+        let deadline = clock.now + .seconds(10)
+        while clock.now < deadline {
+            switch state {
+            case .registered(let token): return token
+            case .failed: throw LiveNotificationRegistration.Failure.server
+            case .idle, .registering: try await clock.sleep(for: .milliseconds(100))
+            }
+        }
+        throw LiveNotificationRegistration.Failure.server
+    }
+
     func didRegister(deviceToken: Data) {
         state = .registered(token: deviceToken.map { String(format: "%02x", $0) }.joined())
     }

@@ -4,6 +4,11 @@ struct NotificationRegionsView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     @State private var enabled = false
+    @State private var updating = false
+
+    private var usesLiveRegistration: Bool {
+        LiveNotificationRegistration.endpoint != nil || model.settings.liveRegistrationNeedsRevocation
+    }
     @State private var lastAlerts: [String: RegionalAlert] = [:]
 
     private var registered: [DestinationSlot] {
@@ -21,8 +26,20 @@ struct NotificationRegionsView: View {
         Form {
             Section {
                 Text(t["regions.body"])
-                Text(t["regions.connection"]).font(.footnote)
-                Toggle(t["regions.enabled"], isOn: $enabled).disabled(!ready)
+                if usesLiveRegistration {
+                    Toggle(t["regions.enabled"], isOn: Binding(get: { enabled }, set: { update($0) }))
+                        .disabled(!ready && !enabled)
+                    if updating {
+                        ProgressView()
+                    } else if enabled {
+                        Text(t["regions.registration.registered"]).font(.footnote)
+                    } else if model.settings.liveRegistrationNeedsRevocation {
+                        Button(t["regions.registration.revoke"]) { update(false) }
+                    }
+                } else {
+                    Text(t["regions.connection"]).font(.footnote)
+                    Toggle(t["regions.enabled"], isOn: $enabled).disabled(!ready)
+                }
                 if !ready { Text(t["regions.needsConfirmation"]).foregroundStyle(.secondary) }
             }
             ForEach([PlaceContext.home, .university], id: \.self) { place in
@@ -55,7 +72,7 @@ struct NotificationRegionsView: View {
                     }
                 }
             }
-            Section {
+            if !usesLiveRegistration {
                 Button(t["regions.save"]) {
                     model.settings.regionalMonitoringEnabled = enabled && ready
                     Task { await model.services.delivery.sendHello() }
@@ -63,11 +80,28 @@ struct NotificationRegionsView: View {
                 }
             }
         }
+        .disabled(updating)
+        .interactiveDismissDisabled(updating)
         .navigationTitle(t["regions.title"])
-        .toolbar { ToolbarItem(placement: .cancellationAction) { Button(t["common.cancel"]) { dismiss() } } }
+        .toolbar { ToolbarItem(placement: .cancellationAction) { Button(t["common.cancel"]) { dismiss() }.disabled(updating) } }
         .task {
-            enabled = model.settings.regionalSubscription.enabled
+            enabled = model.settings.regionalSubscription.enabled &&
+                (!usesLiveRegistration || model.settings.liveRegistrationNeedsRevocation)
             lastAlerts = await model.services.regionalAlerts.latest()
+        }
+    }
+
+    private func update(_ value: Bool) {
+        guard !updating else { return }
+        updating = true
+        Task {
+            defer { updating = false }
+            do {
+                try await model.setLiveRegistration(enabled: value)
+                enabled = value
+            } catch {
+                model.errorMessage = model.strings[LiveNotificationRegistration.messageKey(error)]
+            }
         }
     }
 }

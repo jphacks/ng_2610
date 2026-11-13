@@ -7,7 +7,7 @@ RUN npm ci --prefix aws --omit=dev --ignore-scripts
 COPY aws/apns-training/package*.json ./aws/apns-training/
 RUN npm ci --prefix aws/apns-training --omit=dev --ignore-scripts
 COPY aws/apns-training/index.mjs aws/apns-training/
-COPY aws/regional-worker.mjs aws/regional-state.mjs aws/
+COPY aws/regional-worker.mjs aws/regional-state.mjs aws/live-registration.mjs aws/
 COPY server/monitoring/ server/monitoring/
 COPY server/demo/util.mjs server/demo/
 COPY nigeyo-ios/Nigeyo/Resources/notification-regions-*.json nigeyo-ios/Nigeyo/Resources/

@@ -13,6 +13,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>NigeyoLiveRegistrationHost</key>
+	<string>$(NIGEYO_LIVE_REGISTRATION_HOST)</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
