@@ -43,6 +43,7 @@ final class AppModel {
     @ObservationIgnored private var tickTask: Task<Void, Never>?
     @ObservationIgnored private var started = false
     @ObservationIgnored private let demoBackgroundGrace = DemoBackgroundGrace()
+    @ObservationIgnored private let trainingBackgroundGrace = DemoBackgroundGrace()
     @ObservationIgnored private var wasBackgrounded = false
 
     init(services: Services = .shared) {
@@ -72,6 +73,7 @@ final class AppModel {
                 self.session = s
                 self.scheduleTick()
                 await self.services.liveActivities.sync(s, foreground: self.isForeground)
+                if s?.pendingLocalHazard == nil { self.trainingBackgroundGrace.end() }
             }
         }
         Task {
@@ -98,6 +100,7 @@ final class AppModel {
 
     func becameActive() async {
         demoBackgroundGrace.end()
+        trainingBackgroundGrace.end()
         let reconnect = wasBackgrounded
         wasBackgrounded = false
         isForeground = true
@@ -120,6 +123,7 @@ final class AppModel {
 
     func resignedActive() {
         isForeground = false
+        if session?.pendingLocalHazard != nil { trainingBackgroundGrace.start() }
         if settings.demoAutoConnect, connection == .connected {
             demoBackgroundGrace.start()
         }
@@ -282,6 +286,7 @@ final class AppModel {
         var scheduled = [String]()
         do {
             try await services.store.prepare(s, receivedAt: Date())
+            if s.pendingLocalHazard != nil, !isForeground { trainingBackgroundGrace.start() }
             try await services.notifications.schedule(notification, after: max(0.1, fireAt.timeIntervalSinceNow))
             scheduled.append(notification.identifier)
             try await services.store.markNotificationScheduled(sessionId: s.sessionId, fireAt: fireAt)
