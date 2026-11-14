@@ -251,6 +251,15 @@ actor LiveActivityCoordinator {
         do {
             let id = try Self.schedule(session, at: date, notification: notification, staleDate: current.pendingLocalHazard?.fireAt)
             try await store.setLiveActivity(sessionId: session.sessionId, id: id, status: .active)
+            if let pending = current.pendingLocalHazard {
+                var tsunami = current
+                tsunami.hazard = .tsunami
+                tsunami.phase = .tsunamiEvacuate
+                tsunami.stateRevision += 1
+                _ = try Self.schedule(tsunami, at: pending.fireAt,
+                                      notification: GuideContent.tsunamiNotification(for: tsunami, commandId: pending.commandId),
+                                      localTsunami: true)
+            }
         } catch {
             await log("local training live activity scheduling failed")
         }
@@ -258,11 +267,11 @@ actor LiveActivityCoordinator {
 
     private nonisolated static func schedule(_ session: GuideSession, at date: Date,
                                              notification: GuideContent.NotificationContent,
-                                             staleDate: Date? = nil) throws -> String {
+                                             staleDate: Date? = nil, localTsunami: Bool = false) throws -> String {
         let alert = AlertConfiguration(title: LocalizedStringResource(stringLiteral: notification.title),
                                        body: LocalizedStringResource(stringLiteral: notification.body), sound: .default)
         return try Activity.request(
-            attributes: NigeyoActivityAttributes(sessionId: session.sessionId.uuidString),
+            attributes: NigeyoActivityAttributes(sessionId: session.sessionId.uuidString, localTsunami: localTsunami ? true : nil),
             content: ActivityContent(state: GuideContent.activityState(for: session), staleDate: staleDate),
             style: .standard, alertConfiguration: alert, start: date
         ).id

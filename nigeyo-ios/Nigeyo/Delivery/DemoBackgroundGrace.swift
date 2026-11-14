@@ -1,6 +1,6 @@
 import UIKit
 
-/// A bounded opportunity to finish a demo or local drill transition after locking. This is not
+/// A bounded opportunity to finish a connected demo after locking. This is not
 /// a background push channel; iOS may expire the task before our 25-second cap.
 @MainActor
 final class DemoBackgroundGrace {
@@ -14,7 +14,7 @@ final class DemoBackgroundGrace {
     private var generation = UUID()
 
     init(begin: @escaping Begin = { expiration in
-        UIApplication.shared.beginBackgroundTask(withName: "Finish Nigeyo drill or demo") {
+        UIApplication.shared.beginBackgroundTask(withName: "Finish Nigeyo demo") {
             Task { @MainActor in expiration() }
         }
     }, finish: @escaping (UIBackgroundTaskIdentifier) -> Void = {
